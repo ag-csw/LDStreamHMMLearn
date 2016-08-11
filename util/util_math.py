@@ -10,6 +10,8 @@ class Utility():
     def build_hmm():
         pass
 
+   # @staticmethod
+   # def simulate_x_trajectories
 
 
     ###################################

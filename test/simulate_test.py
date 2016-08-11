@@ -49,6 +49,7 @@ class MSM_Test():
         print("Bayesian Estimator:\n", bayesian_estimator)
         print("Transition Matrix:\n ", bayesian_estimator.transition_matrix)
         print("Emission Matrix:\n ", bayesian_estimator.observation_probabilities)
+
 ########################################
 # Functionality tests
 ########################################
