@@ -2,9 +2,10 @@
 This class is for evaluation purposes.
 """
 import time
-import pyemma.msm as MSM
+
 import numpy as np
-from util.bayesian_qhmm import BayesianQHMM
+from bayesian_qhmm import BayesianQHMM
+
 
 class Evaluation():
 
@@ -16,23 +17,28 @@ class Evaluation():
         self.qHMM_Family = qHMM_Family
         self.cluster_prior = cluster_prior
 
-    def sample_qHMM_family(self):
+    def sample_qHMM_family(self, nsamp):
         """
+        :param nsamp: int
+           number of samples to be returned
         :return: qHMM
         """
-        return self.qHMM_Family.sample()
+        return self.qHMM_Family.sample(nsamp)
 
     def simulate_data(self, qHMM, ntraj):
         """
         sample from this qHMM
         :param qHMM:
+            qHMM model for the simulated data
+        :param ntraj
+            number of trajectories to be returned
         :return: [trajectories]
         """
         return qHMM.simulate()
 
     def evaluate_performance(self, qHMM, nsamples):
         """
-        performance evaluation on the qHMM and simulated data
+        performance evaluation on the qHMM using simulated data
         :return:
         """
         ntraj = 1000
@@ -45,6 +51,8 @@ class Evaluation():
         est2, delt2 = self.elapsed_time_learn(simulated_data, self.cluster_prior, nsamples, nwindow)
 
         order = np.log2(delt2/delt1)
+
+        return delt1, order
 
     def elapsed_time_learn(self, simulated_data):
         """

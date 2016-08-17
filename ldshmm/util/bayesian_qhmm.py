@@ -6,9 +6,16 @@ import numpy as np
 
 
 class BayesianQHMM():
-    def __init__(self, nstates, lag, stride, cluster_prior, nsamples, init_hmsm, reversible,stationary,  connectivity,
-                 mincount_connectivity, separate, observe_nonempty, dt_traj, conf, store_hidden, show_progress, data,
-                 nwindow, step):
+    def __init__(self, nstates = 4,
+                       lag = 1,
+                       stride = 'effective',
+                       cluster_prior = None,
+                       nsamples = 100,
+                       init_hmsm = None,
+                       reversible = False,
+                       stationary = False,  connectivity'largest',
+                 mincount_connectivity='1/n', separate=None, observe_nonempty=True, dt_traj='1 step', conf=0.95, store_hidden=False, show_progress=True, data=None,
+                 nwindow=100, step=10):
         self.nstates = nstates
         self.lag = lag
         self.stride = stride

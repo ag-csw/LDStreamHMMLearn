@@ -1,6 +1,9 @@
 import pyemma.msm as MSM
 import numpy as np
 
+from ldshmm.util.spectral_hmm import SpectralHMM
+from ldshmm.util.hmm_meta_scaled import mHMMScaled
+
 
 class MSM_Test():
     ########################################
@@ -40,6 +43,31 @@ class MSM_Test():
             estimator = MSM.MaximumLikelihoodHMSM(nstates=nstates, lag=lag, reversible=False)
         return estimator.estimate(traj)
 
+    ########################################
+    # Spectral HMM Model Creation
+    ########################################
+    def create_spectral_HMM(self, transD, transU, pobs):
+        return SpectralHMM(transD, transU, pobs)
+
+    def scale_spectral_HMM(self, sHMM, tau):
+        return sHMM.scale(tau)
+
+    def lincomb_spectral_HMM(self, sHMM0: SpectralHMM, sHMM1: SpectralHMM, mu: float) -> SpectralHMM:
+        return sHMM0.lincomb(sHMM1, mu)
+
+    ########################################
+    # Spaled HMM Class Creation
+    ########################################
+    def create_scaled_HMM_class(self, sHMM):
+        return mHMMScaled(sHMM)
+
+
+    ########################################
+    # qHMM Model Creation
+    ########################################
+    def create_qHMSM(self):
+        return BayesianQHMM()
+
     def HMSM_test_all(self, traj, nstates, lag):
         MLH_estimator = self.create_HMSM_model_estimator(traj, nstates, lag, False)
         print("Maximum Likelihood Estimator:\n", MLH_estimator)
@@ -49,6 +77,28 @@ class MSM_Test():
         print("Bayesian Estimator:\n", bayesian_estimator)
         print("Transition Matrix:\n ", bayesian_estimator.transition_matrix)
         print("Emission Matrix:\n ", bayesian_estimator.observation_probabilities)
+
+    def sHMM_test(self, transD0, transU0, pobs0, tau, transD1, transU1, pobs1, mu):
+        shmm0 = self.create_spectral_HMM(transD0, transU0, pobs0)
+        print("\nSpectral HMM:\n")
+        print("Transition Matrix:\n", shmm0.transition_matrix)
+        print("Emission Matrix:\n", shmm0.observation_probabilities)
+        shmm1 = self.create_spectral_HMM(transD1, transU1, pobs1)
+        print("\nSpectral HMM:\n")
+        print("Transition Matrix:\n", shmm1.transition_matrix)
+        print("Emission Matrix:\n", shmm1.observation_probabilities)
+        shmm0_scaled = self.scale_spectral_HMM(shmm1, tau)
+        print("\nScaled Spectral HMM:\n")
+        print("Transition Matrix:\n", shmm0_scaled.transition_matrix)
+        print("Emission Matrix:\n", shmm0_scaled.observation_probabilities)
+        shmm_lc = self.lincomb_spectral_HMM(shmm0, shmm1, mu)
+        print("\nLinear Combination Spectral HMM:\n")
+        print("Transition Matrix:\n", shmm_lc.transition_matrix)
+        print("Emission Matrix:\n", shmm_lc.observation_probabilities)
+        hmmClass = self.create_scaled_HMM_class(shmm0)
+        shmm0_scaled2 = hmmClass.eval(tau)
+        print("\nCheck of Scaled Class Evaluation: ", np.allclose(shmm0_scaled, shmm0_scaled2))
+
 
 ########################################
 # Functionality tests
@@ -74,3 +124,24 @@ print("\n\n")
 traj, obs = test.test_simulate_HMSM(transition_matrix, pobs, 1000, None)
 print(traj)
 test.HMSM_test_all(obs, 3, 1)
+
+transition_matrix_jordan0 = np.array([[1.0, 0, 0],
+                                  [0, 0.2, 0],
+                                  [0, 0, 0.1]])
+
+transition_matrix_basis0 = np.array([[0.8, 0.1, 0.1],
+                                  [-1, 1, 0],
+                                  [1, 1, -2]])
+
+pobs0 = pobs
+
+tau = 10
+transition_matrix_jordan1 = np.array([[1.0, 0, 0],
+                                  [0, 0.9, 0],
+                                  [0, 0, 0.8]])
+
+transition_matrix_basis1 = np.fliplr(transition_matrix_basis0)
+print("Transition Matrix Basis:\n", transition_matrix_basis1)
+pobs1 = np.flipud(pobs)
+mu = 0.3
+test.sHMM_test(transition_matrix_jordan0, transition_matrix_basis0, pobs0, tau, transition_matrix_jordan1, transition_matrix_basis1, pobs1, mu)

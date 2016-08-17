@@ -1,4 +1,4 @@
-from util.hmm_family import HMM_Family
+from ldshmm.util import HMM_Family
 
 
 class HMM_Family1(HMM_Family):
