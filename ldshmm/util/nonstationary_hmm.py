@@ -45,6 +45,6 @@ class ConvexCombinationNSHMM(NonstationaryHMM):
             if self.timeendpoint is not 'infinity':
                 timepoints = range(0, self.timeendpoint)
             else:
-                timepoints = range(0, 100)
+                timepoints = range(0, 101)
         return self.sHMM0.isclose(other.sHMM0) and self.sHMM1.isclose(other.sHMM1) and  \
                np.allclose(np.vectorize(self.mu)(timepoints), np.vectorize(self.mu)(timepoints))
