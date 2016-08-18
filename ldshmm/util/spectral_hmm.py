@@ -24,7 +24,7 @@ class SpectralHMM(_HMM):
         return np.allclose(self.transD, np.diag(np.diag(self.transD)))
 
     def lincomb(self, other, mu):
-        assert 0 <= mu and mu <= 1, "weight is not between 0 and 1, inclusive"
+        assert -1e-8 <= mu and mu <= 1+1e-8, "weight is not between 0 and 1, inclusive"
         assert self.isdiagonal(), "self is not diagonal"
         assert other.isdiagonal(), "other is not diagonal"
         transD = (1.0- mu) * self.transD + mu * other.transD
@@ -37,3 +37,7 @@ class SpectralHMM(_HMM):
         assert self.isdiagonal(), "self is not diagonal"
         transD_scaled = np.diag(np.power(np.diag(self.transD), 1.0/tau ))
         return SpectralHMM(transD_scaled, self.transU, self.pobs)
+
+    def isclose(self, other):
+        return np.allclose(self.transition_matrix, other.transition_matrix) and np.allclose(self.observation_probabilities, other.observation_probabilities) and \
+               np.allclose(self.pobs, other.pobs)

@@ -12,7 +12,7 @@ from pyemma.msm.models.hmsm import HMSM as _HMM
 import numpy as np
 
 class NonstationaryHMM():
-    def __init__(self, timeendpoint, nhidden: int, nobserved: int):
+    def __init__(self, nhidden: int, nobserved: int, timeendpoint = 'infinity'):
         assert timeendpoint is 'infinity' or timeendpoint >= 0, "The time domain endpoint should be a positive number of the string 'infinity'"
         self.timeendpoint = timeendpoint
         assert nhidden > 0, "The number of hidden states is not a positive integer"
@@ -29,3 +29,22 @@ class NonstationaryHMM():
 class NonstationaryHMMClass():
     def ismember(self, x ) -> bool:
         raise NotImplementedError("Please implement this method")
+
+class ConvexCombinationNSHMM(NonstationaryHMM):
+    def __init__(self, sHMM0, sHMM1, mu, timeendpoint = 'infinity'):
+        super().__init__(sHMM0.nstates, sHMM0.nstates_obs, timeendpoint)
+        self.sHMM0 = sHMM0
+        self.sHMM1 = sHMM1
+        self.mu = mu
+
+    def eval(self, time:int) -> _HMM:
+        return self.sHMM0.lincomb( self.sHMM1, self.mu(time))
+
+    def isclose(self, other, timepoints = None):
+        if timepoints is None:
+            if self.timeendpoint is not 'infinity':
+                timepoints = range(0, self.timeendpoint)
+            else:
+                timepoints = range(0, 100)
+        return self.sHMM0.isclose(other.sHMM0) and self.sHMM1.isclose(other.sHMM1) and  \
+               np.allclose(np.vectorize(self.mu)(timepoints), np.vectorize(self.mu)(timepoints))

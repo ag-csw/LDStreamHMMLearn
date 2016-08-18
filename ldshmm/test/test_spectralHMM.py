@@ -48,7 +48,8 @@ class TestSpectralHMM(TestCase):
     def test_isdiagonal(self):
         self.assertTrue(self.shmm0.isdiagonal())
         self.assertTrue(self.shmm1.isdiagonal())
-        # NOT WORKING: self.assertFalse(self.shmm2.isdiagonal())
+        # FIXME: NOT WORKING: self.assertFalse(self.shmm2.isdiagonal()) because the constructed matrix is
+        # not a matrix of multinomials (some entries are negative, others are greater than 1)
 
     def test_lincomb(self):
         shmm_lc = self.lincomb_spectral_HMM(self.shmm0, self.shmm1, self.mu)
@@ -59,3 +60,6 @@ class TestSpectralHMM(TestCase):
         shmm0_scaled = self.scale_spectral_HMM(self.shmm0, self.tau)
         self.assertTrue(shmm0_scaled.isdiagonal())
         # FIXME: more tests
+
+    def test_isclose(self):
+        self.assertTrue( self.shmm0.isclose(self.shmm0))
