@@ -1,7 +1,9 @@
 from unittest import TestCase
+
 import numpy as np
-from ldshmm.util.spectral_hmm import SpectralHMM
+
 from ldshmm.util.quasi_hmm import ConvexCombinationQuasiHMM
+from ldshmm.util.spectral_hmm import SpectralHMM
 
 
 class TestConvexCombinationQuasiHMM(TestCase):

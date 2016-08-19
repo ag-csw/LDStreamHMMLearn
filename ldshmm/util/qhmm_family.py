@@ -8,16 +8,17 @@ from scipy.stats import uniform
 from ldshmm.util.spectral_hmm import SpectralHMM
 
 
-class HMMFamily(object):
+class QHMMFamily(object):
     def sample(self, size=1):
         raise NotImplementedError("Please implement this method")
 
 
-class HMMFamily1(HMMFamily):
+class QHMMFamily1(QHMMFamily):
     # No Dominant Relaxation Mode
     # No Dominant Metastable State
     # Crisply-clustered observables
-    # Initial Distribution is the Stationary Distributino
+    # Initial Distribution is the Stationary Distribution
+    # tanh weight function
 
     def __init__(self, nstates, nobserved, clusterconc=1, withinclusterconc=1, clusters=None, timescaledisp=2,
                  statconc=1):
@@ -80,7 +81,7 @@ class HMMFamily1(HMMFamily):
         return pobs
 
     def sample_eigenvalues(self):
-        eigenvalues = np.ones(self.nstates, float)
+        eigenvalues = np.ones((self.nstates), float)
         eigenvalues[1:] = self.eigenvaluedist.rvs(size=self.nstates - 1)
         return eigenvalues
 
@@ -98,19 +99,19 @@ class HMMFamily1(HMMFamily):
             return self.sample_basis()
 
     def sample_transition_matrix(self):
-        transd = np.diag(self.sample_eigenvalues())
-        transu = self.sample_basis()
-        transv = np.linalg.inv(transu)
-        trans = np.dot(transv, np.dot(transd, transu))
+        transD = np.diag(self.sample_eigenvalues())
+        transU = self.sample_basis()
+        transV = np.linalg.inv(transU)
+        trans = np.dot(transV, np.dot(transD, transU))
         if np.all(trans >= 0) and np.all(trans <= 1):
-            return transd, transu, transv, trans
+            return (transD, transU, transV, trans)
         else:
             return self.sample_transition_matrix()
 
-    def sample(self, size=1):
-        shmm = np.empty(size, dtype=object)
+    def sample(self, size = 1):
+        smp = np.empty((size), object)
         for i in range(0, size):
-            transd, transu, transv, trans = self.sample_transition_matrix()
-            pobs = self.sample_emission_matrix()
-            shmm[i] = SpectralHMM(transd, transu, pobs, transv, trans)
-        return shmm
+          transd, transu, transv, trans = self.sample_transition_matrix()
+          pobs = self.sample_emission_matrix()
+          smp[i] = SpectralHMM(transd, transu, pobs, transv, pobs)
+        return smp

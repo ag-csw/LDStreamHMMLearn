@@ -1,8 +1,10 @@
 from unittest import TestCase
-import pyemma.msm as MSM
+
 import numpy as np
-from ldshmm.util.spectral_hmm import SpectralHMM
+
 from ldshmm.util.nonstationary_hmm import ConvexCombinationNSHMM
+from ldshmm.util.spectral_hmm import SpectralHMM
+
 
 class TestConvexCombinationNSHMM(TestCase):
     def create_spectral_HMM(self, transD, transU, pobs):
@@ -34,12 +36,14 @@ class TestConvexCombinationNSHMM(TestCase):
         self.pobs1 = np.flipud(pobs)
 
         self.gamma = 0.5
+
         def mu0(t):
-            return t/100
+            return t / 100
+
         self.timeendpoint = 100
 
         def mu1(t):
-            return (np.tanh(t-self.gamma)+1)/2
+            return (np.tanh(t - self.gamma) + 1) / 2
 
         self.timeendpoint = 100
         self.shmm0 = self.create_spectral_HMM(self.transD0, self.transU0, self.pobs0)

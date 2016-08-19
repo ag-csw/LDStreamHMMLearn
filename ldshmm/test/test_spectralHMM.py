@@ -1,7 +1,9 @@
 from unittest import TestCase
-import pyemma.msm as MSM
+
 import numpy as np
+
 from ldshmm.util.spectral_hmm import SpectralHMM
+
 
 class TestSpectralHMM(TestCase):
     ########################################
@@ -18,12 +20,12 @@ class TestSpectralHMM(TestCase):
 
     def setUp(self):
         self.transD0 = np.array([[1.0, 0, 0],
-                                              [0, 0.1, 0],
-                                              [0, 0, 0.1]])
+                                 [0, 0.1, 0],
+                                 [0, 0, 0.1]])
 
         self.transU0 = np.array([[0.8, 0.1, 0.1],
-                                             [-1, 1, 0],
-                                             [1, 1, -2]])
+                                 [-1, 1, 0],
+                                 [1, 1, -2]])
 
         pobs = np.array(
             [
@@ -35,8 +37,8 @@ class TestSpectralHMM(TestCase):
 
         self.tau = 10
         self.transD1 = np.array([[1.0, 0, 0],
-                                              [0, 0.9, 0],
-                                              [0, 0, 0.8]])
+                                 [0, 0.9, 0],
+                                 [0, 0, 0.8]])
 
         self.transU1 = np.fliplr(self.transU0)
         self.pobs1 = np.flipud(pobs)
@@ -62,4 +64,4 @@ class TestSpectralHMM(TestCase):
         # FIXME: more tests
 
     def test_isclose(self):
-        self.assertTrue( self.shmm0.isclose(self.shmm0))
+        self.assertTrue(self.shmm0.isclose(self.shmm0))

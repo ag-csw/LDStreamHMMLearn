@@ -1,8 +1,8 @@
-import pyemma.msm as MSM
 import numpy as np
+import pyemma.msm as MSM
 
+from ldshmm.util.hmm_class import MHMMScaled
 from ldshmm.util.spectral_hmm import SpectralHMM
-from ldshmm.util.hmm_class import mHMMScaled
 
 
 class MSM_Test(unittest.TestCase):
@@ -69,8 +69,7 @@ class MSM_Test(unittest.TestCase):
     # Metastable HMM Class Creation
     ########################################
     def create_scaled_HMM_class(self, sHMM):
-        return mHMMScaled(sHMM)
-
+        return MHMMScaled(sHMM)
 
     def sHMM_test_all(self, transD0, transU0, pobs0, tau, transD1, transU1, pobs1, mu):
         shmm0 = self.create_spectral_HMM(transD0, transU0, pobs0)
@@ -100,6 +99,7 @@ class MSM_Test(unittest.TestCase):
         ########################################
         # Functionality tests
         ########################################
+
     def All_test_all(self):
         transition_matrix = np.array([[0.9, 0.05, 0.05],
                                       [0.1, 0.8, 0.1],
@@ -143,7 +143,6 @@ class MSM_Test(unittest.TestCase):
         pobs1 = np.flipud(pobs)
         mu = 0.3
         test.sHMM_test_all(transition_matrix_jordan0, transition_matrix_basis0, pobs0, tau, transition_matrix_jordan1,
-                       transition_matrix_basis1, pobs1, mu)
-
+                           transition_matrix_basis1, pobs1, mu)
 
         test.mHMM_test_all(transition_matrix_jordan0, transition_matrix_basis0, pobs0, tau)

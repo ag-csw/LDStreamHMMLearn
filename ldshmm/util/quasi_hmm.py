@@ -9,16 +9,17 @@ class QuasiHMM(NonstationaryHMMClass):
     def eval(self, taumeta, tauquasi):
         assert taumeta >= 1, "taumeta is not greater or equal 1"
         assert tauquasi >= 1, "tauquasi is not greater or equal 1"
-        # return an mHMM
+        # return an MHMM
         raise NotImplementedError("Please implement this method")
 
     def ismember(self, x) -> bool:
         raise NotImplementedError("Please implement this method")
 
+
 class ConvexCombinationQuasiHMM(QuasiHMM):
-    def __init__(self, sHMM0, sHMM1, mu, timeendpoint):
-        self.sHMM0 = sHMM0
-        self.sHMM1 = sHMM1
+    def __init__(self, shmm0, shmm1, mu, timeendpoint):
+        self.sHMM0 = shmm0
+        self.sHMM1 = shmm1
         self.mu = mu
         self.timeendpoint = timeendpoint
 
@@ -26,8 +27,8 @@ class ConvexCombinationQuasiHMM(QuasiHMM):
         assert taumeta >= 1, "taumeta is not greater or equal 1"
         assert tauquasi >= 1, "tauquasi is not greater or equal 1"
         # return a non-stationary HMM
-        sHMM0_scaled = self.sHMM0.scale(taumeta)  # type sHMM
-        sHMM1_scaled = self.sHMM1.scale(taumeta)  # type sHMM
+        shmm0_scaled = self.sHMM0.scale(taumeta)  # type sHMM
+        shmm1_scaled = self.sHMM1.scale(taumeta)  # type sHMM
 
         def mu_scaled(t):
             return self.mu(t / (taumeta * tauquasi))  # type function
@@ -36,7 +37,7 @@ class ConvexCombinationQuasiHMM(QuasiHMM):
             timeendpoint_scaled = self.timeendpoint / (taumeta * tauquasi)
         else:
             timeendpoint_scaled = 'infinity'
-        return ConvexCombinationNSHMM(sHMM0_scaled, sHMM1_scaled, mu_scaled, timeendpoint_scaled)  # type nsHMM
+        return ConvexCombinationNSHMM(shmm0_scaled, shmm1_scaled, mu_scaled, timeendpoint_scaled)  # type nsHMM
 
     def ismember(self, x) -> bool:
         raise NotImplementedError("Please implement this method")

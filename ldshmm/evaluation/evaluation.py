@@ -4,11 +4,11 @@ This class is for evaluation purposes.
 import time
 
 import numpy as np
+
 from bayesian_qhmm import BayesianQHMM
 
 
 class Evaluation():
-
     def __init__(self, qHMM_Family, cluster_prior):
         """
         :param HMM_Family:
@@ -50,7 +50,7 @@ class Evaluation():
         nwindow = 200
         est2, delt2 = self.elapsed_time_learn(simulated_data, self.cluster_prior, nsamples, nwindow)
 
-        order = np.log2(delt2/delt1)
+        order = np.log2(delt2 / delt1)
 
         return delt1, order
 
@@ -77,23 +77,22 @@ class Evaluation():
         show_progress = False
         t0 = time.time()
         estimator = BayesianQHMM(nstates, lag, stride,
-                 self.cluster_prior,
-                 nsamples, init_hmsm, reversible, stationary,
-                 connectivity, mincount_connectivity, separate, observe_nonempty,
-                 dt_traj, conf, store_hidden, show_progress)
+                                 self.cluster_prior,
+                                 nsamples, init_hmsm, reversible, stationary,
+                                 connectivity, mincount_connectivity, separate, observe_nonempty,
+                                 dt_traj, conf, store_hidden, show_progress)
         estimate = estimator.estimate()
         t1 = time.time()
-        return estimate, t1-t0
+        return estimate, t1 - t0
 
     def evaluate_accuracy(self, qHMM, simulated_data):
         pass
-
 
     def aggregate(self, nagg):
         """calc averages and statistics from evaluation"""
         delts = []
         orders = []
-        for j in range (nagg):
+        for j in range(nagg):
             qHMM = self.sample_qHMM_family()
             delt, order = self.evaluate_performance(qHMM)
             delts.append(delt)

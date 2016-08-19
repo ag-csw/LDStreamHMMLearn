@@ -1,8 +1,9 @@
 """
 This class holds utility functions.
 """
-class Utility():
 
+
+class Utility():
     ###################################
     #   HMM utility functions
     ###################################
@@ -10,9 +11,8 @@ class Utility():
     def build_hmm():
         pass
 
-   # @staticmethod
-   # def simulate_x_trajectories
-
+        # @staticmethod
+        # def simulate_x_trajectories
 
     ###################################
     #   Evaluation utility functions
