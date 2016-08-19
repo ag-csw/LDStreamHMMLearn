@@ -17,9 +17,9 @@ class QuasiHMM(NonstationaryHMMClass):
 
 
 class ConvexCombinationQuasiHMM(QuasiHMM):
-    def __init__(self, shmm0, shmm1, mu, timeendpoint):
-        self.sHMM0 = shmm0
-        self.sHMM1 = shmm1
+    def __init__(self, shmms, mu, timeendpoint='infinity'):
+        self.sHMM0 = shmms[0]
+        self.sHMM1 = shmms[1]
         self.mu = mu
         self.timeendpoint = timeendpoint
 

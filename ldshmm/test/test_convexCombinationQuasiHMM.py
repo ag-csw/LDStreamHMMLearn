@@ -44,7 +44,7 @@ class TestConvexCombinationQuasiHMM(TestCase):
         self.timeendpoint = 100
         self.shmm0 = self.create_spectral_HMM(self.transD0, self.transU0, self.pobs0)
         self.shmm1 = self.create_spectral_HMM(self.transD1, self.transU1, self.pobs1)
-        self.qhmm = ConvexCombinationQuasiHMM(self.shmm0, self.shmm1, mu, self.timeendpoint)
+        self.qhmm = ConvexCombinationQuasiHMM((self.shmm0, self.shmm1), mu, self.timeendpoint)
 
     def test_eval(self):
         shmm0_test = self.qhmm.eval(1, 1).eval(0)

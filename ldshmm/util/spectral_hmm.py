@@ -15,16 +15,17 @@ class SpectralHMM(_HMM):
         assert transu.shape[0] is transd.shape[0], "transd and transu do not have the same number of rows"
         self.transD = transd
         self.transU = transu
+        self.pobs = pobs
         assert not np.linalg.det(transu) == 0.0, "transu is not invertible"
         if transv is None:
             self.transV = np.linalg.inv(self.transU)
         else:
             self.transV = transv
         if trans is None:
-            self.trans = np.dot(np.dot(transv, transd), transu)
+            self.trans = np.dot(np.dot(self.transV, self.transD), self.transU)
         else:
             self.trans = trans
-        super(SpectralHMM, self).__init__(self.trans, pobs, transu[0], '1 step')
+        super(SpectralHMM, self).__init__(self.trans, self.pobs, self.transU[0], '1 step')
 
     def isdiagonal(self):
         return np.allclose(self.transD, np.diag(np.diag(self.transD)))

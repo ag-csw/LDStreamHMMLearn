@@ -108,9 +108,9 @@ class HMMFamily1(HMMFamily):
             return self.sample_transition_matrix()
 
     def sample(self, size=1):
-        shmm = np.empty(size, dtype=object)
+        shmms = np.empty(size, dtype=object)
         for i in range(0, size):
             transd, transu, transv, trans = self.sample_transition_matrix()
             pobs = self.sample_emission_matrix()
-            shmm[i] = SpectralHMM(transd, transu, pobs, transv, trans)
-        return shmm
+            shmms[i] = SpectralHMM(transd, transu, pobs, transv, trans)
+        return shmms
