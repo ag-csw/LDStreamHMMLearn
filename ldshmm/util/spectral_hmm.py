@@ -7,7 +7,7 @@ from pyemma.msm.models.hmsm import HMSM as _HMM
 
 
 class SpectralHMM(_HMM):
-    def __init__(self, transd, transu, pobs, transv=None, trans=None):
+    def __init__(self, transd, transu, pobs, transv=None, trans=None, init=None):
         assert len(transd.shape) is 2, "transd is not a matrix"
         assert len(transu.shape) is 2, "transu is not a matrix"
         assert transd.shape[0] is transd.shape[1], "transd is not square"
@@ -16,6 +16,7 @@ class SpectralHMM(_HMM):
         self.transD = transd
         self.transU = transu
         self.pobs = pobs
+        self.init = init
         assert not np.linalg.det(transu) == 0.0, "transu is not invertible"
         if transv is None:
             self.transV = np.linalg.inv(self.transU)

@@ -48,21 +48,15 @@ class QHMMFamily1(QHMMFamily):
                     return (np.tanh(t) + 1) / 2
 
                 def mu(t):
-                    return mu0(t / self.edgewidth - self.edgeshift * gamma)
+                    return mu0( (t - self.edgeshift * gamma) / self.edgewidth)
 
                 qhmm = ConvexCombinationQuasiHMM(shmms, mu)
-                #print("QHMM created")
                 nshmm = qhmm.eval(1, 1)
-                #print("NSHMM created")
 
                 def f(x):
                     return np.linalg.det(nshmm.eval(x).transition_matrix)
 
-                #print("f created")
-
-                #xvec = list(range(0, 10, 1))
-                xvec = list(range(0, int(self.edgewidth*(10 + self.edgeshift*gamma))))
-                #print("Xvec: ", xvec)
+                xvec = list(range(0, int(self.edgewidth*10 + self.edgeshift*gamma)))
 
                 list(map(f, xvec))
 
