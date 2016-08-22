@@ -78,3 +78,4 @@ class TestHMM_Family1(TestCase):
         self.assertTrue(isinstance(shmm0, SpectralHMM))
         shmm1 = self.hmmf1_0.sample(2)[1]
         self.assertTrue(isinstance(shmm1, SpectralHMM))
+        print("Determinant of Row Eigenvectors of Transition Matrix:", np.linalg.det(shmm1.eigenvectors_left()))

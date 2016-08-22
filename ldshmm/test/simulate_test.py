@@ -1,3 +1,4 @@
+from unittest import TestCase
 import numpy as np
 import pyemma.msm as MSM
 
@@ -5,7 +6,7 @@ from ldshmm.util.hmm_class import MHMMScaled
 from ldshmm.util.spectral_hmm import SpectralHMM
 
 
-class MSM_Test(unittest.TestCase):
+class MSM_Test(TestCase):
     ########################################
     # Simulate Functions
     ########################################
@@ -100,7 +101,6 @@ class MSM_Test(unittest.TestCase):
         # Functionality tests
         ########################################
 
-    def All_test_all(self):
         transition_matrix = np.array([[0.9, 0.05, 0.05],
                                       [0.1, 0.8, 0.1],
                                       [0.1, 0.1, 0.8]])

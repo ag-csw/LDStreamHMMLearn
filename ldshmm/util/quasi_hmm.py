@@ -18,23 +18,37 @@ class QuasiHMM(NonstationaryHMMClass):
 
 class ConvexCombinationQuasiHMM(QuasiHMM):
     def __init__(self, shmms, mu, timeendpoint='infinity'):
+        # the spectral HMM for mu = 0
         self.sHMM0 = shmms[0]
+        # the spectral HMM for mu = 1
         self.sHMM1 = shmms[1]
+        # the weight function for the convex combination
         self.mu = mu
+        # the upper endpoint of the temporal domain interval
+        # may be a postive integer or the string 'infinity'
         self.timeendpoint = timeendpoint
 
     def eval(self, taumeta, tauquasi) -> ConvexCombinationNSHMM:
+        # return a non-stationary HMM
         assert taumeta >= 1, "taumeta is not greater or equal 1"
         assert tauquasi >= 1, "tauquasi is not greater or equal 1"
-        # return a non-stationary HMM
+        # scale the HMMs according to the parameter taumeta
+        # with the effect that the implied timescales are increased by a factor of taumeta
         shmm0_scaled = self.sHMM0.scale(taumeta)  # type sHMM
         shmm1_scaled = self.sHMM1.scale(taumeta)  # type sHMM
 
-        def mu_scaled(t):
-            return self.mu(t / (taumeta * tauquasi))  # type function
+        # scale the independent variable of the weight function
+        # by the product of taumeta and tauquasi
+        # with the effect that the timescale of the weight function, which represents drift in the model
+        # is increased by a factor of taumeta
+        taudrift = taumeta * tauquasi
 
+        def mu_scaled(t):
+            return self.mu(t / taudrift)  # type function
+
+        # scale the temporal domain by the drift scaling
         if self.timeendpoint is not 'infinity':
-            timeendpoint_scaled = self.timeendpoint / (taumeta * tauquasi)
+            timeendpoint_scaled = self.timeendpoint * taudrift
         else:
             timeendpoint_scaled = 'infinity'
         return ConvexCombinationNSHMM(shmm0_scaled, shmm1_scaled, mu_scaled, timeendpoint_scaled)  # type nsHMM
