@@ -3,11 +3,11 @@ This class is for spectral HMMs. which are HMMs specified in terms of a particul
 transmission matrix.
 """
 import numpy as np
-from pyemma.msm.models.hmsm import HMSM as _HMM
+from pyemma.msm.models.msm import MSM as _MM
 
 
-class SpectralHMM(_HMM):
-    def __init__(self, transd, transu, pobs, transv=None, trans=None):
+class SpectralMM(_MM):
+    def __init__(self, transd, transu, transv=None, trans=None):
         assert len(transd.shape) is 2, "transd is not a matrix"
         assert len(transu.shape) is 2, "transu is not a matrix"
         assert transd.shape[0] is transd.shape[1], "transd is not square"
@@ -17,8 +17,6 @@ class SpectralHMM(_HMM):
         self.transD = transd # the Jordan form of the transition matrix
         # FIXME another case would be to pass in the right eigenvector matrix transV and then calculate transU
         self.transU = transu # the left eigenvector matrix of the transition matrix
-        self.pobs = pobs # the emission matrix
-
 
         assert not np.linalg.det(transu) == 0.0, "transu is not invertible"
         if transv is None:
@@ -33,8 +31,9 @@ class SpectralHMM(_HMM):
         else:
             # if the transition matrix is known, it can be passed in
             self.trans = trans
-        # apply the HMM constructor
-        super(SpectralHMM, self).__init__(self.trans, self.pobs, self.transU[0], '1 step')
+        # apply the MM constructor
+        super(SpectralMM, self).__init__(self.trans)
+        # super(SpectralMM, self).__init__(self.trans, self.transU[0], '1 step')
 
     def isdiagonal(self):
         return np.allclose(self.transD, np.diag(np.diag(self.transD)))
@@ -46,16 +45,14 @@ class SpectralHMM(_HMM):
 
         transd = (1.0 - mu) * self.transD + mu * other.transD
         transu = (1.0 - mu) * self.transU + mu * other.transU
-        pobs = (1.0 - mu) * self.pobs + mu * other.pobs
-        return SpectralHMM(transd, transu, pobs)
+        return SpectralMM(transd, transu)
 
     def scale(self, tau):
         assert tau > 0, "scaling factor is not positive"
         assert self.isdiagonal(), "self is not diagonal"
 
         transd_scaled = np.diag(np.power(np.diag(self.transD), 1.0 / tau))
-        return SpectralHMM(transd_scaled, self.transU, self.pobs)
+        return SpectralMM(transd_scaled, self.transU)
 
     def isclose(self, other):
-        return np.allclose(self.transition_matrix, other.transition_matrix) and np.allclose(
-            self.observation_probabilities, other.observation_probabilities)
+        return np.allclose(self.transition_matrix, other.transition_matrix)

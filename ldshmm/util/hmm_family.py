@@ -21,20 +21,22 @@ class HMMFamily1(HMMFamily):
     def __init__(self, nstates, nobserved=None, clusterconc=1, withinclusterconc=1, clusters=None, timescaledisp=2,
                  statconc=1):
         self.nstates = nstates # number of hidden states
-        # number of observed states
-        if self.nobserved is None:
-            self.nobserved = self.nstates
-        else:
-            self.nobserved = nobserved
+
         self.clusterconc = clusterconc # Dirchlet concentration of cluster assignment
         self.withinclusterconc = withinclusterconc # Dirchlet concentration within clusters
         # crisp cluster assigment of observables to hidden variables
         if clusters is None:
+            self.nobserved = nobserved
             self.clusters = clusters
             self.clusterconcvec = clusterconc * np.ones(nstates)
             self.cluster_rv = scipy.stats.dirichlet(self.clusterconcvec)
             logging.debug("Clusters are not specified. ")
         else:
+            # number of observed states
+            if nobserved is None:
+                self.nobserved = self.nstates
+            else:
+                self.nobserved = nobserved
             self.clusters = np.asarray(clusters)
             clustersizes = []
             clusterindices = []

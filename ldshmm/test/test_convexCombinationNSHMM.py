@@ -5,6 +5,7 @@ import scipy
 
 from ldshmm.util.nonstationary_hmm import ConvexCombinationNSHMM
 from ldshmm.util.spectral_hmm import SpectralHMM
+from hmm_family import HMMFamily1
 from qhmm_family import QHMMFamily1
 
 class TestConvexCombinationNSHMM(TestCase):
@@ -76,7 +77,8 @@ class TestConvexCombinationNSHMM(TestCase):
         #print(self.p0_0)
         self.p0_1 = self.transU1[0,:]
 
-        self.qmmf1_0 = QHMMFamily1(self.nhidden, self.nobserved)
+        hmm1_0 = HMMFamily1(self.nhidden, self.nobserved)
+        self.qmmf1_0 = QHMMFamily1(hmm1_0)
         self.nshmm1_0 = self.qmmf1_0.sample()[0].eval(1, self.edgewidth)
         print("Starting Transition Matrix: ", self.nshmm1_0.eval(0).transition_matrix)
         print("Ending Transition Matrix: ", self.nshmm1_0.eval(self.edgewidth*10).transition_matrix)
