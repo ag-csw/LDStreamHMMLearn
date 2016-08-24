@@ -19,6 +19,7 @@ class TestSpectralMM(TestCase):
         return sMM0.lincomb(sMM1, mu)
 
     def setUp(self):
+        self.nstates = 3
         self.transD0 = np.array([[1.0, 0, 0],
                                  [0, 0.1, 0],
                                  [0, 0, 0.1]])
@@ -56,3 +57,9 @@ class TestSpectralMM(TestCase):
 
     def test_isclose(self):
         self.assertTrue(self.smm0.isclose(self.smm0))
+
+    def test_simulate(self):
+        dtraj = self.smm0.simulate(100)
+        self.assertEqual(len(dtraj), 100)
+        self.assertTrue(max(dtraj) >= 0)
+        self.assertTrue(max(dtraj) < self.nstates)

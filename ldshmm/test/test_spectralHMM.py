@@ -19,6 +19,7 @@ class TestSpectralHMM(TestCase):
         return sHMM0.lincomb(sHMM1, mu)
 
     def setUp(self):
+        self.nhidden = 3
         self.transD0 = np.array([[1.0, 0, 0],
                                  [0, 0.1, 0],
                                  [0, 0, 0.1]])
@@ -27,6 +28,7 @@ class TestSpectralHMM(TestCase):
                                  [-1, 1, 0],
                                  [1, 1, -2]])
 
+        self.nobserved = 4
         pobs = np.array(
             [
                 [0.7, 0.1, 0.1, 0.1],
@@ -65,3 +67,12 @@ class TestSpectralHMM(TestCase):
 
     def test_isclose(self):
         self.assertTrue(self.shmm0.isclose(self.shmm0))
+
+    def test_simulate(self):
+        htraj, otraj = self.shmm0.simulate(100)
+        self.assertEqual(len(htraj), 100)
+        self.assertEqual(len(otraj), 100)
+        self.assertTrue(max(htraj) >= 0)
+        self.assertTrue(max(otraj) >= 0)
+        self.assertTrue(max(htraj) < self.nhidden)
+        self.assertTrue(max(otraj) < self.nobserved)
