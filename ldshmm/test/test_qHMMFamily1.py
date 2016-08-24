@@ -1,16 +1,19 @@
 from unittest import TestCase
 import numpy as np
 from qhmm_family import QHMMFamily1
+from hmm_family import HMMFamily1
 import matplotlib.pyplot as plt
 
 class TestQHMMFamily1(TestCase):
     def setUp(self):
         self.nstates = 4
         self.nobserved = 10;
-        self.qmmf1_0 = QHMMFamily1(self.nstates, self.nobserved)
+        self.hmmf1_0 = HMMFamily1(self.nstates, self.nobserved)
+        self.qmmf1_0 = QHMMFamily1(self.hmmf1_0)
         self.clusters1 = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1]
         self.clusters2 = [0, 1, 2, 1, 0, 1, 2, 0, 0, 1]
-        self.qmmf1_1 = QHMMFamily1(nstates = self.nstates, clusters = self.clusters1)
+        self.hmmf1_1 = HMMFamily1(self.nstates, self.nobserved, clusters=self.clusters1)
+        self.qmmf1_1 = QHMMFamily1(self.hmmf1_1)
         self.clusterconc = 3
         self.withinclusterconc = 0.5
         self.timescaledisp = 10
@@ -19,12 +22,13 @@ class TestQHMMFamily1(TestCase):
         self.edgeshift = 10
         self.gammamin = 1
         self.gammamax = 2
-        self.qmmf1_2 = QHMMFamily1(self.nstates, self.nobserved, self.clusterconc, self.withinclusterconc,
-                                   None, self.timescaledisp, self.statconc, self.edgewidth, self.edgeshift,
-                                   self.gammamin, self.gammamax)
+        self.hmmf1_2 = HMMFamily1(self.nstates, self.nobserved, self.clusterconc, self.withinclusterconc,
+                                   None, self.timescaledisp, self.statconc)
+        self.qmmf1_2 = QHMMFamily1(self.hmmf1_2, self.edgewidth, self.edgeshift, self.gammamin, self.gammamax)
         # A (nonhidden) quasi-stationary Markov family
         self.clusters3 = [0, 1, 2, 3]
-        self.qmmf1_3 = QHMMFamily1(nstates=self.nstates, clusters=self.clusters3)
+        self.hmmf1_3 = HMMFamily1(nstates=self.nstates, clusters=self.clusters3)
+        self.qmmf1_3 = QHMMFamily1(self.hmmf1_3)
         self.numtestsamples = 10
         self.taumeta = 10
         self.tauquasi = 10

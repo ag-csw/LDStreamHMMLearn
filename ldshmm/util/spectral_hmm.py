@@ -4,7 +4,7 @@ transmission matrix.
 """
 import numpy as np
 from pyemma.msm.models.hmsm import HMSM as _HMM
-
+from msmtools.estimation import transition_matrix as _tm
 
 class SpectralHMM(_HMM):
     def __init__(self, transd, transu, pobs, transv=None, trans=None):
@@ -29,10 +29,10 @@ class SpectralHMM(_HMM):
         if trans is None:
             # calculate the transition matrix by definition:
             # the right eigenvector matrix times the Jordan form times the left eigenvector matrix
-            self.trans = np.dot(np.dot(self.transV, self.transD), self.transU)
+            self.trans = _tm(np.dot(np.dot(self.transV, self.transD), self.transU))
         else:
             # if the transition matrix is known, it can be passed in
-            self.trans = trans
+            self.trans = _tm(trans)
         # apply the HMM constructor
         super(SpectralHMM, self).__init__(self.trans, self.pobs, self.transU[0], '1 step')
 
@@ -43,15 +43,28 @@ class SpectralHMM(_HMM):
         assert -1e-8 <= mu <= 1 + 1e-8, "weight is not between 0 and 1, inclusive"
         assert self.isdiagonal(), "self is not diagonal"
         assert other.isdiagonal(), "other is not diagonal"
+        # FIXME check that both self and other have only positive eigenvalues less than or equal 1
 
-        transd = (1.0 - mu) * self.transD + mu * other.transD
-        transu = (1.0 - mu) * self.transU + mu * other.transU
-        pobs = (1.0 - mu) * self.pobs + mu * other.pobs
+        def lincc(x, y):
+            return (1 - mu) * x + mu * y
+
+        def logcc(x, y):
+            return np.exp((1 - mu) * np.log(x) + mu * np.log(y))
+
+        lincc = np.vectorize(lincc)
+        logcc = np.vectorize(logcc)
+
+        transd = np.diag(logcc(np.diag(self.transD), np.diag(other.transD)))
+        transu = lincc(self.transU , other.transU)
+        pobs = lincc(self.pobs,  other.pobs)
         return SpectralHMM(transd, transu, pobs)
 
     def scale(self, tau):
         assert tau > 0, "scaling factor is not positive"
         assert self.isdiagonal(), "self is not diagonal"
+
+        # FIXME: would it be better to take the log?
+        # Since we seem to use this a lot (see lincomb), how about a method that returns the log of the eigenvalues?
 
         transd_scaled = np.diag(np.power(np.diag(self.transD), 1.0 / tau))
         return SpectralHMM(transd_scaled, self.transU, self.pobs)

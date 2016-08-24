@@ -4,6 +4,9 @@ transmission matrix.
 """
 import numpy as np
 from pyemma.msm.models.msm import MSM as _MM
+from msmtools.estimation import transition_matrix as _tm
+from msmtools.analysis import is_transition_matrix as _is_tm
+
 
 
 class SpectralMM(_MM):
@@ -27,13 +30,12 @@ class SpectralMM(_MM):
         if trans is None:
             # calculate the transition matrix by definition:
             # the right eigenvector matrix times the Jordan form times the left eigenvector matrix
-            self.trans = np.dot(np.dot(self.transV, self.transD), self.transU)
+            self.trans = _tm(np.dot(np.dot(self.transV, self.transD), self.transU))
         else:
             # if the transition matrix is known, it can be passed in
-            self.trans = trans
+            self.trans = _tm(trans)
         # apply the MM constructor
         super(SpectralMM, self).__init__(self.trans)
-        # super(SpectralMM, self).__init__(self.trans, self.transU[0], '1 step')
 
     def isdiagonal(self):
         return np.allclose(self.transD, np.diag(np.diag(self.transD)))
@@ -42,9 +44,20 @@ class SpectralMM(_MM):
         assert -1e-8 <= mu <= 1 + 1e-8, "weight is not between 0 and 1, inclusive"
         assert self.isdiagonal(), "self is not diagonal"
         assert other.isdiagonal(), "other is not diagonal"
+        # FIXME check that both self and other have only positive eigenvalues less than or equal 1
 
-        transd = (1.0 - mu) * self.transD + mu * other.transD
-        transu = (1.0 - mu) * self.transU + mu * other.transU
+        def lincc(x, y):
+            return (1 - mu) * x + mu * y
+
+        def logcc(x, y):
+            return np.exp((1 - mu) * np.log(x) + mu * np.log(y))
+
+        lincc = np.vectorize(lincc)
+        logcc = np.vectorize(logcc)
+
+        transd = np.diag(logcc(np.diag(self.transD), np.diag(other.transD)))
+        transu = lincc(self.transU , other.transU)
+
         return SpectralMM(transd, transu)
 
     def scale(self, tau):

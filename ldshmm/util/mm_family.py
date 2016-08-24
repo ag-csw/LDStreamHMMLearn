@@ -6,7 +6,8 @@ from scipy import stats
 from scipy.stats import uniform
 
 from ldshmm.util.spectral_mm import SpectralMM
-
+from msmtools.estimation import transition_matrix as _tm
+from msmtools.analysis import is_transition_matrix as _is_tm
 
 class MMFamily(object):
     def sample(self, size=1):
@@ -54,15 +55,24 @@ class MMFamily1(MMFamily):
         transd = np.diag(self.sample_eigenvalues())
         transu = self.sample_basis()
         transv = np.linalg.inv(transu)
-        trans = np.dot(transv, np.dot(transd, transu))
-        if np.all(trans >= 0) and np.all(trans <= 1):
+        trans = _tm(np.dot(transv, np.dot(transd, transu)))
+        if _is_tm(trans):
             return transd, transu, transv, trans
         else:
             return self.sample_transition_matrix() # discard sample if trans has elements that are not probabilities
 
+    def _sample_one(self):
+        transd, transu, transv, trans = self.sample_transition_matrix()
+        smms = SpectralMM(transd, transu, transv, trans)  # construct a spectral MM
+        try:
+            for i in range(2, 10):
+                smms.scale(i)
+            return smms
+        except:
+            return self._sample_one()
+
     def sample(self, size=1):
         smms = np.empty(size, dtype=object) # initialize sample vector
         for i in range(0, size):
-            transd, transu, transv, trans = self.sample_transition_matrix() # select a transmission matrix
-            smms[i] = SpectralMM(transd, transu, transv, trans) # construct a spectral MM
+            smms[i] = self._sample_one() # construct a spectral MM
         return smms

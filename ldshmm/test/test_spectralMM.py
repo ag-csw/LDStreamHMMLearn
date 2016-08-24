@@ -39,6 +39,9 @@ class TestSpectralMM(TestCase):
         self.smm0 = self.create_spectral_MM(self.transD0, self.transU0)
         self.smm1 = self.create_spectral_MM(self.transD1, self.transU1)
 
+        print("Eigenvalues:", self.smm0.eigenvalues())
+        print("Eigenvalues:", self.smm1.eigenvalues())
+
     def test_isdiagonal(self):
         self.assertTrue(self.smm0.isdiagonal())
         self.assertTrue(self.smm1.isdiagonal())
