@@ -30,52 +30,64 @@ class QMMFamily1(QMMFamily):
 
         self.gammadist = scipy.stats.uniform(self.gammamin, self.gammamax)
 
-    def sample(self, size=1):
-        smp = np.empty(size, object)
-        for i in range(0, size):
+    def _sample_one(self):
+        try:
+            # get two spectral MMs from the MM family self.mmfam
+            mmms = self.mmfam.sample(2)
+            # discard the sample if the basis vectors of the two MMs have
+            # determinants of opposite sign, because there will always be
+            # some convex combination of the bases that is singular, by continuity.
+            if np.linalg.det(mmms[0].sMM.eigenvectors_left()) * np.linalg.det(mmms[1].sMM.eigenvectors_left()) < 0:
+                raise Exception
+            gamma = self.gammadist.rvs(1)
+
+            # construct the base (taumeta = tauquasi = 1) weight function from the template
+            def mu(t):
+                return self.mu0((t - self.edgeshift * gamma) / self.edgewidth)
+
+            # construct the convex combination quasi=stationary MM
             try:
-                # get two spectral MMs from the MM family self.mmfam
-                smms = self.mmfam.sample(2)
-                # discard the sample if the basis vectors of the two MMs have
-                # determinants of opposite sign, because there will always be
-                # some convex combination of the bases that is singular, by continuity.
-                if np.linalg.det(smms[0].eigenvectors_left()) * np.linalg.det(smms[1].eigenvectors_left()) < 0:
-                    raise Exception
-                gamma = self.gammadist.rvs(1)
+               qmm = ConvexCombinationQuasiMM(mmms, mu)
+            except:
+                raise Exception
 
-                # construct the base (taumeta = tauquasi = 1) weight function from the template
-                def mu(t):
-                    return self.mu0((t - self.edgeshift * gamma) / self.edgewidth)
+            # Exclude most samples where some value of the convex combination
+            # fails to give a NSMM due to singularity of the convex combination
+            # of eigenvector matrices.
 
-                # construct the convex combination quasi=stationary MM
-                qmm = ConvexCombinationQuasiMM(smms, mu)
-
-                # Exclude most samples where some value of the convex combination
-                # fails to give a NSMM due to singularity of the convex combination
-                # of eigenvector matrices.
-
-                # take some NSMM from the scaled class
-                taumeta = 10
-                tauquasi = 10
-                mu0endpoint = 10
+            # take some NSMM from the scaled class
+            taumeta = 10
+            tauquasi = 10
+            mu0endpoint = 10
+            try:
                 nsmm = qmm.eval(taumeta, tauquasi)
+            except:
+                raise Exception
 
-                def f(x):
-                    return np.linalg.det(nsmm.eval(x).transition_matrix)
+            def f(x):
+                return np.linalg.det(nsmm.eval(x).transition_matrix)
 
-                # FIXME: a smarter way to test this might be to find the minimum
-                # of the function
-                #
-                # S(x) = sgn(f(0)) * f(t)
-                #
-                # If it is negative, then discard the sample
-                xvec = list(range(0, taumeta * tauquasi * int(self.edgewidth * mu0endpoint + self.edgeshift * gamma)))
+            # FIXME: a smarter way to test this might be to find the minimum
+            # of the function
+            #
+            # S(x) = sgn(f(0)) * f(t)
+            #
+            # If it is negative, then discard the sample
+            xvec = list(range(0, taumeta * tauquasi * int(self.edgewidth * mu0endpoint + self.edgeshift * gamma)))
+            try:
                 yvec = list(map(f, xvec))
-                if len([y for y in yvec if y > 0]) * len([y for y in yvec if y < 0]) > 0:
-                    raise Exception
+            except:
+                raise Exception
+            if len([y for y in yvec if y > 0]) * len([y for y in yvec if y < 0]) > 0:
+                raise Exception
+            return qmm
 
-            except Exception:
-                qmm = self.sample()[0]
+        except Exception:
+            #return None
+            return self._sample_one()
 
-            smp[i] = qmm
-        return smp
+    def sample(self, size=1):
+        mmms = np.empty(size, dtype=object)  # initialize sample vector
+        for i in range(0, size):
+            mmms[i] = self._sample_one()  # construct a spectral MM
+        return mmms

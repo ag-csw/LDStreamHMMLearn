@@ -10,6 +10,7 @@ throughout the temporal domain, and are identified by integer indices in
 import numpy as np
 from pyemma.msm.models.msm import MSM as _MM
 from pyemma.util import types as _types
+from ldshmm.util.spectral_mm import SpectralMM
 
 
 class NonstationaryMM:
@@ -116,7 +117,7 @@ class ConvexCombinationNSMM(NonstationaryMM):
         self.sMM1 = smm1
         self.mu = mu
 
-    def eval(self, time: int) -> _MM:
+    def eval(self, time: int) -> SpectralMM:
         return self.sMM0.lincomb(self.sMM1, self.mu(time))
 
     def isclose(self, other, timepoints=None):

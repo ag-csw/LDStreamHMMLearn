@@ -17,11 +17,11 @@ class QuasiMM(NonstationaryMMClass):
 
 
 class ConvexCombinationQuasiMM(QuasiMM):
-    def __init__(self, smms, mu, timeendpoint='infinity'):
-        # the spectral MM for mu = 0
-        self.sMM0 = smms[0]
-        # the spectral MM for mu = 1
-        self.sMM1 = smms[1]
+    def __init__(self, mmms, mu, timeendpoint='infinity'):
+        # the metastable MM for mu = 0
+        self.mMM0 = mmms[0]
+        # the metastable MM for mu = 1
+        self.mMM1 = mmms[1]
         # the weight function for the convex combination
         self.mu = mu
         # the upper endpoint of the temporal domain interval
@@ -34,8 +34,8 @@ class ConvexCombinationQuasiMM(QuasiMM):
         assert tauquasi >= 1, "tauquasi is not greater or equal 1"
         # scale the MMs according to the parameter taumeta
         # with the effect that the implied timescales are increased by a factor of taumeta
-        smm0_scaled = self.sMM0.scale(taumeta)  # type sMM
-        smm1_scaled = self.sMM1.scale(taumeta)  # type sMM
+        smm0_scaled = self.mMM0.eval(taumeta)  # type sMM
+        smm1_scaled = self.mMM1.eval(taumeta)  # type sMM
 
         # scale the independent variable of the weight function
         # by the product of taumeta and tauquasi
