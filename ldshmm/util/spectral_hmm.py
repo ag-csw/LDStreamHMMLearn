@@ -20,7 +20,7 @@ class SpectralHMM(_HMM):
         self.pobs = pobs # the emission matrix
 
 
-        assert not np.linalg.det(transu) == 0.0, "transu is not invertible"
+        assert not np.isclose(np.linalg.det(transu), 0.0), "transu is not invertible"
         if transv is None:
             self.transV = np.linalg.inv(self.transU)
         else:
@@ -111,3 +111,27 @@ class SpectralHMM(_HMM):
         for t, h in enumerate(htraj):
             otraj[t] = output_distributions[h].rvs()  # current cluster
         return htraj, otraj
+
+    def is_scalable_tm(self):
+        # For large scaling factors (tau), the scaling of the transition matrix approaches
+        #
+        #   I + (1/tau) ln(trans)
+        #
+        # This will be a  transition matrix for sufficiently large tau if
+        #    1. all diagonal elements of ln(trans) are <= 0
+        #    2. all off-diagonal elements ln(trans) are >= 0
+        #
+        # Therefore the matrix is called "scalable" if it satisfies these properties.
+        #
+        # The diagonal decomposition is used for a fast calculation of the natural log
+        lntransd = np.diag(np.log(np.diag(self.transD)))
+        delta = mdot(self.transV, lntransd, self.transU)
+        # FIXME: This is not optimized, it does twice as many sign checks as necessary
+        deltadiag = np.diag(delta)
+        deltatril = np.tril(delta, -1)
+        deltatriu = np.triu(delta, 1)
+        if np.all(deltadiag <= 0) and np.all(deltatril >= 0) and np.all(deltatriu >= 0):
+            return True
+        else:
+
+            return False

@@ -90,7 +90,7 @@ class TestQHMMFamily1(TestCase):
                 print('Sample Failed')
         for i in range(0, self.numtestsamples):
             print("Sample Number:", i)
-            qmm1 = self.qmmf1_2.sample()[0]
+            qmm1 = self.qmmf1_3.sample()[0]
             if qmm1 is not None:
                 nshmm1 = qmm1.eval(self.taumeta, self.tauquasi)
 

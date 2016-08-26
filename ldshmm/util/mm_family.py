@@ -8,6 +8,7 @@ from scipy.stats import uniform
 from ldshmm.util.spectral_mm import SpectralMM
 from msmtools.estimation import transition_matrix as _tm
 from msmtools.analysis import is_transition_matrix as _is_tm
+from pyemma.util.linalg import mdot
 
 class MMFamily(object):
     def sample(self, size=1):
@@ -56,10 +57,11 @@ class MMFamily1(MMFamily):
         transu = self.sample_basis()
         transv = np.linalg.inv(transu)
         trans = _tm(np.dot(transv, np.dot(transd, transu)))
-        if _is_tm(trans):
+        if _is_tm(trans) and self.is_scalable_tm(transd, transu, transv):
             return transd, transu, transv, trans
         else:
-            return self.sample_transition_matrix() # discard sample if trans has elements that are not probabilities
+            # discard sample if trans is not a transition matrix or is not a scalable transition matrix
+            return self.sample_transition_matrix()
 
     def _sample_one(self):
         transd, transu, transv, trans = self.sample_transition_matrix()
@@ -76,3 +78,27 @@ class MMFamily1(MMFamily):
         for i in range(0, size):
             smms[i] = self._sample_one() # construct a spectral MM
         return smms
+
+    def is_scalable_tm(self, transd, transu, transv=None):
+        if transv is None:
+            transv = np.linalg.inv(transu)
+        lntransd = np.diag(np.log(np.diag(transd)))
+        delta = mdot(transv, lntransd, transu)
+        deltadiag = np.diag(delta)
+        deltatril = np.tril(delta, -1)
+        deltatriu = np.triu(delta, 1)
+        if np.all(deltadiag <= 0) and np.all(deltatril >= 0) and np.all(deltatriu >= 0):
+            return True
+        else:
+            # For large scaling factors (tau), the scaling of the transition matrix approaches
+            #
+            #   I + (1/tau) ln( trans)
+            #
+            # This will be a  transition matrix for sufficiently large tau if
+            #    1. all diagonal elements are <= 0
+            #    2. all off-diagonal elements are >= 0
+            #
+            # Therefore the matrix is called "scalable" if it satisfies these properties.
+            #
+            # The diagonal decomposition is used for a fast calculation of the log 
+            return False
