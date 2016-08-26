@@ -6,6 +6,7 @@ from scipy import stats
 from scipy.stats import uniform
 
 from ldshmm.util.spectral_mm import SpectralMM
+from ldshmm.util.mm_class import MMMScaled
 from msmtools.estimation import transition_matrix as _tm
 from msmtools.analysis import is_transition_matrix as _is_tm
 from pyemma.util.linalg import mdot
@@ -67,17 +68,15 @@ class MMFamily1(MMFamily):
         transd, transu, transv, trans = self.sample_transition_matrix()
         smms = SpectralMM(transd, transu, transv, trans)  # construct a spectral MM
         try:
-            for i in range(2, 10):
-                smms.scale(i)
-            return smms
+            return  MMMScaled(smms)
         except:
             return self._sample_one()
 
     def sample(self, size=1):
-        smms = np.empty(size, dtype=object) # initialize sample vector
+        mmms = np.empty(size, dtype=object) # initialize sample vector
         for i in range(0, size):
-            smms[i] = self._sample_one() # construct a spectral MM
-        return smms
+            mmms[i] = self._sample_one() # construct a spectral MM
+        return mmms
 
     def is_scalable_tm(self, transd, transu, transv=None):
         if transv is None:
@@ -100,5 +99,5 @@ class MMFamily1(MMFamily):
             #
             # Therefore the matrix is called "scalable" if it satisfies these properties.
             #
-            # The diagonal decomposition is used for a fast calculation of the log 
+            # The diagonal decomposition is used for a fast calculation of the log
             return False

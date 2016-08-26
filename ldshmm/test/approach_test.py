@@ -13,17 +13,18 @@ class Approach_Test(TestCase):
         self.nstates = 4
         self.mmf1_0 = MMFamily1(self.nstates)
         self.mm1_0_0 = self.mmf1_0.sample()[0]
-        print("Base Transition Matrix: \n", self.mm1_0_0.transition_matrix)
 
         self.taumeta = 3
         self.tauquasi = 3
-        self.nstep = 10 * self.taumeta * self.tauquasi
-        self.nwindow = 1000 * self.nstep
-        self.numsteps = 1
+        self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+
+        self.nstep = 100 * self.taumeta * self.tauquasi
+        self.nwindow = 10 * self.nstep
+        self.numsteps = 10
         self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-        self.ntraj = 1
+        self.ntraj = 10
         self.r = (self.nwindow - self.nstep) / self.nwindow
-        self.mm1_0_0_scaled = self.mm1_0_0.scale(self.taumeta)
+
         self.data1_0_0 = []
         for i in range(0, self.ntraj):
             self.data1_0_0.append(self.mm1_0_0_scaled.simulate(self.lentraj))
@@ -40,7 +41,7 @@ class Approach_Test(TestCase):
         #C[0:cshape[0], 0:cshape[1]] = Csub
         #print("Csparse:\n", Csparse)
         #print("Csub:\n", Csparse)
-        print("C:\n", C)
+        #print("C:\n", C)
         return C
 
     """def test_approach(self):
@@ -102,37 +103,53 @@ class Approach_Test(TestCase):
     def test_approach2(self):
 
         dataarray = np.asarray(self.data1_0_0)
-        for k in range(0, self.nstep):
+        etime = np.zeros(self.numsteps + 2, dtype=float)
+        err = np.zeros(self.numsteps + 1, dtype=float)
+        etime[0] = 0
+        for k in range(0, self.numsteps+1):
             data0 = dataarray[:, k * self.nstep: (self.nwindow + k * self.nstep)]
             dataslice0 = []
             for i in range(0, self.ntraj):
                 dataslice0.append(data0[i, :])
             t0 = process_time()
             C0 = self.estimate_via_sliding_windows(dataslice0)  # count matrix for whole window
+            t1 = process_time()
             A0 = _tm(C0)
-            etime0 = process_time() - t0
+            etime[k+1] = t1-t0 + etime[k]
+            err[k] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
+        print("Times (Windows): ", etime)
+        print("Errors (Windows): ", err)
 
+        print("\n############## Bayes #############")
+        etimebayes = np.zeros(self.numsteps + 2, dtype=float)
+        errbayes = np.zeros(self.numsteps + 1, dtype=float)
 
-        print("############## Bayes #############")
+        weight0 = self.r
+        weight1 = 1.0
 
         data0 = dataarray[:, 0 * self.nstep: (self.nwindow + 0 * self.nstep)]
         dataslice0 = []
         for i in range(0, self.ntraj):
             dataslice0.append(data0[i, :])
-        C_old = self.estimate_via_sliding_windows(dataslice0)
 
-        for k in range(1,self.nstep):
+        t0 = process_time()
+        C_old = self.estimate_via_sliding_windows(dataslice0)
+        etimebayes[1] = process_time() - t0
+        errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
+
+        for k in range(1,self.numsteps+1):
             data1new = dataarray[:, self.nwindow + (k - 1) * self.nstep - 1: (self.nwindow + k * self.nstep)]
             dataslice1new = []
             for i in range(0, self.ntraj):
                 dataslice1new.append(data1new[i, :])
-            t1 = process_time()
+            t0 = process_time()
             C_new = self.estimate_via_sliding_windows(dataslice1new)  # count matrix for just new transitions
-            weight0 = self.r
-            weight1 = 1.0
+
             C1bayes = weight0 * C_old + weight1 * C_new
-            A1bayes = _tm(C1bayes)
-            etime1 = process_time() - t1
             C_old = C1bayes
-
-
+            t1 = process_time()
+            etimebayes[k+1] = t1 - t0 + etimebayes[k]
+            A1bayes = _tm(C1bayes)
+            errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
+        print("Times (Bayes): ", etimebayes)
+        print("Errors (Bayes): ", errbayes)
