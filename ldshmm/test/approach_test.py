@@ -17,8 +17,8 @@ class Approach_Test(TestCase):
 
         self.taumeta = 3
         self.tauquasi = 3
-        self.nstep = 100 * self.taumeta * self.tauquasi
-        self.nwindow = 10000 * self.nstep
+        self.nstep = 10 * self.taumeta * self.tauquasi
+        self.nwindow = 1000 * self.nstep
         self.numsteps = 1
         self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
         self.ntraj = 1
@@ -45,22 +45,25 @@ class Approach_Test(TestCase):
 
     def test_approach(self):
         dataarray = np.asarray(self.data1_0_0)
-        data0 = dataarray[:, 0*self.nstep : (self.nwindow + 0*self.nstep)]
+        k=0 # zero-th window, of length nwindow
+        data0 = dataarray[:, k*self.nstep : (self.nwindow + k*self.nstep)]
         dataslice0 = []
         for i in range(0, self.ntraj):
             dataslice0.append(data0[i,:])
-        C0 = self.estimate_via_sliding_windows(dataslice0)
+        C0 = self.estimate_via_sliding_windows(dataslice0) # count matrix for whole window
         print("C0 :\n", C0)
         print()
         A0 = _tm(C0)
         print("A0 :\n", A0)
         print()
-        data1 = dataarray[:, 1*self.nstep : (self.nwindow + 1*self.nstep)]
+
+        k=1 # first window, after slide of nstep
+        data1 = dataarray[:, k*self.nstep : (self.nwindow + k*self.nstep)]
         dataslice1 = []
         for i in range(0, self.ntraj):
             dataslice1.append(data1[i,:])
         t0 = process_time()
-        C1 = self.estimate_via_sliding_windows(dataslice1)
+        C1 = self.estimate_via_sliding_windows(dataslice1) # count matrix for whole window
         #print("C1 :\n", C1)
         #print()
         A1 = _tm(C1)
@@ -68,28 +71,30 @@ class Approach_Test(TestCase):
         print("A1 :\n", A1)
         print()
 
-        data1new = dataarray[:, self.nwindow : (self.nwindow + 1*self.nstep)]
+        data1new = dataarray[:, self.nwindow - 1 : (self.nwindow + 1*self.nstep)]
         dataslice1new = []
         for i in range(0, self.ntraj):
             dataslice1new.append(data1new[i,:])
         t1 = process_time()
-        C1new = self.estimate_via_sliding_windows(dataslice1new)
+        C1new = self.estimate_via_sliding_windows(dataslice1new) # count matrix for just new transitions
         #print("C1new :\n", C1new)
         #print("Total for C1new:", np.sum(C1new))
         #print()
-        weight0 = (self.r/(1.0-self.r)) / np.sum(C0)
-        weight1 = self.nstep / np.sum(C1new)
+        #weight0 = (self.r/(1.0-self.r)) / np.sum(C0)
+        #weight1 = self.nstep / np.sum(C1new)
+        weight0 = self.r
+        weight1 = 1.0
         #print("Weights : ", weight0, weight1)
-        C2 = weight0 * C0 + weight1 * C1new
-        #print("C2 :\n", C2)
-        #print("Total for C2:", np.sum(C2))
+        C1bayes = weight0 * C0 + weight1 * C1new
+        #print("C1bayes :\n", C1bayes)
+        #print("Total for C1bayes:", np.sum(C1bayes))
         #print()
-        A2 = _tm(C2)
+        A1bayes = _tm(C1bayes)
         etime1 = process_time()-t1
-        print("A2 :\n", A2)
+        print("A1bayes :\n", A1bayes)
         print()
         print("Real A :\n", self.mm1_0_0_scaled.trans)
         print("Error with Full Window : ", np.linalg.norm(A1 - self.mm1_0_0_scaled.trans))
-        print("Error with Prior : ", np.linalg.norm(A2 - self.mm1_0_0_scaled.trans))
+        print("Error with Prior : ", np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans))
         print(self.mm1_0_0_scaled.eigenvalues())
         print("Times:", etime0, etime1)
