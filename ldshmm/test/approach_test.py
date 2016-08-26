@@ -6,7 +6,7 @@ from msmtools.estimation import transition_matrix as _tm
 from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
 from time import process_time
 
-from mm_family import MMFamily1
+from ldshmm.util.mm_family import MMFamily1
 
 class Approach_Test(TestCase):
     def setUp(self):
@@ -43,7 +43,7 @@ class Approach_Test(TestCase):
         print("C:\n", C)
         return C
 
-    def test_approach(self):
+    """def test_approach(self):
         dataarray = np.asarray(self.data1_0_0)
         k=0 # zero-th window, of length nwindow
         data0 = dataarray[:, k*self.nstep : (self.nwindow + k*self.nstep)]
@@ -71,7 +71,7 @@ class Approach_Test(TestCase):
         print("A1 :\n", A1)
         print()
 
-        data1new = dataarray[:, self.nwindow - 1 : (self.nwindow + 1*self.nstep)]
+        data1new = dataarray[:, self.nwindow + (k- 1)*self.nstep-1 : (self.nwindow + k*self.nstep)]
         dataslice1new = []
         for i in range(0, self.ntraj):
             dataslice1new.append(data1new[i,:])
@@ -97,4 +97,42 @@ class Approach_Test(TestCase):
         print("Error with Full Window : ", np.linalg.norm(A1 - self.mm1_0_0_scaled.trans))
         print("Error with Prior : ", np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans))
         print(self.mm1_0_0_scaled.eigenvalues())
-        print("Times:", etime0, etime1)
+        print("Times:", etime0, etime1)"""
+
+    def test_approach2(self):
+
+        dataarray = np.asarray(self.data1_0_0)
+        for k in range(0, self.nstep):
+            data0 = dataarray[:, k * self.nstep: (self.nwindow + k * self.nstep)]
+            dataslice0 = []
+            for i in range(0, self.ntraj):
+                dataslice0.append(data0[i, :])
+            t0 = process_time()
+            C0 = self.estimate_via_sliding_windows(dataslice0)  # count matrix for whole window
+            A0 = _tm(C0)
+            etime0 = process_time() - t0
+
+
+        print("############## Bayes #############")
+
+        data0 = dataarray[:, 0 * self.nstep: (self.nwindow + 0 * self.nstep)]
+        dataslice0 = []
+        for i in range(0, self.ntraj):
+            dataslice0.append(data0[i, :])
+        C_old = self.estimate_via_sliding_windows(dataslice0)
+
+        for k in range(1,self.nstep):
+            data1new = dataarray[:, self.nwindow + (k - 1) * self.nstep - 1: (self.nwindow + k * self.nstep)]
+            dataslice1new = []
+            for i in range(0, self.ntraj):
+                dataslice1new.append(data1new[i, :])
+            t1 = process_time()
+            C_new = self.estimate_via_sliding_windows(dataslice1new)  # count matrix for just new transitions
+            weight0 = self.r
+            weight1 = 1.0
+            C1bayes = weight0 * C_old + weight1 * C_new
+            A1bayes = _tm(C1bayes)
+            etime1 = process_time() - t1
+            C_old = C1bayes
+
+
