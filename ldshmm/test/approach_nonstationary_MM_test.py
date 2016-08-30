@@ -51,7 +51,7 @@ class Approach_Test(TestCase):
             t1 = process_time()
             A0 = _tm(C0)
             etime[k+1] = t1-t0 + etime[k]
-            err[k] = np.linalg.norm(A0 - self.qmm1_0_0_scaled.eval(k).trans)
+            err[k] = np.linalg.norm(A0 - self.qmm1_0_0_scaled.eval(self.nwindow + k * self.nstep).trans)
         print("Times (Windows): ", etime)
         print("Errors (Windows): ", err)
 
@@ -85,6 +85,6 @@ class Approach_Test(TestCase):
             t1 = process_time()
             etimebayes[k+1] = t1 - t0 + etimebayes[k]
             A1bayes = _tm(C1bayes)
-            errbayes[k] = np.linalg.norm(A1bayes - self.qmm1_0_0_scaled.eval(k).trans)
+            errbayes[k] = np.linalg.norm(A1bayes - self.qmm1_0_0_scaled.eval(self.nwindow + k * self.nstep).trans)
         print("Times (Bayes): ", etimebayes)
         print("Errors (Bayes): ", errbayes)
