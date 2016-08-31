@@ -15,10 +15,9 @@ class Approach_Test(TestCase):
         self.mm1_0_0 = self.mmf1_0.sample()[0]
 
         self.taumeta = 3
-        self.tauquasi = 3
         self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
 
-        self.nstep = 100 * self.taumeta * self.tauquasi
+        self.nstep = 100 * self.taumeta
         self.nwindow = 10 * self.nstep
         self.numsteps = 10
         self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
