@@ -15,7 +15,7 @@ class Approach_Test(TestCase):
     def setUp(self):
         self.nstates = 4
         self.timescaledisp = 2.0
-        self.statconc = 1.0
+        self.statconc = 0.05
         self.mmf1_0 = MMFamily1(self.nstates, self.timescaledisp, self.statconc)
         self.qmmf1_0 = QMMFamily1(self.mmf1_0)
         self.qmm1_0_0 = self.qmmf1_0.sample()[0]
@@ -27,9 +27,9 @@ class Approach_Test(TestCase):
         self.nu = 10
         self.nstep = math.ceil(self.nu * self.timescaledisp * self.taumeta * self.tauquasi)
         self.nwindow = 10 * self.nstep
-        self.numsteps = 10
+        self.numsteps = 2
         self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-        self.ntraj = 10
+        self.ntraj = 1
         self.r = (self.nwindow - self.nstep) / self.nwindow
 
         self.data1_0_0 = []
@@ -74,6 +74,13 @@ class Approach_Test(TestCase):
 
         t0 = process_time()
         C_old = self.estimate_via_sliding_windows(dataslice0)
+
+        A0 = _tm(C_old)
+        print("Initial Transition Matrix:\n", A0)
+        w, v = np.linalg.eig(A0)
+        print("Initial Eigenvalues:\n", w)
+        # Checking that for small alpha, the stationary distribution is concentrated on one metastable state
+        print("Initial Eigenvalues:\n", np.linalg.inv(v))
         etimebayes[1] = process_time() - t0
         k=0
         errbayes[0] = np.linalg.norm(_tm(C_old) - self.qmm1_0_0_scaled.eval(self.nwindow + (k - 0.5) * self.nstep).trans)
