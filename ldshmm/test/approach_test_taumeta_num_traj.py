@@ -21,7 +21,7 @@ class Approach_Test(TestCase):
         C = count_matrix_coo2_mult(data, lag=1, sliding=False, sparse=False, nstates=self.nstates)
         return C
 
-    def test_taumeta_scale_win(self):
+    def test_taumeta_num_traj(self):
         # initialize timing and error arrays for naive and bayes
         etimenaive = np.zeros(self.numsteps + 2, dtype=float)
         etimenaive[0] = 0
@@ -38,19 +38,19 @@ class Approach_Test(TestCase):
 
         # specify values for taumeta and eta to iterate over
         taumeta_values = [2, 4, 8]  # 2,4,8
-        scale_win_values = [25, 50, 100]  # 50,100,200
+        num_traj_values = [50,100,200]
 
         for one, taumeta in enumerate(taumeta_values):
-            for two, scale_win in enumerate(scale_win_values):
+            for two, num_traj in enumerate(num_traj_values):
 
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.nstep = 100 * self.taumeta
-                self.nwindow = scale_win * self.nstep
+                self.nwindow = 10 * self.nstep
                 self.numsteps = 100
                 self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-                self.ntraj = 20
+                self.ntraj = num_traj
                 self.r = (self.nwindow - self.nstep) / self.nwindow
 
                 self.data1_0_0 = []
@@ -123,8 +123,8 @@ class Approach_Test(TestCase):
         print("Bayes Error:", avg_errs_bayes)
 
         # plot the average performances and errors in a heatmap
-        plot_result_heatmap(avg_times_naive, avg_times_bayes, taumeta_values, scale_win_values, "Performance", "Heatmap Performance Taumeta ScaleWin")
-        plot_result_heatmap(avg_errs_naive, avg_errs_bayes, taumeta_values, scale_win_values, "Error", "Heatmap Error Taumeta ScaleWin")
+        plot_result_heatmap(avg_times_naive, avg_times_bayes, taumeta_values, num_traj_values, "Performance", "Heatmap Performance Taumeta NumTraj")
+        plot_result_heatmap(avg_errs_naive, avg_errs_bayes, taumeta_values, num_traj_values, "Error", "Heatmap Error Taumeta NumTraj")
 
 
 def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, type, heading):
@@ -135,18 +135,18 @@ def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, type, headin
     plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
     plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
     plt.xlabel("taumeta")
-    plt.ylabel("scale_win")
-    plt.title("Naive "+type)
+    plt.ylabel("num_traj")
+    plt.title("Naive "+ type)
     plt.colorbar()
     plt.tight_layout(2)
 
     plt.subplot(1, 2, 2)
     plt.pcolor(data_bayes, cmap="Reds")
-    plt.title("Bayes "+type)
+    plt.title("Bayes"+ type)
     plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
     plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
     plt.xlabel("taumeta")
-    plt.ylabel("scale_win")
+    plt.ylabel("num_traj")
     plt.colorbar()
     plt.tight_layout(2)
 

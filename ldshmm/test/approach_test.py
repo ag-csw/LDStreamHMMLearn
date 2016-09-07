@@ -34,7 +34,7 @@ class Approach_Test(TestCase):
 
 
 
-    def test_approach_heatmap(self):
+    def test_taumeta_eta(self):
         # initialize timing and error arrays for naive and bayes
         etimenaive = np.zeros(self.numsteps + 2, dtype=float)
         etimenaive[0] = 0
@@ -139,8 +139,8 @@ class Approach_Test(TestCase):
         print("Bayes Error:", avg_errs_bayes)
 
         # plot the average performances and errors in a heatmap
-        plot_result_heatmap(avg_times_naive, avg_times_bayes, taumeta_values, eta_values, "bayes", "Heatmap Performance")
-        plot_result_heatmap(avg_errs_naive, avg_errs_bayes, taumeta_values, eta_values, "bayes", "Heatmap Error")
+        plot_result_heatmap(avg_times_naive, avg_times_bayes, taumeta_values, eta_values, "Performance", "Heatmap Performance Taumeta Eta")
+        plot_result_heatmap(avg_errs_naive, avg_errs_bayes, taumeta_values, eta_values, "Error", "Heatmap Error Taumeta Eta")
 
 
 """
@@ -201,18 +201,7 @@ class Approach_Test(TestCase):
         print("Errors (Bayes): ", errbayes)
         plot_result(etimebayes, errbayes, "bayes", "numtraj=20, numsteps=100_8")
 """
-"""
-    def test_plot(self):
-        print("in plot")
-        data = [[0.23465,0.43245,0.26542],
-                [0.97534,0.63123,0.76745],
-                [0.89898, 0.47348,0.12466]]
-        x = [2,4,7]
-        y = [50,100,200]
-        type="try"
-        heading="test"
-        plot_result_heatmap(data,x,y,type,heading)
-"""
+
 
 
 def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, type, heading):
@@ -224,13 +213,13 @@ def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, type, headin
         plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
         plt.xlabel("taumeta")
         plt.ylabel("eta")
-        plt.title("Naive Performance")
+        plt.title("Naive "+type)
         plt.colorbar()
         plt.tight_layout(2)
 
         plt.subplot(1,2,2)
         plt.pcolor(data_bayes, cmap="Reds")
-        plt.title("Bayes Performance")
+        plt.title("Bayes "+type)
         plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
         plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
         plt.xlabel("taumeta")
@@ -249,7 +238,7 @@ def plot_result(y_axis1_list, y_axis2_list, type, heading):
         y_axis1_list : list of elements for first y axis
         y_axis2_list : list of elements for second y axis
         type : string which characterizes the type of calculation (for instance "naive" or "bayes").
-        heading : The custom heading for the plot title
+        heading : The custom headiPerformanceng for the plot title
 
         The two latter ones are just for plotting and saving the resulting plot. The filename will be type+ _ +heading
         """
