@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from hmm_family import HMMFamily1
+from ldshmm.util.hmm_family import HMMFamily1
 from ldshmm.util.spectral_hmm import SpectralHMM
 
 

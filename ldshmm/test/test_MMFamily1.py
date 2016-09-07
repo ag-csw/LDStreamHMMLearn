@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from mm_family import MMFamily1
+from ldshmm.util.mm_family import MMFamily1
 from ldshmm.util.spectral_mm import SpectralMM
 
 

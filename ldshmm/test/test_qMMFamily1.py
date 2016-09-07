@@ -1,7 +1,7 @@
 from unittest import TestCase
 import numpy as np
-from qmm_family import QMMFamily1
-from mm_family import MMFamily1
+from ldshmm.util.qmm_family import QMMFamily1
+from ldshmm.util.mm_family import MMFamily1
 import matplotlib.pyplot as plt
 
 class TestQMMFamily1(TestCase):

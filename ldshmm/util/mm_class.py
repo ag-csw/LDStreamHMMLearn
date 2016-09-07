@@ -6,7 +6,7 @@ This class is for classes of HMMs, including:
 import numpy as np
 from pyemma.msm.models.msm import MSM as _MM
 
-from spectral_mm import SpectralMM
+from ldshmm.util.spectral_mm import SpectralMM
 
 
 class MMClass:

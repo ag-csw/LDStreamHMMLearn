@@ -1,8 +1,8 @@
 """
 This class is for generic quasiHMMs. which are two-parameter families of mHMMs.
 """
-from nonstationary_hmm import ConvexCombinationNSHMM
-from nonstationary_hmm import NonstationaryHMMClass
+from ldshmm.util.nonstationary_hmm import ConvexCombinationNSHMM
+from ldshmm.util.nonstationary_hmm import NonstationaryHMMClass
 
 
 class QuasiHMM(NonstationaryHMMClass):
