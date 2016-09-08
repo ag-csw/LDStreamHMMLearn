@@ -6,6 +6,7 @@ from msmtools.estimation import transition_matrix as _tm
 from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
 from time import process_time
 import matplotlib.pyplot as plt
+from ldshmm.test.plottings import plot_result_heatmap
 
 from ldshmm.util.mm_family import MMFamily1
 
@@ -123,31 +124,5 @@ class Approach_Test(TestCase):
         print("Bayes Error:", avg_errs_bayes)
 
         # plot the average performances and errors in a heatmap
-        plot_result_heatmap(avg_times_naive, avg_times_bayes, taumeta_values, statconc_values, "Performance", "Heatmap Performance Taumeta Statconc")
-        plot_result_heatmap(avg_errs_naive, avg_errs_bayes, taumeta_values, statconc_values, "Error", "Heatmap Error Taumeta Statconc")
-
-
-def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, type, heading):
-    plt.figure()
-    plt.subplot(1, 2, 1)
-    plt.pcolor(data_naive, cmap="Reds")
-    plt.title(heading)
-    plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
-    plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
-    plt.xlabel("taumeta")
-    plt.ylabel("statconc")
-    plt.title("Naive "+ type)
-    plt.colorbar()
-    plt.tight_layout(2)
-
-    plt.subplot(1, 2, 2)
-    plt.pcolor(data_bayes, cmap="Reds")
-    plt.title("Bayes"+ type)
-    plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
-    plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
-    plt.xlabel("taumeta")
-    plt.ylabel("statconc")
-    plt.colorbar()
-    plt.tight_layout(2)
-
-    plt.savefig(heading + ".png")
+        plot_result_heatmap(avg_times_naive, avg_times_bayes, taumeta_values, statconc_values, "statconc","Performance", "Heatmap Performance Taumeta Statconc")
+        plot_result_heatmap(avg_errs_naive, avg_errs_bayes, taumeta_values, statconc_values,"statconc", "Error", "Heatmap Error Taumeta Statconc")
