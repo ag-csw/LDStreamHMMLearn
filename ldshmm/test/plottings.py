@@ -2,6 +2,71 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+class ComplexPlot():
+    rows = 4
+    cols = 2
+    current = 1
+    im = None
+
+    def new_plot(self, heading):
+        plt.figure()
+        plt.suptitle(heading)
+
+
+    def add_to_plot_separate_colorbar(self, data_naive, data_bayes, x_labels, y_labels, y_label):
+        plt.subplot(self.rows,self.cols,self.current)
+        plt.pcolor(data_naive, cmap="Reds")
+        plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
+        plt.xlabel("taumeta")
+        plt.ylabel(y_label)
+        plt.colorbar()
+        plt.tight_layout(2)
+        self.current = self.current+1
+
+        plt.subplot(self.rows,self.cols,self.current)
+        plt.pcolor(data_bayes, cmap="Reds")
+        plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
+        plt.xlabel("taumeta")
+        plt.ylabel(y_label)
+        plt.colorbar()
+        plt.tight_layout(2)
+        self.current = self.current + 1
+
+    def add_to_plot_same_colorbar (self, data_naive, data_bayes, x_labels, y_labels, y_label, minimum, maximum):
+        plt.subplot(self.rows, self.cols, self.current)
+        self.im = plt.pcolor(data_naive, vmin=minimum, vmax=maximum, cmap="Reds")
+        plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
+        plt.xlabel("taumeta")
+        plt.ylabel(y_label)
+        plt.tight_layout(2)
+        self.current = self.current+1
+
+        plt.subplot(self.rows, self.cols, self.current)
+        self.im = plt.pcolor(data_bayes, vmin=minimum, vmax=maximum, cmap="Reds")
+        plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
+        plt.xlabel("taumeta")
+        plt.ylabel(y_label)
+        plt.tight_layout(2)
+        self.current = self.current + 1
+
+    def save_plot_same_colorbar(self, heading):
+        ax = plt.subplot(self.rows, self.cols, 8)
+        cbar = plt.colorbar(self.im, ax=ax, orientation="horizontal")
+        labels = cbar.ax.get_xticklabels()
+        cbar.ax.tick_params(labelsize=6)
+        cbar.ax.set_xticklabels(labels=labels, rotation=45)
+        plt.delaxes(ax)
+
+        plt.savefig(heading + ".png")
+
+
+    def save_plot_separate_colorbars(self, heading):
+        plt.savefig(heading + ".png")
+
 def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, y_axis_name, type, heading):
     plt.figure()
     plt.subplot(1, 2, 1)
@@ -27,7 +92,6 @@ def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, y_axis_name,
 
     plt.savefig(heading + ".png")
 
-
 def plot_result(y_axis1_list, y_axis2_list, type, heading):
     """Plotting function for diagram with two y axes
 
@@ -35,8 +99,8 @@ def plot_result(y_axis1_list, y_axis2_list, type, heading):
         ----------
         y_axis1_list : list of elements for first y axis
         y_axis2_list : list of elements for second y axis
-        type : string which characterizes the type of calculation (for instance "naive" or "bayes").
-        heading : The custom headiPerformanceng for the plot title
+        type : string which characterizes the type subplotsof calculation (for instance "naive" or "bayes").
+        heading : The custom heading for the plot title
 
         The two latter ones are just for plotting and saving the resulting plot. The filename will be type+ _ +heading
         """
@@ -57,3 +121,4 @@ def plot_result(y_axis1_list, y_axis2_list, type, heading):
         tl.set_color('r')
     plt.title(heading)
     plt.savefig(type + '_' + heading + '.png')
+

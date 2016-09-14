@@ -28,3 +28,10 @@ class Utility():
     @staticmethod
     def evaluate_emission_matrices():
         pass
+
+    @staticmethod
+    def calc_slope(x):
+        from scipy.stats.mstats import linregress
+        y = range(0, len(x))
+        slope, intercept, r_value, p_value, std_err = linregress(y, x)
+        return slope
