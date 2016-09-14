@@ -2,3 +2,4 @@
 build/*
 ldshmm.egg-info/*
 dist/*
+*.png
