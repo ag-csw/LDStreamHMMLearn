@@ -1,11 +1,11 @@
 from unittest import TestCase
 import numpy as np
-import pyemma.msm as MSM
-import pyemma.msm.estimators as _MME
+
 from msmtools.estimation import transition_matrix as _tm
 from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
 from time import process_time
 from ldshmm.test.plottings import plot_result_heatmap
+from ldshmm.util.util_math import Utility
 
 
 from ldshmm.util.mm_family import MMFamily1
@@ -32,6 +32,7 @@ class Approach_Test(TestCase):
         #print("Csub:\n", Csparse)
         #print("C:\n", C)
         return C
+
 
 
 
@@ -69,6 +70,7 @@ class Approach_Test(TestCase):
 
                 self.data1_0_0 = []
                 for i in range(0, self.ntraj):
+
                     self.data1_0_0.append(self.mm1_0_0_scaled.simulate(self.lentraj))
                 dataarray = np.asarray(self.data1_0_0)
 
@@ -120,13 +122,13 @@ class Approach_Test(TestCase):
                         A1bayes = _tm(C1bayes)
                         errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
 
-                avg_time = sum(etimenaive)/len(etimenaive)
+                slope_time = Utility.calc_slope(etimenaive)
                 avg_err = sum(err)/len(err)
 
-                avg_times_naive[one][two]= avg_time
+                avg_times_naive[one][two]= slope_time
                 avg_errs_naive[one][two] = avg_err
 
-                avg_time_bayes = sum(etimebayes) / len(etimebayes)
+                avg_time_bayes = Utility.calc_slope(etimebayes)
                 avg_err_bayes = sum(errbayes) / len(errbayes)
 
                 avg_times_bayes[one][two] = avg_time_bayes
@@ -142,10 +144,20 @@ class Approach_Test(TestCase):
         # plot the average performances and errors in a heatmap
         plot_result_heatmap(avg_times_naive, avg_times_bayes, taumeta_values, eta_values, "eta","Performance", "Heatmap Performance Taumeta Eta")
         plot_result_heatmap(avg_errs_naive, avg_errs_bayes, taumeta_values, eta_values,"eta", "Error", "Heatmap Error Taumeta Eta")
-
-
-"""
+    """
     def test_approach2(self):
+        self.taumeta = 3
+        self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+        self.nstep = 10 * self.taumeta
+        self.nwindow = 10 * self.nstep
+        self.numsteps = 100
+        self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
+        self.ntraj = 20
+        self.r = (self.nwindow - self.nstep) / self.nwindow
+
+        self.data1_0_0 = []
+        for i in range(0, self.ntraj):
+            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(self.lentraj))
 
         dataarray = np.asarray(self.data1_0_0)
         etime = np.zeros(self.numsteps + 2, dtype=float)
@@ -165,7 +177,7 @@ class Approach_Test(TestCase):
         print("Times (Windows): ", etime)
         print("Errors (Windows): ", err)
         plot_result(etime, err, "naive", "numtraj=20, numsteps=100_8")
-
+        print(calc_slope(etime))
 
         print("\n############## Bayes #############")
         etimebayes = np.zeros(self.numsteps + 2, dtype=float)
@@ -201,7 +213,4 @@ class Approach_Test(TestCase):
         print("Times (Bayes): ", etimebayes)
         print("Errors (Bayes): ", errbayes)
         plot_result(etimebayes, errbayes, "bayes", "numtraj=20, numsteps=100_8")
-"""
-
-
-
+    """

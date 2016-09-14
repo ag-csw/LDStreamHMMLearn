@@ -1,12 +1,10 @@
 from unittest import TestCase
 import numpy as np
-import pyemma.msm as MSM
-import pyemma.msm.estimators as _MME
 from msmtools.estimation import transition_matrix as _tm
 from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
 from time import process_time
 from ldshmm.test.plottings import plot_result_heatmap
-
+from ldshmm.util.util_math import Utility
 from ldshmm.util.mm_family import MMFamily1
 
 class Approach_Test(TestCase):
@@ -105,13 +103,13 @@ class Approach_Test(TestCase):
                         A1bayes = _tm(C1bayes)
                         errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
 
-                avg_time = sum(etimenaive) / len(etimenaive)
+                slope_time = Utility.calc_slope(etimenaive)
                 avg_err = sum(err) / len(err)
 
-                avg_times_naive[one][two] = avg_time
+                avg_times_naive[one][two] = slope_time
                 avg_errs_naive[one][two] = avg_err
 
-                avg_time_bayes = sum(etimebayes) / len(etimebayes)
+                avg_time_bayes = Utility.calc_slope(etimebayes)
                 avg_err_bayes = sum(errbayes) / len(errbayes)
 
                 avg_times_bayes[one][two] = avg_time_bayes
@@ -125,4 +123,3 @@ class Approach_Test(TestCase):
         # plot the average performances and errors in a heatmap
         plot_result_heatmap(avg_times_naive, avg_times_bayes, taumeta_values, num_traj_values, "numtraj", "Performance", "Heatmap Performance Taumeta NumTraj")
         plot_result_heatmap(avg_errs_naive, avg_errs_bayes, taumeta_values, num_traj_values, "numtraj", "Error", "Heatmap Error Taumeta NumTraj")
-
