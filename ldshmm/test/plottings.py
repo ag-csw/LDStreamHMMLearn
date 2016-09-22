@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+
 class ComplexPlot():
     cols = 2
     current = 1
@@ -22,7 +23,7 @@ class ComplexPlot():
         plt.ylabel(y_label)
         plt.colorbar()
         plt.tight_layout(2)
-        self.current = self.current+1
+        self.current = self.currnent+1
 
         plt.subplot(self.rows,self.cols,self.current)
         plt.pcolor(data_bayes, cmap="Reds")
@@ -67,8 +68,51 @@ class ComplexPlot():
     def save_plot_separate_colorbars(self, heading):
         plt.savefig(heading + ".png")
 
+class LinePlot():
+
+    cols = 2
+    current = 1
+
+    def new_plot(self, heading, rows):
+        plt.figure()
+        plt.suptitle(heading)
+        self.rows=rows
+
+    def add_to_plot(self, data_naive, data_bayes, x_labels, y_label, evaluated_param_name):
+        plt.subplot(self.rows, self.cols, self.current)
+        plt.xlabel('taumeta')
+        plt.ylabel(y_label)
+
+        for bayes_array_piece in data_naive:
+            x_axis = range(0, len(bayes_array_piece))
+            plt.plot(x_axis, bayes_array_piece)
+
+        plt.legend([evaluated_param_name + " = " + str(x) for x in x_labels], loc='upper center', ncol=3,
+                   fancybox=True, fontsize=6)
+        plt.tight_layout(2)
+        self.current = self.current + 1
+
+
+        plt.subplot(self.rows, self.cols, self.current)
+        plt.xlabel('taumeta')
+        plt.ylabel(y_label)
+
+        for bayes_array_piece in data_bayes:
+            x_axis = range(0, len(bayes_array_piece))
+            plt.plot(x_axis, bayes_array_piece)
+
+        plt.legend([evaluated_param_name + " = " + str(x) for x in x_labels], loc='upper center', ncol=3,
+          fancybox=True, fontsize=6)
+        plt.tight_layout(2)
+        self.current = self.current + 1
+
+    def save_plot(self, heading):
+        plt.savefig(heading + ".png")
+
+
+
 def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, y_axis_name, type, heading):
-    plt.figure()
+    plt.figure(),
     plt.subplot(1, 2, 1)
     plt.pcolor(data_naive, cmap="Reds")
     plt.title(heading)
@@ -122,3 +166,10 @@ def plot_result(y_axis1_list, y_axis2_list, type, heading):
     plt.title(heading)
     plt.savefig(type + '_' + heading + '.png')
 
+line = LinePlot()
+line.new_plot("Test", 2)
+data = [[1,2,3],[2,3,4],[8,4,7]]
+x_labels = [2,3,4]
+line.add_to_plot(data_naive=data, data_bayes=data, y_label="Performance Slope", x_labels=x_labels,evaluated_param_name="eta")
+line.add_to_plot(data_naive=data, data_bayes=data, y_label="Performance Slope", x_labels=x_labels, evaluated_param_name="eta")
+line.save_plot("Lineplot")

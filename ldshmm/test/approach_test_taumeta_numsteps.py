@@ -1,12 +1,11 @@
 from unittest import TestCase
 import numpy as np
-import pyemma.msm as MSM
-import pyemma.msm.estimators as _MME
 from msmtools.estimation import transition_matrix as _tm
 from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
 from time import process_time
-import matplotlib.pyplot as plt
 from ldshmm.test.plottings import plot_result_heatmap
+from ldshmm.util.util_math import Utility
+from ldshmm.test.plottings import ComplexPlot
 
 from ldshmm.util.mm_family import MMFamily1
 
@@ -15,8 +14,12 @@ class Approach_Test(TestCase):
         self.nstates = 4
         self.mmf1_0 = MMFamily1(self.nstates)
         self.mm1_0_0 = self.mmf1_0.sample()[0]
-        self.numsteps = 100
-        self.ntraj = 20
+
+        self.min_eta = 64
+        self.min_scale_win = 16
+        self.min_num_traj = 16
+
+        self.heatmap_size = 3
 
     def estimate_via_sliding_windows(self, data):
         C = count_matrix_coo2_mult(data, lag=1, sliding=False, sparse=False, nstates=self.nstates)
@@ -26,27 +29,26 @@ class Approach_Test(TestCase):
         # initialize timing and error arrays for naive and bayes
 
         # initialize average timing and error arrays for naive and bayes
-        avg_times_naive = np.zeros((3, 3))
-        avg_errs_naive = np.zeros((3, 3))
-        avg_times_bayes = np.zeros((3, 3))
-        avg_errs_bayes = np.zeros((3, 3))
+        avg_times_naive = np.zeros((self.heatmap_size, self.heatmap_size))
+        avg_errs_naive = np.zeros((self.heatmap_size, self.heatmap_size))
+        avg_times_bayes = np.zeros((self.heatmap_size, self.heatmap_size))
+        avg_errs_bayes = np.zeros((self.heatmap_size, self.heatmap_size))
 
         # specify values for taumeta and eta to iterate over
-        taumeta_values = [2, 4, 8]  # 2,4,8
-        numsteps_values = [50,100,200]
+        taumeta_values = [2, 4, 8]
+        numsteps_values = [64,128,256]
 
         for one, taumeta in enumerate(taumeta_values):
             for two, numstep in enumerate(numsteps_values):
 
-
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
-                self.nstep = 100 * self.taumeta
-                self.nwindow = 10 * self.nstep
+                self.nstep = (self.min_eta*2) * self.taumeta
+                self.nwindow = (self.min_scale_win*2) * self.nstep
                 self.numsteps = numstep
                 self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-                self.ntraj = 20
+                self.ntraj = (self.min_num_traj*2)
                 self.r = (self.nwindow - self.nstep) / self.nwindow
 
                 etimenaive = np.zeros(self.numsteps + 2, dtype=float)
@@ -108,16 +110,15 @@ class Approach_Test(TestCase):
                         A1bayes = _tm(C1bayes)
                         errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
 
-                avg_time = sum(etimenaive) / len(etimenaive)
-                avg_err = sum(err) / len(err)
+                slope_time_naive = Utility.log_value(Utility.calc_slope(etimenaive))
+                avg_err_naive = Utility.log_value(sum(err) / len(err))
+                slope_time_bayes = Utility.log_value(Utility.calc_slope(etimebayes))
+                avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
 
-                avg_times_naive[one][two] = avg_time
-                avg_errs_naive[one][two] = avg_err
+                avg_times_naive[one][two] = slope_time_naive
+                avg_errs_naive[one][two] = avg_err_naive
 
-                avg_time_bayes = sum(etimebayes) / len(etimebayes)
-                avg_err_bayes = sum(errbayes) / len(errbayes)
-
-                avg_times_bayes[one][two] = avg_time_bayes
+                avg_times_bayes[one][two] = slope_time_bayes
                 avg_errs_bayes[one][two] = avg_err_bayes
 
         print("Naive Performance:", avg_times_naive)
@@ -125,6 +126,19 @@ class Approach_Test(TestCase):
         print("Naive Error:", avg_errs_naive)
         print("Bayes Error:", avg_errs_bayes)
 
+        min_perf =  np.amin([avg_times_naive, avg_times_bayes])
+        max_perf = np.amax([avg_times_naive, avg_times_bayes])
+        min_err = np.amin([avg_errs_naive, avg_errs_bayes])
+        max_err = np.amax([avg_errs_naive, avg_errs_bayes])
+
         # plot the average performances and errors in a heatmap
-        plot_result_heatmap(avg_times_naive, avg_times_bayes, taumeta_values, numsteps_values, "numsteps", "Performance", "Heatmap Performance Taumeta Numsteps")
-        plot_result_heatmap(avg_errs_naive, avg_errs_bayes, taumeta_values, numsteps_values, "numsteps", "Error", "Heatmap Error Taumeta Numsteps")
+        plot = ComplexPlot()
+        plot.new_plot("Taumeta Numsteps Stationary MM Performance", rows=1)
+        plot.add_to_plot_same_colorbar(data_naive=avg_times_naive, data_bayes=avg_times_bayes, y_labels=numsteps_values, x_labels=taumeta_values, y_label="Numsteps", minimum=min_perf, maximum=max_perf)
+        plot.save_plot_same_colorbar(heading="Taumeta Numsteps Performance")
+
+        plot = ComplexPlot()
+        plot.new_plot("Taumeta Numsteps Stationary MM Errors", rows=1)
+        plot.add_to_plot_same_colorbar(data_naive=avg_errs_naive, data_bayes=avg_errs_bayes, y_labels=numsteps_values,
+                                       x_labels=taumeta_values, y_label="Numsteps", minimum=min_err, maximum=max_err)
+        plot.save_plot_same_colorbar(heading="Taumeta Numsteps Error")
