@@ -35,3 +35,8 @@ class Utility():
         y = range(0, len(x))
         slope, intercept, r_value, p_value, std_err = linregress(y, x)
         return slope
+
+    @staticmethod
+    def log_value(x):
+        import math
+        return math.log(x)

@@ -3,21 +3,21 @@ import numpy as np
 
 
 class ComplexPlot():
-    rows = 4
     cols = 2
     current = 1
     im = None
 
-    def new_plot(self, heading):
+    def new_plot(self, heading, rows):
         plt.figure()
         plt.suptitle(heading)
+        self.rows=rows+1
 
 
     def add_to_plot_separate_colorbar(self, data_naive, data_bayes, x_labels, y_labels, y_label):
         plt.subplot(self.rows,self.cols,self.current)
         plt.pcolor(data_naive, cmap="Reds")
-        plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
-        plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
+        plt.xticks(np.arange(len(x_labels)), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(len(y_labels)), (str(y_label) for y_label in y_labels))
         plt.xlabel("taumeta")
         plt.ylabel(y_label)
         plt.colorbar()
@@ -26,8 +26,8 @@ class ComplexPlot():
 
         plt.subplot(self.rows,self.cols,self.current)
         plt.pcolor(data_bayes, cmap="Reds")
-        plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
-        plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
+        plt.xticks(np.arange(len(x_labels)), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(len(y_labels)), (str(y_label) for y_label in y_labels))
         plt.xlabel("taumeta")
         plt.ylabel(y_label)
         plt.colorbar()
@@ -37,8 +37,8 @@ class ComplexPlot():
     def add_to_plot_same_colorbar (self, data_naive, data_bayes, x_labels, y_labels, y_label, minimum, maximum):
         plt.subplot(self.rows, self.cols, self.current)
         self.im = plt.pcolor(data_naive, vmin=minimum, vmax=maximum, cmap="Reds")
-        plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
-        plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
+        plt.xticks(np.arange(len(x_labels)), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(len(x_labels)), (str(y_label) for y_label in y_labels))
         plt.xlabel("taumeta")
         plt.ylabel(y_label)
         plt.tight_layout(2)
@@ -46,15 +46,15 @@ class ComplexPlot():
 
         plt.subplot(self.rows, self.cols, self.current)
         self.im = plt.pcolor(data_bayes, vmin=minimum, vmax=maximum, cmap="Reds")
-        plt.xticks(np.arange(3), (str(x_label) for x_label in x_labels))
-        plt.yticks(np.arange(3), (str(y_label) for y_label in y_labels))
+        plt.xticks(np.arange(len(x_labels)), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(len(y_labels)), (str(y_label) for y_label in y_labels))
         plt.xlabel("taumeta")
         plt.ylabel(y_label)
         plt.tight_layout(2)
         self.current = self.current + 1
 
     def save_plot_same_colorbar(self, heading):
-        ax = plt.subplot(self.rows, self.cols, 8)
+        ax = plt.subplot(self.rows, self.cols, self.rows*self.cols)
         cbar = plt.colorbar(self.im, ax=ax, orientation="horizontal")
         labels = cbar.ax.get_xticklabels()
         cbar.ax.tick_params(labelsize=6)
