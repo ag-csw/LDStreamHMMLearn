@@ -23,7 +23,7 @@ class ComplexPlot():
         plt.ylabel(y_label)
         plt.colorbar()
         plt.tight_layout(2)
-        self.current = self.currnent+1
+        self.current = self.current+1
 
         plt.subplot(self.rows,self.cols,self.current)
         plt.pcolor(data_bayes, cmap="Reds")
@@ -112,7 +112,7 @@ class LinePlot():
 
 
 def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, y_axis_name, type, heading):
-    plt.figure(),
+    plt.figure()
     plt.subplot(1, 2, 1)
     plt.pcolor(data_naive, cmap="Reds")
     plt.title(heading)
