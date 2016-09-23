@@ -40,3 +40,9 @@ class Utility():
     def log_value(x):
         import math
         return math.log(x)
+
+    @staticmethod
+    def get_mid_value(value, num_values):
+        import math
+        num_values_mid = int((num_values-1)/2)
+        return int(value * math.pow(2, num_values_mid))
