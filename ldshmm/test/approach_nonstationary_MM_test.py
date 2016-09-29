@@ -1,15 +1,17 @@
-from unittest import TestCase
 import math
+from time import process_time
+from unittest import TestCase
+
 import numpy as np
 from msmtools.estimation import transition_matrix as _tm
-from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
 from msmtools.estimation.dense.tmatrix_sampler import TransitionMatrixSampler as TMS
-from time import process_time
-from ldshmm.test.plottings import plot_result_heatmap
-from ldshmm.util.util_math import Utility
+from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
 
 from ldshmm.util.mm_family import MMFamily1
+from ldshmm.util.plottings import plot_result_heatmap
 from ldshmm.util.qmm_family import QMMFamily1
+from ldshmm.util.util_math import Utility
+
 
 class Approach_Test(TestCase):
     def setUp(self):

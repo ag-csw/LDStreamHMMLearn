@@ -1,14 +1,13 @@
+from time import process_time
 from unittest import TestCase
+
 import numpy as np
-import pyemma.msm as MSM
-import pyemma.msm.estimators as _MME
 from msmtools.estimation import transition_matrix as _tm
 from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
-from time import process_time
-import matplotlib.pyplot as plt
-from ldshmm.test.plottings import plot_result_heatmap
 
 from ldshmm.util.mm_family import MMFamily1
+from ldshmm.util.plottings import plot_result_heatmap
+
 
 class Approach_Test(TestCase):
     def setUp(self):

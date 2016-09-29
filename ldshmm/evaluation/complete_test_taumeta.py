@@ -1,12 +1,14 @@
-from unittest import TestCase
-from msmtools.estimation import transition_matrix as _tm
-from ldshmm.util.util_functionality import *
 from time import process_time
-from ldshmm.test.plottings import ComplexPlot
+from unittest import TestCase
+
+from msmtools.estimation import transition_matrix as _tm
+
+from ldshmm.util.mm_family import MMFamily1
+from ldshmm.util.plottings import ComplexPlot
+from ldshmm.util.util_functionality import *
 from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
 
-from ldshmm.util.mm_family import MMFamily1
 
 class Approach_Test(TestCase):
     def setUp(self):
