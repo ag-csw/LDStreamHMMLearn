@@ -17,7 +17,7 @@ class QMMFamily1(QMMFamily):
 
     def __init__(self, mmfam,
                  edgewidth=1, edgeshift=0, gammamin=1, gammamax=1,
-                 mu0 = lambda t: (np.tanh(t) + 1) / 2):
+                 mu0 = lambda t: (np.tanh(t) + 1) / 2, delta=0):
         self.mmfam = mmfam
         self.nstates = self.mmfam.nstates
 
@@ -27,7 +27,7 @@ class QMMFamily1(QMMFamily):
         self.gammamax = gammamax # maximum value of edge shift multiplier
 
         self.mu0 = mu0 # template weight function
-
+        self.delta=delta
         self.gammadist = scipy.stats.uniform(self.gammamin, self.gammamax)
 
     def _sample_one(self):
@@ -43,7 +43,7 @@ class QMMFamily1(QMMFamily):
 
             # construct the base (taumeta = tauquasi = 1) weight function from the template
             def mu(t):
-                return self.mu0((t - self.edgeshift * gamma) / self.edgewidth)
+                return self.delta * self.mu0((t - self.edgeshift * gamma) / self.edgewidth)
 
             # construct the convex combination quasi=stationary MM
             try:
