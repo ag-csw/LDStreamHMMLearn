@@ -63,13 +63,20 @@ class Test_TMatrix_Sampler(TestCase):
 
                 C1bayes = weight0 * C_old + weight1 * C_new
                 C_old = C1bayes
-                print("Count Matrix:", C1bayes)
-                tmatrix_sampler = TransitionMatrixSampler(C=C1bayes)
-                samples = tmatrix_sampler.sample(nsamples=1)
-                print(samples)
+                print("C1bayes Count Matrix:\n", C1bayes)
 
                 t1 = process_time()
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
                 A1bayes = _tm(C1bayes)
+                print("C1bayes Transition Matrix\n", A1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
+
+                tmatrix_sampler = TransitionMatrixSampler(C=C1bayes)
+                samples = tmatrix_sampler.sample(nsamples=128)
+                average = np.mean(samples, axis=0)
+                print("Average Transition Matrix from Samples:\n", average)
+
+                err_count_matrix = np.linalg.norm(average - self.mm1_0_0_scaled.trans)
+                print("Error C1bayes Count Matrix: ", errbayes[k])
+                print("Error Average Transition Count Matrix ",err_count_matrix)
 
