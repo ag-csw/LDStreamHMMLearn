@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
-
+from scipy.stats import probplot
 
 class ComplexPlot():
     cols = 2
@@ -112,6 +111,22 @@ class LinePlot():
     def save_plot(self, heading):
         plt.savefig(heading + ".png")
 
+class ProbPlot():
+    cols = 2
+    current = 1
+
+    def new_plot(self, rows):
+        plt.figure()
+        self.rows = rows
+
+    def add_to_plot(self, data):
+        plt.subplot(self.rows, self.cols, self.current)
+        probplot(x=data, plot=plt)
+        self.current = self.current+1
+        plt.tight_layout(0.5)
+
+    def save_plot(self, heading):
+        plt.savefig(heading + ".png")
 
 
 def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, y_axis_name, type, heading):

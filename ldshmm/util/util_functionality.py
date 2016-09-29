@@ -19,3 +19,4 @@ def init_time_and_error_arrays(heatmap_size):
     avg_times_bayes = np.zeros((heatmap_size, heatmap_size))
     avg_errs_bayes = np.zeros((heatmap_size, heatmap_size))
     return avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive
+

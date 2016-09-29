@@ -8,6 +8,7 @@ class Variable_Holder():
     heatmap_size = 3
     min_taumeta = 2
 
+    mid_taumeta = Utility.get_mid_value(min_taumeta, heatmap_size)
     mid_eta = Utility.get_mid_value(min_eta, heatmap_size)
     mid_scale_win = Utility.get_mid_value(min_scale_win, heatmap_size)
     mid_num_traj = Utility.get_mid_value(min_num_traj, heatmap_size)
