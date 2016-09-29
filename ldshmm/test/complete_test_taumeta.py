@@ -1,10 +1,10 @@
 from unittest import TestCase
-import numpy as np
 from msmtools.estimation import transition_matrix as _tm
-from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
+from ldshmm.util.util_functionality import *
 from time import process_time
 from ldshmm.test.plottings import ComplexPlot
 from ldshmm.util.util_math import Utility
+from ldshmm.util.variable_holder import Variable_Holder
 
 from ldshmm.util.mm_family import MMFamily1
 
@@ -14,23 +14,18 @@ class Approach_Test(TestCase):
         self.mmf1_0 = MMFamily1(self.nstates)
         self.mm1_0_0 = self.mmf1_0.sample()[0]
 
-        self.min_eta=8
-        self.min_scale_win=8
-        self.min_num_traj=1
-        self.heatmap_size=3
-        self.min_taumeta=2
+        self.min_eta=Variable_Holder.min_eta
+        self.min_scale_win=Variable_Holder.min_scale_win
+        self.min_num_traj=Variable_Holder.min_num_traj
+        self.heatmap_size=Variable_Holder.heatmap_size
+        self.min_taumeta=Variable_Holder.min_taumeta
 
-        self.mid_eta = Utility.get_mid_value(self.min_eta, self.heatmap_size)
-        self.mid_scale_win = Utility.get_mid_value(self.min_scale_win, self.heatmap_size)
-        self.mid_num_traj = Utility.get_mid_value(self.min_num_traj, self.heatmap_size)
+        self.mid_eta = Variable_Holder.mid_eta
+        self.mid_scale_win = Variable_Holder.mid_scale_win
+        self.mid_num_traj = Variable_Holder.mid_num_traj
 
-        self.product_mid_values = self.mid_eta * self.mid_scale_win * self.mid_num_traj
-        self.numsteps_global = 16 * self.product_mid_values
-
-
-    def estimate_via_sliding_windows(self, data):
-        C = count_matrix_coo2_mult(data, lag=1, sliding=False, sparse=False, nstates = self.nstates)
-        return C
+        self.product_mid_values = Variable_Holder.product_mid_values
+        self.numsteps_global = Variable_Holder.numsteps_global
 
     def test_run_all_tests(self):
         plots = ComplexPlot()
@@ -81,7 +76,7 @@ class Approach_Test(TestCase):
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2, x_labels=taumeta_values,
                             y_labels=scale_win_values, y_label="scale_win", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive3, data_bayes=avg_errs_bayes3, x_labels=taumeta_values,
-                            y_labels=num_traj_values, y_label="num_traj", minimum=min_val, maximum=max_val)
+                            y_labels=num_traj_values, y_label="num   _traj", minimum=min_val, maximum=max_val)
 
 
         plots.save_plot_same_colorbar("Error")
@@ -99,11 +94,11 @@ class Approach_Test(TestCase):
 
     def test_taumeta_eta(self):
 
-        avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = self.init_time_and_error_arrays()
+        avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
 
         # specify values for taumeta and eta to iterate over
-        taumeta_values = self.create_value_list(self.min_taumeta, self.heatmap_size)
-        eta_values = self.create_value_list(self.min_eta, self.heatmap_size)
+        taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
+        eta_values = create_value_list(self.min_eta, self.heatmap_size)
 
         for one,taumeta in enumerate(taumeta_values):
             for two,eta in enumerate(eta_values):
@@ -150,15 +145,11 @@ class Approach_Test(TestCase):
         return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, eta_values
 
     def test_taumeta_scale_win(self):
-        # initialize average timing and error arrays for naive and bayes
-        avg_times_naive = np.zeros((self.heatmap_size, self.heatmap_size))
-        avg_errs_naive = np.zeros((self.heatmap_size, self.heatmap_size))
-        avg_times_bayes = np.zeros((self.heatmap_size, self.heatmap_size))
-        avg_errs_bayes = np.zeros((self.heatmap_size, self.heatmap_size))
+        avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
 
         # specify values for taumeta and eta to iterate over
-        taumeta_values = self.create_value_list(self.min_taumeta, self.heatmap_size)
-        scale_win_values = self.create_value_list(self.min_scale_win,self.heatmap_size)
+        taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
+        scale_win_values = create_value_list(self.min_scale_win,self.heatmap_size)
 
         for one, taumeta in enumerate(taumeta_values):
             for two, scale_win in enumerate(scale_win_values):
@@ -204,15 +195,11 @@ class Approach_Test(TestCase):
         return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, scale_win_values
 
     def test_taumeta_num_traj(self):
-        # initialize average timing and error arrays for naive and bayes
-        avg_times_naive = np.zeros((self.heatmap_size, self.heatmap_size))
-        avg_errs_naive = np.zeros((self.heatmap_size, self.heatmap_size))
-        avg_times_bayes = np.zeros((self.heatmap_size, self.heatmap_size))
-        avg_errs_bayes = np.zeros((self.heatmap_size, self.heatmap_size))
+        avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
 
         # specify values for taumeta and eta to iterate over
-        taumeta_values = self.create_value_list(self.min_taumeta, self.heatmap_size)
-        num_traj_values = self.create_value_list(self.min_num_traj,self.heatmap_size)
+        taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
+        num_traj_values = create_value_list(self.min_num_traj,self.heatmap_size)
 
         for one, taumeta in enumerate(taumeta_values):
             for two, num_traj in enumerate(num_traj_values):
@@ -264,7 +251,7 @@ class Approach_Test(TestCase):
             for i in range(0, self.ntraj):
                 dataslice0.append(data0[i, :])
             t0 = process_time()
-            C0 = self.estimate_via_sliding_windows(dataslice0)  # count matrix for whole window
+            C0 = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)  # count matrix for whole window
             t1 = process_time()
             A0 = _tm(C0)
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
@@ -277,7 +264,7 @@ class Approach_Test(TestCase):
                     dataslice0.append(data0[i, :])
 
                 t0 = process_time()
-                C_old = self.estimate_via_sliding_windows(dataslice0)
+                C_old = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)
                 etimebayes[1] = process_time() - t0
                 errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
 
@@ -288,8 +275,7 @@ class Approach_Test(TestCase):
                 for i in range(0, self.ntraj):
                     dataslice1new.append(data1new[i, :])
                 t0 = process_time()
-                C_new = self.estimate_via_sliding_windows(
-                    dataslice1new)  # count matrix for just new transitions
+                C_new = estimate_via_sliding_windows(data=dataslice1new, nstates=self.nstates)  # count matrix for just new transitions
 
                 weight0 = self.r
                 weight1 = 1.0
@@ -306,20 +292,6 @@ class Approach_Test(TestCase):
         slope_time_bayes = Utility.log_value(Utility.calc_slope(etimebayes))
         avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
         return slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes
-
-
-    def create_value_list(self,first_value, len_list):
-        import math
-        list = [int(math.pow(2,x)*first_value) for x in range(0,len_list)]
-        return list
-
-    def init_time_and_error_arrays(self):
-        # initialize average timing and error arrays for naive and bayes
-        avg_times_naive = np.zeros((self.heatmap_size, self.heatmap_size))
-        avg_errs_naive = np.zeros((self.heatmap_size, self.heatmap_size))
-        avg_times_bayes = np.zeros((self.heatmap_size, self.heatmap_size))
-        avg_errs_bayes = np.zeros((self.heatmap_size, self.heatmap_size))
-        return avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive
 
     def print_param_values(self, evaluation_name, taumeta, nstep, nwindow, numsteps, lentraj, ntraj, eta, scale_win):
         print("Parameter Overview for " + evaluation_name+ ":")

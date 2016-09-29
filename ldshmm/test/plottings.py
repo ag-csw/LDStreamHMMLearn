@@ -84,12 +84,14 @@ class LinePlot():
         plt.ylabel(y_label)
 
         for bayes_array_piece in data_naive:
-            x_axis = range(0, len(bayes_array_piece))
-            plt.plot(x_axis, bayes_array_piece)
+            plt.plot(x_labels, bayes_array_piece, marker='o')
 
         plt.legend([evaluated_param_name + " = " + str(x) for x in x_labels], loc='upper center', ncol=3,
                    fancybox=True, fontsize=6)
         plt.tight_layout(2)
+        plt.xticks(np.linspace(0, x_labels[-1], 5, endpoint=True))
+        plt.xlim(1, x_labels[-1]+1)
+
         self.current = self.current + 1
 
 
@@ -98,12 +100,13 @@ class LinePlot():
         plt.ylabel(y_label)
 
         for bayes_array_piece in data_bayes:
-            x_axis = range(0, len(bayes_array_piece))
-            plt.plot(x_axis, bayes_array_piece)
+            plt.plot(x_labels, bayes_array_piece, marker='o')
 
         plt.legend([evaluated_param_name + " = " + str(x) for x in x_labels], loc='upper center', ncol=3,
-          fancybox=True, fontsize=6)
+                   fancybox=True, fontsize=6)
         plt.tight_layout(2)
+        plt.xticks(x_labels)
+        plt.xlim(1, x_labels[-1]+1)
         self.current = self.current + 1
 
     def save_plot(self, heading):
@@ -165,11 +168,3 @@ def plot_result(y_axis1_list, y_axis2_list, type, heading):
         tl.set_color('r')
     plt.title(heading)
     plt.savefig(type + '_' + heading + '.png')
-
-line = LinePlot()
-line.new_plot("Test", 2)
-data = [[1,2,3],[2,3,4],[8,4,7]]
-x_labels = [2,3,4]
-line.add_to_plot(data_naive=data, data_bayes=data, y_label="Performance Slope", x_labels=x_labels,evaluated_param_name="eta")
-line.add_to_plot(data_naive=data, data_bayes=data, y_label="Performance Slope", x_labels=x_labels, evaluated_param_name="eta")
-line.save_plot("Lineplot")
