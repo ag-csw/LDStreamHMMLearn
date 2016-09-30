@@ -21,13 +21,14 @@ class MMFamily1(MMFamily):
     # No Dominant Metastable State
     # Crisply-clustered observables
 
-    def __init__(self, nstates, timescaledisp=2, statconc=1):
+    def __init__(self, nstates, timescaledisp=2, statconc=1, timescale_min=1):
         self.nstates = nstates # number of states
-        self.eigenvaluemin = np.exp(-1.0)
+        self.timescale_min = timescale_min
+        self.eigenvaluemin = np.exp(-1.0 / self.timescale_min)
         self.timescaledisp = timescaledisp # dispersion of the implied timescales in the base MM
 
         # Derived attributes
-        self.eigenvaluemax = np.exp(-1.0 / self.timescaledisp)
+        self.eigenvaluemax = np.exp(-1.0 / (self.timescaledisp * self.timescale_min))
         self.dispscale = self.eigenvaluemax - self.eigenvaluemin
         self.eigenvaluedist = uniform(loc=self.eigenvaluemin, scale=self.dispscale)
         self.statconcvec = statconc * np.ones(nstates)
