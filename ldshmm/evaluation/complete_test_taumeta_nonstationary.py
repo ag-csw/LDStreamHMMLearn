@@ -118,7 +118,8 @@ class Approach_Test(TestCase):
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta, self.tauquasi)
 
                 self.nu = self.mid_nu
-                self.nstep = math.ceil(self.nu * self.timescaledisp * self.taumeta * self.tauquasi)
+                self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
+                self.nstep = math.ceil(self.nu * self.drift_timescale)
                 self.nwindow = scale_win * self.nstep
                 self.numsteps = int(Variable_Holder.numsteps_global_nonstat / Variable_Holder.product_mid_values_nonstat)
                 self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
@@ -157,7 +158,7 @@ class Approach_Test(TestCase):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
 
         taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
-        nu_values = create_value_list(self.min_nu, self.heatmap_size) #5,10,25
+        nu_values = create_value_list(self.min_nu, self.heatmap_size)
 
         for one, taumeta in enumerate(taumeta_values):
             for two, nu in enumerate(nu_values):
@@ -167,7 +168,8 @@ class Approach_Test(TestCase):
                 self.tauquasi = self.timescaledisp * 3
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta, self.tauquasi)
                 self.nu = nu
-                self.nstep = math.ceil(self.nu * self.timescaledisp * self.taumeta * self.tauquasi)
+                self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
+                self.nstep = math.ceil(self.nu * self.drift_timescale)
                 self.nwindow = self.mid_scale_win * self.nstep
                 self.numsteps = int(Variable_Holder.numsteps_global_nonstat / Variable_Holder.product_mid_values_nonstat)
                 self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
@@ -217,7 +219,8 @@ class Approach_Test(TestCase):
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta, self.tauquasi)
 
                 self.nu = self.mid_nu
-                self.nstep = math.ceil(self.nu * self.timescaledisp * self.taumeta * self.tauquasi)
+                self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
+                self.nstep = math.ceil(self.nu * self.drift_timescale)
                 self.nwindow = self.min_scale_win * self.nstep
                 self.numsteps = int(Variable_Holder.numsteps_global_nonstat / Variable_Holder.product_mid_values_nonstat)
                 self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
