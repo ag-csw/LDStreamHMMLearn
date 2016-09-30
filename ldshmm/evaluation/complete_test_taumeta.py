@@ -110,9 +110,9 @@ class Approach_Test(TestCase):
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.nstep = eta * self.taumeta
                 self.nwindow = self.mid_scale_win * self.nstep
-                self.numsteps = int(self.numsteps_global / self.product_mid_values)
-                self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
                 self.ntraj = self.mid_num_traj
+                self.numsteps = int(self.numsteps_global / (eta * self.mid_scale_win * self.ntraj))
+                self.lentraj = (self.nwindow + self.numsteps * self.nstep + 1)
                 self.r = (self.nwindow - self.nstep) / self.nwindow
 
                 self.print_param_values("ETA", self.taumeta, self.nstep, self.nwindow, self.numsteps, self.lentraj, self.ntraj, eta, self.mid_scale_win)
@@ -161,9 +161,9 @@ class Approach_Test(TestCase):
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.nstep = (self.mid_eta) * self.taumeta
                 self.nwindow = scale_win * self.nstep
-                self.numsteps = int(self.numsteps_global / self.product_mid_values)
-                self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
                 self.ntraj = self.mid_num_traj
+                self.numsteps = int(self.numsteps_global / (self.mid_eta * scale_win * self.ntraj))
+                self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
                 self.r = (self.nwindow - self.nstep) / self.nwindow
 
                 self.print_param_values("SCALE_WIN", self.taumeta, self.nstep, self.nwindow, self.numsteps, self.lentraj, self.ntraj, self.mid_eta, scale_win)
@@ -212,9 +212,9 @@ class Approach_Test(TestCase):
                 self.nstep = (self.mid_eta) * self.taumeta
                 # here we take the MINIMUM value of scale_win instead of the MIDDLE value on purpose
                 self.nwindow = (self.min_scale_win) * self.nstep
-                self.numsteps = int(self.numsteps_global / self.product_mid_values)
-                self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
                 self.ntraj = num_traj
+                self.numsteps = int(self.numsteps_global / (self.mid_eta * self.min_scale_win * num_traj))
+                self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
                 self.r = (self.nwindow - self.nstep) / self.nwindow
 
                 self.print_param_values("NUM_TRAJ",self.taumeta, self.nstep, self.nwindow, self.numsteps, self.lentraj, self.ntraj, self.mid_eta, self.mid_scale_win)
