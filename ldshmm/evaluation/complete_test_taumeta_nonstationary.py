@@ -19,12 +19,14 @@ class Approach_Test(TestCase):
         self.mmf1_0 = MMFamily1(self.nstates, self.timescaledisp, self.statconc)
         self.qmmf1_0 = QMMFamily1(self.mmf1_0)
         self.qmm1_0_0 = self.qmmf1_0.sample()[0]
+
         self.heatmap_size = Variable_Holder.heatmap_size
-        self.min_nu = Variable_Holder.min_nu
         self.min_taumeta = Variable_Holder.min_taumeta
+        self.min_eta = Variable_Holder.min_eta
         self.min_scale_win = Variable_Holder.min_scale_win
         self.min_num_traj = Variable_Holder.min_num_traj
-        self.mid_nu = Variable_Holder.mid_nu
+
+        self.mid_eta = Variable_Holder.mid_eta
         self.mid_scale_win = Variable_Holder.mid_scale_win
         self.mid_num_traj = Variable_Holder.mid_num_traj
 
@@ -34,7 +36,7 @@ class Approach_Test(TestCase):
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
 
         # calculate performances and errors for the three parameters
-        avg_times_naive1, avg_times_bayes1, avg_errs_naive1, avg_errs_bayes1, taumeta_values, nu_values = self.test_taumeta_nu()
+        avg_times_naive1, avg_times_bayes1, avg_errs_naive1, avg_errs_bayes1, taumeta_values, eta_values = self.test_taumeta_eta()
 
         avg_times_naive2, avg_times_bayes2, avg_errs_naive2, avg_errs_bayes2, taumeta_values, scale_win_values = self.test_taumeta_scale_win()
 
@@ -49,7 +51,7 @@ class Approach_Test(TestCase):
                avg_times_bayes3], "Maximum:", max_val)
 
         # input data into one plot
-        plots.add_to_plot_same_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=nu_values, y_label="nu", minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=eta_values, y_label="eta", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_win_values, y_label="scale_win", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj", minimum=min_val, maximum=max_val)
 
@@ -58,7 +60,7 @@ class Approach_Test(TestCase):
         ###########################################################
         plots = ComplexPlot()
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
-        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=nu_values, y_label="nu")
+        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=eta_values, y_label="eta")
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_win_values, y_label="scale_win")
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
         plots.save_plot_separate_colorbars("Performance_separate_colorbars-nonstat")
@@ -83,7 +85,7 @@ class Approach_Test(TestCase):
 
         # input data into one plot
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive1, data_bayes=avg_errs_bayes1, x_labels=taumeta_values,
-                            y_labels=nu_values, y_label="nu", minimum=min_val, maximum=max_val)
+                            y_labels=eta_values, y_label="eta", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2, x_labels=taumeta_values,
                             y_labels=scale_win_values, y_label="scale_win", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive3, data_bayes=avg_errs_bayes3, x_labels=taumeta_values,
@@ -95,7 +97,7 @@ class Approach_Test(TestCase):
         plots = ComplexPlot()
         plots.new_plot("Naive Error vs. Bayes Error", rows=3)
         plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive1, data_bayes=avg_errs_bayes1,
-                                            x_labels=taumeta_values, y_labels=nu_values, y_label="nu")
+                                            x_labels=taumeta_values, y_labels=eta_values, y_label="eta")
         plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2,
                                             x_labels=taumeta_values, y_labels=scale_win_values, y_label="scale_win")
         plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive3, data_bayes=avg_errs_bayes3,
@@ -117,9 +119,9 @@ class Approach_Test(TestCase):
                 self.tauquasi = self.timescaledisp * 3
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta, self.tauquasi)
 
-                self.nu = self.mid_nu
+                self.eta = self.mid_eta
                 self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
-                self.nstep = math.ceil(self.nu * self.drift_timescale)
+                self.nstep = math.ceil(self.eta * self.drift_timescale)
                 self.nwindow = scale_win * self.nstep
                 self.numsteps = int(Variable_Holder.numsteps_global_nonstat / Variable_Holder.product_mid_values_nonstat)
                 self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
@@ -154,22 +156,22 @@ class Approach_Test(TestCase):
 
         return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, scale_win_values
 
-    def test_taumeta_nu(self):
+    def test_taumeta_eta(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
 
         taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
-        nu_values = create_value_list(self.min_nu, self.heatmap_size)
+        eta_values = create_value_list(self.min_eta, self.heatmap_size)
 
         for one, taumeta in enumerate(taumeta_values):
-            for two, nu in enumerate(nu_values):
+            for two, eta in enumerate(eta_values):
 
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.tauquasi = self.timescaledisp * 3
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta, self.tauquasi)
-                self.nu = nu
+                self.eta = eta
                 self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
-                self.nstep = math.ceil(self.nu * self.drift_timescale)
+                self.nstep = math.ceil(self.eta * self.drift_timescale)
                 self.nwindow = self.mid_scale_win * self.nstep
                 self.numsteps = int(Variable_Holder.numsteps_global_nonstat / Variable_Holder.product_mid_values_nonstat)
                 self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
@@ -202,7 +204,7 @@ class Approach_Test(TestCase):
         print("Naive Error:", avg_errs_naive)
         print("Bayes Error:", avg_errs_bayes)
 
-        return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, nu_values
+        return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, eta_values
 
     def test_taumeta_numtraj(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
@@ -218,9 +220,9 @@ class Approach_Test(TestCase):
                 self.tauquasi = self.timescaledisp * 3
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta, self.tauquasi)
 
-                self.nu = self.mid_nu
+                self.eta = self.mid_eta
                 self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
-                self.nstep = math.ceil(self.nu * self.drift_timescale)
+                self.nstep = math.ceil(self.eta * self.drift_timescale)
                 self.nwindow = self.min_scale_win * self.nstep
                 self.numsteps = int(Variable_Holder.numsteps_global_nonstat / Variable_Holder.product_mid_values_nonstat)
                 self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
