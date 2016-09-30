@@ -17,7 +17,7 @@ class QMMFamily1(QMMFamily):
 
     def __init__(self, mmfam,
                  edgewidth=1, edgeshift=0, gammamin=1, gammamax=1,
-                 mu0 = lambda t: (np.tanh(t) + 1) / 2, delta=0):
+                 mu0 = lambda t: (np.tanh(t) + 1) / 2, delta=1):
         self.mmfam = mmfam
         self.nstates = self.mmfam.nstates
 
