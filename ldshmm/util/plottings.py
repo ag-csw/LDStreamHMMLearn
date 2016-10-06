@@ -129,6 +129,31 @@ class ProbPlot():
         plt.savefig(heading + ".png")
 
 
+class PointPlot():
+    cols = 2
+    current = 1
+
+    def new_plot(self, heading, rows):
+        plt.figure()
+        plt.suptitle(heading)
+        self.rows = rows
+
+    def add_to_plot(self, err_data, tmatrix_err_data):
+        plt.subplot(self.rows, self.cols, self.current)
+        x_axis = range(0, len(err_data))
+        plt.plot(x_axis, err_data, marker='o', label="Normal Error")
+
+        x_axis = range(0, len(tmatrix_err_data))
+        plt.plot(x_axis, tmatrix_err_data, marker='D', label="Tmatrix Sampler Error")
+
+        plt.legend(loc="upper left", fontsize=4)
+        self.current = self.current + 1
+        plt.tight_layout(2)
+
+    def save_plot(self, heading):
+        plt.savefig(heading + ".png")
+
+
 def plot_result_heatmap(data_naive, data_bayes, x_labels, y_labels, y_axis_name, type, heading):
     plt.figure()
     plt.subplot(1, 2, 1)

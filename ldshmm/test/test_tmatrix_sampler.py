@@ -6,6 +6,7 @@ import numpy as np
 from time import process_time
 from msmtools.estimation import transition_matrix as _tm
 from ldshmm.util.util_functionality import estimate_via_sliding_windows
+from ldshmm.util.plottings import PointPlot
 
 
 
@@ -18,65 +19,73 @@ class Test_TMatrix_Sampler(TestCase):
 
     def test_create(self):
 
-        # Setting taumeta and eta values and recalculate dependent variables for scaling
-        self.taumeta = Variable_Holder.min_taumeta
-        self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
-        self.nstep = Variable_Holder.mid_eta * self.taumeta
-        self.nwindow = Variable_Holder.mid_scale_win * self.nstep
-        self.numsteps = int(Variable_Holder.numsteps_global / Variable_Holder.product_mid_values)
-        self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-        self.ntraj = Variable_Holder.mid_num_traj
-        self.r = (self.nwindow - self.nstep) / self.nwindow
+        plt = PointPlot()
+        plt.new_plot("Error Comparison", rows=4)
 
-        etimebayes = np.zeros(self.numsteps + 2, dtype=float)
-        errbayes = np.zeros(self.numsteps + 1, dtype=float)
+        for l in range(0,8):
+            # Setting taumeta and eta values and recalculate dependent variables for scaling
+            self.taumeta = Variable_Holder.min_taumeta
+            self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+            self.nstep = Variable_Holder.mid_eta * self.taumeta
+            self.nwindow = Variable_Holder.mid_scale_win * self.nstep
+            self.numsteps = int(Variable_Holder.numsteps_global / Variable_Holder.product_mid_values)
+            self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
+            self.ntraj = 16#Variable_Holder.mid_num_traj
+            self.r = (self.nwindow - self.nstep) / self.nwindow
 
-        self.data1_0_0 = []
-        for i in range(0, self.ntraj):
-            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.lentraj)))
-        dataarray = np.asarray(self.data1_0_0)
+            errbayes = np.zeros(self.numsteps, dtype=float)
+            errTMatrSampl = np.zeros(self.numsteps, dtype=float)
 
-        for k in range(0, 2):
+            self.data1_0_0 = []
+            for i in range(0, self.ntraj):
+                self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.lentraj)))
+            dataarray = np.asarray(self.data1_0_0)
 
-            if k == 0:
-                ##### Bayes approach: Calculate C0 separately
-                data0 = dataarray[:, 0 * self.nstep: (self.nwindow + 0 * self.nstep)]
-                dataslice0 = []
-                for i in range(0, self.ntraj):
-                    dataslice0.append(data0[i, :])
-                t0 = process_time()
-                C_old = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)
-                etimebayes[1] = process_time() - t0
-                errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
+            for k in range(0, self.numsteps):
+                print(k)
+                if k == 0:
+                    ##### Bayes approach: Calculate C0 separately
+                    data0 = dataarray[:, 0 * self.nstep: (self.nwindow + 0 * self.nstep)]
+                    dataslice0 = []
+                    for i in range(0, self.ntraj):
+                        dataslice0.append(data0[i, :])
+                    t0 = process_time()
+                    C_old = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)
+                    errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
+                    errTMatrSampl[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
 
-            if k >= 1:
-                ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
-                data1new = dataarray[:, self.nwindow + (k - 1) * self.nstep - 1: (self.nwindow + k * self.nstep)]
-                dataslice1new = []
-                for i in range(0, self.ntraj):
-                    dataslice1new.append(data1new[i, :])
-                t0 = process_time()
-                C_new = estimate_via_sliding_windows(data=dataslice1new, nstates=self.nstates)  # count matrix for just new transitions
+                if k >= 1:
+                    ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
+                    data1new = dataarray[:, self.nwindow + (k - 1) * self.nstep - 1: (self.nwindow + k * self.nstep)]
+                    dataslice1new = []
+                    for i in range(0, self.ntraj):
+                        dataslice1new.append(data1new[i, :])
+                    t0 = process_time()
+                    C_new = estimate_via_sliding_windows(data=dataslice1new, nstates=self.nstates)  # count matrix for just new transitions
 
-                weight0 = self.r
-                weight1 = 1.0
+                    weight0 = self.r
+                    weight1 = 1.0
 
-                C1bayes = weight0 * C_old + weight1 * C_new
-                C_old = C1bayes
-                print("C1bayes Count Matrix:\n", C1bayes)
+                    C1bayes = weight0 * C_old + weight1 * C_new
+                    C_old = C1bayes
+                    #print("C1bayes Count Matrix:\n", C1bayes)
 
-                t1 = process_time()
-                etimebayes[k + 1] = t1 - t0 + etimebayes[k]
-                A1bayes = _tm(C1bayes)
-                print("C1bayes Transition Matrix\n", A1bayes)
-                errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
+                    t1 = process_time()
+                    A1bayes = _tm(C1bayes)
+                    #print("C1bayes Transition Matrix\n", A1bayes)
+                    errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
 
-                tmatrix_sampler = TransitionMatrixSampler(C=C1bayes)
-                samples = tmatrix_sampler.sample(nsamples=128)
-                average = np.mean(samples, axis=0)
-                print("Average Transition Matrix from Samples:\n", average)
+                    tmatrix_sampler = TransitionMatrixSampler(C=C1bayes)
+                    samples = tmatrix_sampler.sample(nsamples=128)
+                    average = np.mean(samples, axis=0)
+                    #print("Average Transition Matrix from Samples:\n", average)
 
-                err_count_matrix = np.linalg.norm(average - self.mm1_0_0_scaled.trans)
-                print("Error C1bayes Count Matrix: ", errbayes[k])
-                print("Error Average Transition Count Matrix ",err_count_matrix)
+                    err_count_matrix = np.linalg.norm(average - self.mm1_0_0_scaled.trans)
+                    errTMatrSampl[k] = err_count_matrix
+                    #print("Error C1bayes Count Matrix: ", errbayes[k])
+                    #print("Error Average Transition Count Matrix ",err_count_matrix)
+
+
+            plt.add_to_plot(err_data=errbayes, tmatrix_err_data=errTMatrSampl)
+        plt.save_plot("error_comparison")
 

@@ -46,3 +46,20 @@ class Utility():
         import math
         num_values_mid = int((num_values-1)/2)
         return int(value * math.pow(2, num_values_mid))
+
+    @staticmethod
+    def calc_numsteps(lentraj, nwindow, nstep):
+        import math
+        numsteps = math.floor((lentraj - nwindow -1)/nstep)
+        if numsteps < 0:
+            return 16
+        else:
+            return numsteps
+
+    @staticmethod
+    def calc_numsteps_mid(nwindow_mid, heatmap_size, nstep_mid):
+        import math
+        numsteps_mid_tmp = math.ceil(nwindow_mid * (math.pow(2, (heatmap_size-1)/2)-1)/nstep_mid)
+        factor = math.ceil(math.log2(numsteps_mid_tmp))+1
+        numsteps_mid = math.pow(2,factor)
+        return numsteps_mid
