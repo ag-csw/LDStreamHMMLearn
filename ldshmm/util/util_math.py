@@ -39,7 +39,7 @@ class Utility():
     @staticmethod
     def log_value(x):
         import math
-        return math.log(x)
+        return math.log2(x)
 
     @staticmethod
     def get_mid_value(value, num_values):

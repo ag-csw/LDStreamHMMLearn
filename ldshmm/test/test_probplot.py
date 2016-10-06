@@ -5,6 +5,7 @@ from ldshmm.util.util_functionality import *
 from ldshmm.util.mm_family import MMFamily1
 from ldshmm.util.variable_holder import Variable_Holder
 from ldshmm.util.plottings import ProbPlot
+from ldshmm.util.util_math import Utility
 
 class Test_Probability_plot(TestCase):
 
@@ -41,12 +42,7 @@ class Test_Probability_plot(TestCase):
             self.ntraj = self.mid_num_traj
             self.r = (self.nwindow - self.nstep) / self.nwindow
 
-            # initialize timing and error arrays for naive and bayes
-            etimenaive = np.zeros(self.numsteps + 2, dtype=float)
-            etimenaive[0] = 0
             err = np.zeros(self.numsteps + 1, dtype=float)
-
-            etimebayes = np.zeros(self.numsteps + 2, dtype=float)
             errbayes = np.zeros(self.numsteps + 1, dtype=float)
 
             self.data1_0_0 = []
@@ -55,25 +51,18 @@ class Test_Probability_plot(TestCase):
             dataarray = np.asarray(self.data1_0_0)
 
 
-            err_bayes = self.performance_and_error_calculation(dataarray, err, errbayes, etimebayes, etimenaive)
+            err_bayes = self.performance_and_error_calculation(dataarray, errbayes)
             plot.add_to_plot(err_bayes)
 
         plot.save_plot("error_probplot")
 
 
-    def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
+    def performance_and_error_calculation(self, dataarray, errbayes):
         for k in range(0, self.numsteps + 1):
-            ##### naive sliding window approach
             data0 = dataarray[:, k * self.nstep: (self.nwindow + k * self.nstep)]
             dataslice0 = []
             for i in range(0, self.ntraj):
                 dataslice0.append(data0[i, :])
-            t0 = process_time()
-            C0 = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)  # count matrix for whole window
-            t1 = process_time()
-            A0 = _tm(C0)
-            etimenaive[k + 1] = t1 - t0 + etimenaive[k]
-            err[k] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
                 data0 = dataarray[:, 0 * self.nstep: (self.nwindow + 0 * self.nstep)]
@@ -83,7 +72,6 @@ class Test_Probability_plot(TestCase):
 
                 t0 = process_time()
                 C_old = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)
-                etimebayes[1] = process_time() - t0
                 errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
 
             if k >= 1:
@@ -92,20 +80,16 @@ class Test_Probability_plot(TestCase):
                 dataslice1new = []
                 for i in range(0, self.ntraj):
                     dataslice1new.append(data1new[i, :])
-                t0 = process_time()
                 C_new = estimate_via_sliding_windows(data=dataslice1new,
                                                      nstates=self.nstates)  # count matrix for just new transitions
-
                 weight0 = self.r
                 weight1 = 1.0
 
                 C1bayes = weight0 * C_old + weight1 * C_new
                 C_old = C1bayes
 
-                t1 = process_time()
-                etimebayes[k + 1] = t1 - t0 + etimebayes[k]
                 A1bayes = _tm(C1bayes)
-                errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
+                errbayes[k] = Utility.log_value(np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans))
         return errbayes
 
 
