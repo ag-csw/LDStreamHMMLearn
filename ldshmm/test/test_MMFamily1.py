@@ -58,3 +58,9 @@ class TestMM_Family1(TestCase):
         smm1 = self.mmf1_0.sample(2)[1]
         self.assertTrue(isinstance(smm1, SpectralMM))
         print("Determinant of Row Eigenvectors of Transition Matrix:", np.linalg.det(smm1.eigenvectors_left()))
+
+    def test_sample_basis_fixed_statconc(self):
+        self.nstates = 4
+        self.statconc = 1/64
+        self.mmf = MMFamily1(self.nstates, statconc=self.statconc)
+        print(self.mmf.sample_basis())
