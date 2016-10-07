@@ -12,6 +12,7 @@ from ldshmm.util.variable_holder import Variable_Holder
 
 class Approach_Test(TestCase):
     def setUp(self):
+
         self.nstates = 4
         self.mmf1_0 = MMFamily1(self.nstates)
         self.mm1_0_0 = self.mmf1_0.sample()[0]
@@ -49,11 +50,11 @@ class Approach_Test(TestCase):
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
 
         # calculate performances and errors for the three parameters
-        avg_times_naive1, avg_times_bayes1, avg_errs_naive1, avg_errs_bayes1, taumeta_values, eta_values = self.test_taumeta_eta()
+        avg_times_naive1, avg_errs_naive1, avg_times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = self.test_taumeta_eta()
 
-        avg_times_naive2, avg_times_bayes2, avg_errs_naive2, avg_errs_bayes2, taumeta_values, scale_win_values = self.test_taumeta_scale_win()
+        avg_times_naive2, avg_errs_naive2, avg_times_bayes2, avg_errs_bayes2, taumeta_values, scale_win_values = self.test_taumeta_scale_win()
 
-        avg_times_naive3, avg_times_bayes3, avg_errs_naive3, avg_errs_bayes3, taumeta_values, num_traj_values = self.test_taumeta_num_traj()
+        avg_times_naive3,  avg_errs_naive3, avg_times_bayes3, avg_errs_bayes3, taumeta_values, num_traj_values = self.test_taumeta_num_traj()
 
         # get minimum and maximum performance
         min_val = np.amin([avg_times_naive1,avg_times_naive2,avg_times_naive3,avg_times_bayes1,avg_times_bayes2,avg_times_bayes3])
@@ -132,13 +133,13 @@ class Approach_Test(TestCase):
 
                 self.print_param_values("ETA", self.taumeta, self.nstep, self.nwindow, self.numsteps, self.lentraj, self.ntraj, eta, self.mid_scale_win)
 
-                avg_err_bayes, avg_err_naive, slope_time_bayes, slope_time_naive = self.test_eta_helper()
+                slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_eta_helper()
 
-                avg_times_naive[one][two] = slope_time_naive
-                avg_errs_naive[one][two] = avg_err_naive
+                avg_times_naive[two][one] = slope_time_naive
+                avg_errs_naive[two][one] = avg_err_naive
 
-                avg_times_bayes[one][two] = slope_time_bayes
-                avg_errs_bayes[one][two] = avg_err_bayes
+                avg_times_bayes[two][one] = slope_time_bayes
+                avg_errs_bayes[two][one] = avg_err_bayes
 
 
         print("Naive Performance:", avg_times_naive)
@@ -146,7 +147,7 @@ class Approach_Test(TestCase):
         print("Naive Error:", avg_errs_naive)
         print("Bayes Error:", avg_errs_bayes)
 
-        return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, eta_values
+        return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values
 
     def test_eta_helper(self):
         # initialize timing and error arrays for naive and bayes
@@ -187,20 +188,20 @@ class Approach_Test(TestCase):
 
                 self.print_param_values("SCALE_WIN", self.taumeta, self.nstep, self.nwindow, self.numsteps, self.lentraj, self.ntraj, self.mid_eta, scale_win)
 
-                avg_err_bayes, avg_err_naive, slope_time_bayes, slope_time_naive = self.test_scale_win_helper()
+                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes  = self.test_scale_win_helper()
 
-                avg_times_naive[one][two] = slope_time_naive
-                avg_errs_naive[one][two] = avg_err_naive
+                avg_times_naive[two][one] = slope_time_naive
+                avg_errs_naive[two][one] = avg_err_naive
 
-                avg_times_bayes[one][two] = slope_time_bayes
-                avg_errs_bayes[one][two] = avg_err_bayes
+                avg_times_bayes[two][one] = slope_time_bayes
+                avg_errs_bayes[two][one] = avg_err_bayes
 
         print("Naive Performance:", avg_times_naive)
         print("Bayes Performance:", avg_times_bayes)
         print("Naive Error:", avg_errs_naive)
         print("Bayes Error:", avg_errs_bayes)
 
-        return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, scale_win_values
+        return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, scale_win_values
 
     def test_scale_win_helper(self):
         # initialize timing and error arrays for naive and bayes
@@ -242,19 +243,19 @@ class Approach_Test(TestCase):
 
                 self.print_param_values("NUM_TRAJ",self.taumeta, self.nstep, self.nwindow, self.numsteps, self.lentraj, self.ntraj, self.mid_eta, self.mid_scale_win)
 
-                avg_err_bayes, avg_err_naive, slope_time_bayes, slope_time_naive = self.test_num_traj_helper()
+                slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_num_traj_helper()
 
-                avg_times_naive[one][two] = slope_time_naive
-                avg_errs_naive[one][two] = avg_err_naive
+                avg_times_naive[two][one] = slope_time_naive
+                avg_errs_naive[two][one] = avg_err_naive
 
-                avg_times_bayes[one][two] = slope_time_bayes
-                avg_errs_bayes[one][two] = avg_err_bayes
+                avg_times_bayes[two][one] = slope_time_bayes
+                avg_errs_bayes[two][one] = avg_err_bayes
 
         print("Naive Performance:", avg_times_naive)
         print("Bayes Performance:", avg_times_bayes)
         print("Naive Error:", avg_errs_naive)
         print("Bayes Error:", avg_errs_bayes)
-        return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, num_traj_values
+        return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, num_traj_values
 
     def test_num_traj_helper(self):
         etimenaive = np.zeros(self.numsteps + 2, dtype=float)
@@ -281,10 +282,10 @@ class Approach_Test(TestCase):
                 dataslice0.append(data0[i, :])
             t0 = process_time()
             C0 = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)  # count matrix for whole window
-            C0 += Utility.get_small_nr()
+            C0 += 1e-8
             t1 = process_time()
             A0 = _tm(C0)
-            # substract from A0 again?
+
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
             err[k] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
             if k == 0:
@@ -318,10 +319,14 @@ class Approach_Test(TestCase):
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
                 A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
-        slope_time_naive = Utility.log_value(Utility.calc_slope(etimenaive))
+        print("Sum Err Naive:", Utility.log_value(sum(err)/len(err)))
+        print("Sum Err Bayes:", Utility.log_value(sum(errbayes/len(err))))
+
+        slope_time_naive = Utility.log_value(etimenaive[-1])
         avg_err_naive = Utility.log_value(sum(err) / len(err))
-        slope_time_bayes = Utility.log_value(Utility.calc_slope(etimebayes))
+        slope_time_bayes = Utility.log_value(etimebayes[-1])
         avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
+
         return slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes
 
     def print_param_values(self, evaluation_name, taumeta, nstep, nwindow, numsteps, lentraj, ntraj, eta, scale_win):

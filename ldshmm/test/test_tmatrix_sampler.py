@@ -49,10 +49,21 @@ class Test_TMatrix_Sampler(TestCase):
                     dataslice0 = []
                     for i in range(0, self.ntraj):
                         dataslice0.append(data0[i, :])
-                    t0 = process_time()
                     C_old = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)
                     errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
-                    errTMatrSampl[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
+
+                    tmatrix_sampler = TransitionMatrixSampler(C=C_old)
+                    samples = tmatrix_sampler.sample(nsamples=128)
+                    average = np.mean(samples, axis=0)
+                    err = np.zeros(shape=np.shape(samples))
+
+                    for l, sample in enumerate(samples):
+                        diff = sample - average
+                        err[l] = np.linalg.norm(diff)
+
+                    average_err = np.mean(err)
+
+                    errTMatrSampl[k] = average_err
 
                 if k >= 1:
                     ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
@@ -60,7 +71,6 @@ class Test_TMatrix_Sampler(TestCase):
                     dataslice1new = []
                     for i in range(0, self.ntraj):
                         dataslice1new.append(data1new[i, :])
-                    t0 = process_time()
                     C_new = estimate_via_sliding_windows(data=dataslice1new, nstates=self.nstates)  # count matrix for just new transitions
 
                     weight0 = self.r
@@ -68,23 +78,22 @@ class Test_TMatrix_Sampler(TestCase):
 
                     C1bayes = weight0 * C_old + weight1 * C_new
                     C_old = C1bayes
-                    #print("C1bayes Count Matrix:\n", C1bayes)
 
                     t1 = process_time()
                     A1bayes = _tm(C1bayes)
-                    #print("C1bayes Transition Matrix\n", A1bayes)
                     errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
 
                     tmatrix_sampler = TransitionMatrixSampler(C=C1bayes)
                     samples = tmatrix_sampler.sample(nsamples=128)
                     average = np.mean(samples, axis=0)
-                    #print("Average Transition Matrix from Samples:\n", average)
+                    err = np.zeros(shape=np.shape(samples))
 
-                    err_count_matrix = np.linalg.norm(average - self.mm1_0_0_scaled.trans)
-                    errTMatrSampl[k] = err_count_matrix
-                    #print("Error C1bayes Count Matrix: ", errbayes[k])
-                    #print("Error Average Transition Count Matrix ",err_count_matrix)
+                    for l, sample in enumerate(samples):
+                        diff = sample - average
+                        err[l] = np.linalg.norm(diff)
 
+                    average_err = np.mean(err)
+                    errTMatrSampl[k] = average_err
 
             plt.add_to_plot(err_data=errbayes, tmatrix_err_data=errTMatrSampl)
         plt.save_plot("error_comparison")

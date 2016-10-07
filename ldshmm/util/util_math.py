@@ -63,8 +63,3 @@ class Utility():
         factor = math.ceil(math.log2(numsteps_mid_tmp))+1
         numsteps_mid = math.pow(2,factor)
         return numsteps_mid
-
-    @staticmethod
-    def get_small_nr():
-        import math
-        return math.pow(10, -8)

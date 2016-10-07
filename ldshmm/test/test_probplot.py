@@ -40,10 +40,6 @@ class Test_Probability_plot(TestCase):
             self.nstep = Variable_Holder.mid_eta * self.taumeta
             self.nwindow = self.mid_scale_win * self.nstep
             self.numsteps = Utility.calc_numsteps(self.lentraj, self.nwindow, self.nstep)
-            #self.numsteps = 128
-            #self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-
-
             self.ntraj = self.mid_num_traj
             self.r = (self.nwindow - self.nstep) / self.nwindow
 
@@ -56,7 +52,6 @@ class Test_Probability_plot(TestCase):
 
 
             err_bayes = self.performance_and_error_calculation(dataarray, errbayes)
-            print(err_bayes)
             plot.add_to_plot(err_bayes)
 
         plot.save_plot("error_probplot")
@@ -77,7 +72,7 @@ class Test_Probability_plot(TestCase):
 
                 t0 = process_time()
                 C_old = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)
-                errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
+                errbayes[0] = Utility.log_value(np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans))
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
