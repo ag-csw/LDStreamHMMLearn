@@ -44,11 +44,11 @@ class Evaluation():
         num_trajectories = 1000
         simulated_data = self.simulate_data(qHMM, num_trajectories)
 
-        nwindow = 100
-        est1, delt1 = self.elapsed_time_learn(simulated_data, self.cluster_prior, nsamples, nwindow)
+        window_size = 100
+        est1, delt1 = self.elapsed_time_learn(simulated_data, self.cluster_prior, nsamples, window_size)
 
-        nwindow = 200
-        est2, delt2 = self.elapsed_time_learn(simulated_data, self.cluster_prior, nsamples, nwindow)
+        window_size = 200
+        est2, delt2 = self.elapsed_time_learn(simulated_data, self.cluster_prior, nsamples, window_size)
 
         order = np.log2(delt2 / delt1)
 

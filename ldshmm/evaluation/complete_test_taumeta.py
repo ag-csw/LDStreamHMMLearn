@@ -19,31 +19,25 @@ class Approach_Test(TestCase):
 
         self.min_eta=Variable_Holder.min_eta
         self.min_scale_window=Variable_Holder.min_scale_window
-        self.min_num_traj=Variable_Holder.min_num_trajectories
+        self.min_num_trajectories=Variable_Holder.min_num_trajectories
         self.heatmap_size=Variable_Holder.heatmap_size
         self.min_taumeta=Variable_Holder.min_taumeta
 
         self.mid_eta = Variable_Holder.mid_eta
         self.mid_scale_window = Variable_Holder.mid_scale_window
-        self.mid_num_traj = Variable_Holder.mid_num_trajectories
+        self.mid_num_trajectories = Variable_Holder.mid_num_trajectories
         self.mid_taumeta = Variable_Holder.mid_taumeta
 
-        import math
-        self.max_eta = self.min_eta* math.pow(2, self.heatmap_size-1)
-        self.max_taumeta = self.min_taumeta* math.pow(2, self.heatmap_size-1)
-        self.shift_max = self.max_eta * self.max_taumeta
-        self.nwindow_max = self.mid_scale_window * self.shift_max
-        self.num_estimations_max = 1 #smallest value within the heatmap
+        self.max_eta = Variable_Holder.max_eta
+        self.max_taumeta = Variable_Holder.max_taumeta
+        self.shift_max = Variable_Holder.shift_max
+        self.window_size_max = Variable_Holder.window_size_max
+        self.num_estimations_max = Variable_Holder.window_size_max
 
-        self.num_trajectories_max = self.min_num_traj*math.pow(2, self.heatmap_size-1)
+        self.num_trajectories_max = Variable_Holder.num_trajectories_max
 
-        self.len_trajectory = int(self.nwindow_max + self.num_estimations_max * self.shift_max +1)
-        self.num_trajectories_len_trajectory_max = self.num_trajectories_max * self.len_trajectory
-        """
-        self.shift_mid = self.mid_eta*self.mid_taumeta
-        self.nwindow_mid = self.mid_scale_window * self.shift_mid
-        self.num_estimations_mid = Utility.calc_num_estimations_mid(self.nwindow_mid, self.heatmap_size, self.shift_mid)
-        """
+        self.len_trajectory = Variable_Holder.len_trajectory
+        self.num_trajectories_len_trajectory_max = Variable_Holder.num_trajectories_len_trajectory_max
 
     def test_run_all_tests(self):
         plots = ComplexPlot()
@@ -75,7 +69,7 @@ class Approach_Test(TestCase):
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window")
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
         plots.save_plot_separate_colorbars("Performance_separate_colorbars")
-        ###########################################################self.num_estimations_mid = Utility.calc_num_estimations_mid(self.nwindow, self.heatmap_size, self.shift)
+        ###########################################################self.num_estimations_mid = Utility.calc_num_estimations_mid(self.window_size, self.heatmap_size, self.shift)
 
         ###########################################################
         plots = ComplexPlot()
@@ -124,13 +118,13 @@ class Approach_Test(TestCase):
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.shift = eta * self.taumeta
-                self.nwindow = self.mid_scale_window * self.shift
-                self.num_trajectories = self.mid_num_traj
+                self.window_size = self.mid_scale_window * self.shift
+                self.num_trajectories = self.mid_num_trajectories
 
-                self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.nwindow, self.shift)
-                self.r = (self.nwindow - self.shift) / self.nwindow
+                self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
+                self.r = (self.window_size - self.shift) / self.window_size
 
-                self.print_param_values("ETA", self.taumeta, self.shift, self.nwindow, self.num_estimations, self.len_trajectory, self.num_trajectories, eta, self.mid_scale_window)
+                self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, eta, self.mid_scale_window)
 
                 slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_eta_helper()
 
@@ -180,12 +174,12 @@ class Approach_Test(TestCase):
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.shift = (self.mid_eta) * self.taumeta
-                self.nwindow = scale_window * self.shift
-                self.num_trajectories = self.mid_num_traj
-                self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.nwindow, self.shift)
-                self.r = (self.nwindow - self.shift) / self.nwindow
+                self.window_size = scale_window * self.shift
+                self.num_trajectories = self.mid_num_trajectories
+                self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
+                self.r = (self.window_size - self.shift) / self.window_size
 
-                self.print_param_values("scale_window", self.taumeta, self.shift, self.nwindow, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, scale_window)
+                self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, scale_window)
 
                 slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes  = self.test_scale_window_helper()
 
@@ -224,7 +218,7 @@ class Approach_Test(TestCase):
 
         # specify values for taumeta and eta to iterate over
         taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
-        num_traj_values = create_value_list(self.min_num_traj,self.heatmap_size)
+        num_traj_values = create_value_list(self.min_num_trajectories, self.heatmap_size)
 
         for one, taumeta in enumerate(taumeta_values):
             for two, num_traj in enumerate(num_traj_values):
@@ -234,13 +228,13 @@ class Approach_Test(TestCase):
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.shift = (self.mid_eta) * self.taumeta
                 # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
-                self.nwindow = (self.min_scale_window) * self.shift
+                self.window_size = (self.min_scale_window) * self.shift
                 self.num_trajectories = num_traj
                 self.len_trajectory = int(self.num_trajectories_len_trajectory_max / self.num_trajectories)
-                self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.nwindow, self.shift)
-                self.r = (self.nwindow - self.shift) / self.nwindow
+                self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
+                self.r = (self.window_size - self.shift) / self.window_size
 
-                self.print_param_values("NUM_TRAJ",self.taumeta, self.shift, self.nwindow, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, self.mid_scale_window)
+                self.print_param_values("NUM_TRAJ",self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, self.mid_scale_window)
 
                 slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_num_traj_helper()
 
@@ -273,8 +267,8 @@ class Approach_Test(TestCase):
 
     def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
         for k in range(0, self.num_estimations + 1):
-            assert (self.nwindow + k * self.shift) < np.shape(dataarray)[1]
-            data0 = dataarray[:, k * self.shift: (self.nwindow + k * self.shift)]
+            assert (self.window_size + k * self.shift) < np.shape(dataarray)[1]
+            data0 = dataarray[:, k * self.shift: (self.window_size + k * self.shift)]
             dataslice0 = []
 
             for i in range(0, self.num_trajectories):
@@ -289,7 +283,7 @@ class Approach_Test(TestCase):
             err[k] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
-                data0 = dataarray[:, 0 * self.shift: (self.nwindow + 0 * self.shift)]
+                data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
                 dataslice0 = []
                 for i in range(0, self.num_trajectories):
                     dataslice0.append(data0[i, :])
@@ -301,7 +295,7 @@ class Approach_Test(TestCase):
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
-                data1new = dataarray[:, self.nwindow + (k - 1) * self.shift - 1: (self.nwindow + k * self.shift)]
+                data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (self.window_size + k * self.shift)]
                 dataslice1new = []
                 for i in range(0, self.num_trajectories):
                     dataslice1new.append(data1new[i, :])
@@ -318,8 +312,6 @@ class Approach_Test(TestCase):
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
                 A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
-        print("Sum Err Naive:", Utility.log_value(sum(err)/len(err)))
-        print("Sum Err Bayes:", Utility.log_value(sum(errbayes/len(err))))
 
         slope_time_naive = Utility.log_value(etimenaive[-1])
         avg_err_naive = Utility.log_value(sum(err) / len(err))
@@ -328,13 +320,13 @@ class Approach_Test(TestCase):
 
         return slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes
 
-    def print_param_values(self, evaluation_name, taumeta, shift, nwindow, num_estimations, len_trajectory, num_trajectories, eta, scale_window):
+    def print_param_values(self, evaluation_name, taumeta, shift, window_size, num_estimations, len_trajectory, num_trajectories, eta, scale_window):
         print("Parameter Overview for " + evaluation_name+ ":")
         print("taumeta:\t", taumeta)
         print("eta:\t", eta)
         print("scale_window\t:", scale_window)
         print("shift:\t", shift)
-        print("nwindow:\t", nwindow)
+        print("window_size:\t", window_size)
         print("num_estimations:\t", num_estimations)
         print("len_trajectory:\t", len_trajectory)
         print("num_trajectories:\t", num_trajectories)

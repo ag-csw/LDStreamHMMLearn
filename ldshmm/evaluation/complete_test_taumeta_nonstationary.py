@@ -122,11 +122,11 @@ class Approach_Test(TestCase):
                 self.eta = self.mid_eta
                 self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
                 self.shift = math.ceil(self.eta * self.drift_timescale)
-                self.nwindow = scale_window * self.shift
+                self.window_size = scale_window * self.shift
                 self.num_estimations = int(Variable_Holder.num_estimations_global_nonstat / Variable_Holder.product_mid_values_nonstat)
-                self.len_trajectory = self.nwindow + self.num_estimations * self.shift + 1
+                self.len_trajectory = self.window_size + self.num_estimations * self.shift + 1
                 self.num_trajectories = self.mid_num_trajectories
-                self.r = (self.nwindow - self.shift) / self.nwindow
+                self.r = (self.window_size - self.shift) / self.window_size
 
 
                 etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
@@ -172,13 +172,13 @@ class Approach_Test(TestCase):
                 self.eta = eta
                 self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
                 self.shift = math.ceil(self.eta * self.drift_timescale)
-                self.nwindow = self.mid_scale_window * self.shift
+                self.window_size = self.mid_scale_window * self.shift
                 self.num_estimations = int(Variable_Holder.num_estimations_global_nonstat / Variable_Holder.product_mid_values_nonstat)
-                self.len_trajectory = self.nwindow + self.num_estimations * self.shift + 1
+                self.len_trajectory = self.window_size + self.num_estimations * self.shift + 1
                 self.num_trajectories = self.mid_num_trajectories
 
 
-                self.r = (self.nwindow - self.shift) / self.nwindow
+                self.r = (self.window_size - self.shift) / self.window_size
 
                 etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
                 etimenaive[0] = 0
@@ -223,12 +223,12 @@ class Approach_Test(TestCase):
                 self.eta = self.mid_eta
                 self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
                 self.shift = math.ceil(self.eta * self.drift_timescale)
-                self.nwindow = self.min_scale_window * self.shift
+                self.window_size = self.min_scale_window * self.shift
                 self.num_estimations = int(Variable_Holder.num_estimations_global_nonstat / Variable_Holder.product_mid_values_nonstat)
-                self.len_trajectory = self.nwindow + self.num_estimations * self.shift + 1
+                self.len_trajectory = self.window_size + self.num_estimations * self.shift + 1
                 self.num_trajectories = num_traj
 
-                self.r = (self.nwindow - self.shift) / self.nwindow
+                self.r = (self.window_size - self.shift) / self.window_size
 
                 etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
                 etimenaive[0] = 0
@@ -262,7 +262,7 @@ class Approach_Test(TestCase):
         for k in range(0, self.num_estimations + 1):
 
             ##### naive sliding window approach
-            data0 = dataarray[:, k * self.shift: (self.nwindow + k * self.shift)]
+            data0 = dataarray[:, k * self.shift: (self.window_size + k * self.shift)]
             dataslice0 = []
             for i in range(0, self.num_trajectories):
                 dataslice0.append(data0[i, :])
@@ -271,11 +271,11 @@ class Approach_Test(TestCase):
             t1 = process_time()
             A0 = _tm(C0)
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
-            err[k] = np.linalg.norm(A0 - self.qmm1_0_0_scaled.eval(self.nwindow + (k - 0.5) * self.shift).trans)
+            err[k] = np.linalg.norm(A0 - self.qmm1_0_0_scaled.eval(self.window_size + (k - 0.5) * self.shift).trans)
 
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
-                data0 = dataarray[:, 0 * self.shift: (self.nwindow + 0 * self.shift)]
+                data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
                 dataslice0 = []
                 for i in range(0, self.num_trajectories):
                     dataslice0.append(data0[i, :])
@@ -284,12 +284,12 @@ class Approach_Test(TestCase):
                 C_old = estimate_via_sliding_windows(dataslice0, self.num_states)
                 etimebayes[1] = process_time() - t0
                 errbayes[0] = np.linalg.norm(
-                    _tm(C_old) - self.qmm1_0_0_scaled.eval(self.nwindow + (k - 0.5) * self.shift).trans)
+                    _tm(C_old) - self.qmm1_0_0_scaled.eval(self.window_size + (k - 0.5) * self.shift).trans)
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
                 data1new = dataarray[:,
-                           self.nwindow + (k - 1) * self.shift - 1: (self.nwindow + k * self.shift)]
+                           self.window_size + (k - 1) * self.shift - 1: (self.window_size + k * self.shift)]
                 dataslice1new = []
                 for i in range(0, self.num_trajectories):
                     dataslice1new.append(data1new[i, :])
@@ -307,7 +307,7 @@ class Approach_Test(TestCase):
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
                 A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(
-                A1bayes - self.qmm1_0_0_scaled.eval(self.nwindow + (k - 0.5) * self.shift).trans)
+                A1bayes - self.qmm1_0_0_scaled.eval(self.window_size + (k - 0.5) * self.shift).trans)
         slope_time_naive = Utility.log_value(Utility.calc_slope(etimenaive))
         avg_err_naive = Utility.log_value(sum(err) / len(err))
         slope_time_bayes = Utility.log_value(Utility.calc_slope(etimebayes))

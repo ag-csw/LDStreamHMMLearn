@@ -1,4 +1,5 @@
 from ldshmm.util.util_math import Utility
+import math
 
 class Variable_Holder():
 
@@ -21,9 +22,21 @@ class Variable_Holder():
     mid_statconc = 1
     mid_omega = Utility.get_mid_value(min_omega, heatmap_size)
 
+
+    max_eta = min_eta * math.pow(2, heatmap_size - 1)
+    max_taumeta = min_taumeta * math.pow(2, heatmap_size - 1)
+    shift_max = max_eta * max_taumeta
+    window_size_max = mid_scale_window * shift_max
+    num_estimations_max = 1  # smallest value within the heatmap
+
+    num_trajectories_max = min_num_trajectories * math.pow(2, heatmap_size - 1)
+    len_trajectory = int(window_size_max + num_estimations_max * shift_max + 1)
+    num_trajectories_len_trajectory_max = num_trajectories_max * len_trajectory
+
+
+
     product_mid_values = mid_eta * mid_scale_window * mid_num_trajectories
     numsteps_global = 16 * product_mid_values
-
 
     product_mid_values_nonstat = mid_eta * mid_scale_window * mid_num_trajectories
     num_estimations_global_nonstat = 16 * product_mid_values_nonstat

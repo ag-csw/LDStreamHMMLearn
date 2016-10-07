@@ -37,11 +37,11 @@ class Complexity_Test(TestCase):
 
             self.nu = 10
             self.shift = math.ceil(self.nu * self.timescaledisp * self.taumeta * self.tauquasi)
-            self.nwindow = 10 * self.shift
+            self.window_size = 10 * self.shift
             self.num_estimations = 2
-            self.len_trajectory = self.nwindow + self.num_estimations * self.shift + 1
+            self.len_trajectory = self.window_size + self.num_estimations * self.shift + 1
             self.num_trajectories = 1
-            self.r = (self.nwindow - self.shift) / self.nwindow
+            self.r = (self.window_size - self.shift) / self.window_size
 
             self.data1_0_0 = []
             for i in range(0, self.num_trajectories):
@@ -52,7 +52,7 @@ class Complexity_Test(TestCase):
             for k in range(0, self.num_estimations + 1):
 
                 ##### naive sliding window approach
-                data0 = dataarray[:, k * self.shift: (self.nwindow + k * self.shift)]
+                data0 = dataarray[:, k * self.shift: (self.window_size + k * self.shift)]
                 dataslice0 = []
                 for i in range(0, self.num_trajectories):
                     dataslice0.append(data0[i, :])
@@ -64,7 +64,7 @@ class Complexity_Test(TestCase):
 
                 if k == 0:
                     ##### Bayes approach: Calculate C0 separately
-                    data0 = dataarray[:, 0 * self.shift: (self.nwindow + 0 * self.shift)]
+                    data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
                     dataslice0 = []
                     for i in range(0, self.num_trajectories):
                         dataslice0.append(data0[i, :])
@@ -75,7 +75,7 @@ class Complexity_Test(TestCase):
 
                 if k >= 1:
                     ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
-                    data1new = dataarray[:, self.nwindow + (k - 1) * self.shift - 1: (self.nwindow + k * self.shift)]
+                    data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (self.window_size + k * self.shift)]
                     dataslice1new = []
                     for i in range(0, self.num_trajectories):
                         dataslice1new.append(data1new[i, :])
@@ -98,9 +98,9 @@ class Complexity_Test(TestCase):
             avg_time_bayes = Utility.calc_slope(etimebayes)
 
 
-            print("Naive", self.nwindow, etimenaive)
+            print("Naive", self.window_size, etimenaive)
             print("Naive Slope", avg_time,"\n--------------------")
-            print("Bayes", self.nwindow, etimebayes)
+            print("Bayes", self.window_size, etimebayes)
             print("Bayes Slope", avg_time_bayes, "\n--------------------")
 
 
