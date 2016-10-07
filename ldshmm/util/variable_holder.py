@@ -21,7 +21,6 @@ class Variable_Holder():
     mid_statconc = 1
     mid_omega = Utility.get_mid_value(min_omega, heatmap_size)
 
-
     product_mid_values = mid_eta * mid_scale_win * mid_num_traj
     numsteps_global = 16 * product_mid_values
 

@@ -17,12 +17,14 @@ class Test_Probability_plot(TestCase):
         self.min_taumeta = Variable_Holder.min_taumeta
         self.taumeta = Variable_Holder.mid_taumeta
         self.mid_eta = Variable_Holder.mid_eta
-        self.mid_scale_win = Variable_Holder.mid_scale_win
+        self.mid_scale_win = 512#Variable_Holder.mid_scale_win
         self.mid_num_traj = Variable_Holder.mid_num_traj
+        self.mid_taumeta = Variable_Holder.mid_taumeta
 
-        self.product_mid_values = Variable_Holder.product_mid_values
-        self.numsteps_global = Variable_Holder.numsteps_global
-
+        self.nstep_mid = self.mid_eta * self.mid_taumeta
+        self.nwindow_mid = self.mid_scale_win * self.nstep_mid
+        self.numsteps_mid = Utility.calc_numsteps_mid(self.nwindow_mid, self.heatmap_size, self.nstep_mid)
+        self.lentraj = int(self.nwindow_mid + self.numsteps_mid * self.nstep_mid + 1)
 
     def test_probability_plot(self):
         plot = ProbPlot()
@@ -37,12 +39,14 @@ class Test_Probability_plot(TestCase):
             self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
             self.nstep = Variable_Holder.mid_eta * self.taumeta
             self.nwindow = self.mid_scale_win * self.nstep
-            self.numsteps = 128
-            self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
+            self.numsteps = Utility.calc_numsteps(self.lentraj, self.nwindow, self.nstep)
+            #self.numsteps = 128
+            #self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
+
+
             self.ntraj = self.mid_num_traj
             self.r = (self.nwindow - self.nstep) / self.nwindow
 
-            err = np.zeros(self.numsteps + 1, dtype=float)
             errbayes = np.zeros(self.numsteps + 1, dtype=float)
 
             self.data1_0_0 = []
@@ -52,6 +56,7 @@ class Test_Probability_plot(TestCase):
 
 
             err_bayes = self.performance_and_error_calculation(dataarray, errbayes)
+            print(err_bayes)
             plot.add_to_plot(err_bayes)
 
         plot.save_plot("error_probplot")

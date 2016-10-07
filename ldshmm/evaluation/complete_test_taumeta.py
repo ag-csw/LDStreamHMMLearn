@@ -25,9 +25,24 @@ class Approach_Test(TestCase):
         self.mid_eta = Variable_Holder.mid_eta
         self.mid_scale_win = Variable_Holder.mid_scale_win
         self.mid_num_traj = Variable_Holder.mid_num_traj
+        self.mid_taumeta = Variable_Holder.mid_taumeta
 
-        self.product_mid_values = Variable_Holder.product_mid_values
-        self.numsteps_global = Variable_Holder.numsteps_global
+        import math
+        self.max_eta = self.min_eta* math.pow(2, self.heatmap_size-1)
+        self.max_taumeta = self.min_taumeta* math.pow(2, self.heatmap_size-1)
+        self.nstep_max = self.max_eta * self.max_taumeta
+        self.nwindow_max = self.mid_scale_win * self.nstep_max
+        self.numsteps_max = 1 #smallest value within the heatmap
+
+        self.ntraj_max = self.min_num_traj*math.pow(2, self.heatmap_size-1)
+
+        self.lentraj = int(self.nwindow_max + self.numsteps_max * self.nstep_max +1)
+        self.ntraj_lentraj_max = self.ntraj_max * self.lentraj
+        """
+        self.nstep_mid = self.mid_eta*self.mid_taumeta
+        self.nwindow_mid = self.mid_scale_win * self.nstep_mid
+        self.numsteps_mid = Utility.calc_numsteps_mid(self.nwindow_mid, self.heatmap_size, self.nstep_mid)
+        """
 
     def test_run_all_tests(self):
         plots = ComplexPlot()
@@ -59,7 +74,7 @@ class Approach_Test(TestCase):
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_win_values, y_label="scale_win")
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
         plots.save_plot_separate_colorbars("Performance_separate_colorbars")
-        ###########################################################
+        ###########################################################self.numsteps_mid = Utility.calc_numsteps_mid(self.nwindow, self.heatmap_size, self.nstep)
 
         ###########################################################
 
@@ -111,26 +126,13 @@ class Approach_Test(TestCase):
                 self.nstep = eta * self.taumeta
                 self.nwindow = self.mid_scale_win * self.nstep
                 self.ntraj = self.mid_num_traj
-                self.numsteps = int(self.numsteps_global / (eta * self.mid_scale_win * self.ntraj))
-                self.lentraj = (self.nwindow + self.numsteps * self.nstep + 1)
+
+                self.numsteps = Utility.calc_numsteps(self.lentraj, self.nwindow, self.nstep)
                 self.r = (self.nwindow - self.nstep) / self.nwindow
 
                 self.print_param_values("ETA", self.taumeta, self.nstep, self.nwindow, self.numsteps, self.lentraj, self.ntraj, eta, self.mid_scale_win)
 
-                # initialize timing and error arrays for naive and bayes
-                etimenaive = np.zeros(self.numsteps + 2, dtype=float)
-                etimenaive[0] = 0
-                err = np.zeros(self.numsteps + 1, dtype=float)
-
-                etimebayes = np.zeros(self.numsteps + 2, dtype=float)
-                errbayes = np.zeros(self.numsteps + 1, dtype=float)
-
-                self.data1_0_0 = []
-                for i in range(0, self.ntraj):
-                    self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.lentraj)))
-                dataarray = np.asarray(self.data1_0_0)
-
-                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.performance_and_error_calculation(dataarray, err, errbayes, etimebayes, etimenaive)
+                avg_err_bayes, avg_err_naive, slope_time_bayes, slope_time_naive = self.test_eta_helper()
 
                 avg_times_naive[one][two] = slope_time_naive
                 avg_errs_naive[one][two] = avg_err_naive
@@ -145,6 +147,24 @@ class Approach_Test(TestCase):
         print("Bayes Error:", avg_errs_bayes)
 
         return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, eta_values
+
+    def test_eta_helper(self):
+        # initialize timing and error arrays for naive and bayes
+        etimenaive = np.zeros(self.numsteps + 2, dtype=float)
+        etimenaive[0] = 0
+        err = np.zeros(self.numsteps + 1, dtype=float)
+        etimebayes = np.zeros(self.numsteps + 2, dtype=float)
+        errbayes = np.zeros(self.numsteps + 1, dtype=float)
+        self.data1_0_0 = []
+        for i in range(0, self.ntraj):
+            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.lentraj)))
+        dataarray = np.asarray(self.data1_0_0)
+        try:
+            return self.performance_and_error_calculation(
+                dataarray, err, errbayes, etimebayes, etimenaive)
+        except:
+            return self.test_eta_helper()
+
 
     def test_taumeta_scale_win(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
@@ -162,26 +182,12 @@ class Approach_Test(TestCase):
                 self.nstep = (self.mid_eta) * self.taumeta
                 self.nwindow = scale_win * self.nstep
                 self.ntraj = self.mid_num_traj
-                self.numsteps = int(self.numsteps_global / (self.mid_eta * scale_win * self.ntraj))
-                self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
+                self.numsteps = Utility.calc_numsteps(self.lentraj, self.nwindow, self.nstep)
                 self.r = (self.nwindow - self.nstep) / self.nwindow
 
                 self.print_param_values("SCALE_WIN", self.taumeta, self.nstep, self.nwindow, self.numsteps, self.lentraj, self.ntraj, self.mid_eta, scale_win)
 
-                # initialize timing and error arrays for naive and bayes
-                etimenaive = np.zeros(self.numsteps + 2, dtype=float)
-                etimenaive[0] = 0
-                err = np.zeros(self.numsteps + 1, dtype=float)
-
-                etimebayes = np.zeros(self.numsteps + 2, dtype=float)
-                errbayes = np.zeros(self.numsteps + 1, dtype=float)
-
-                self.data1_0_0 = []
-                for i in range(0, self.ntraj):
-                    self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.lentraj)))
-                dataarray = np.asarray(self.data1_0_0)
-
-                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.performance_and_error_calculation(dataarray, err, errbayes, etimebayes, etimenaive)
+                avg_err_bayes, avg_err_naive, slope_time_bayes, slope_time_naive = self.test_scale_win_helper()
 
                 avg_times_naive[one][two] = slope_time_naive
                 avg_errs_naive[one][two] = avg_err_naive
@@ -195,6 +201,23 @@ class Approach_Test(TestCase):
         print("Bayes Error:", avg_errs_bayes)
 
         return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, scale_win_values
+
+    def test_scale_win_helper(self):
+        # initialize timing and error arrays for naive and bayes
+        etimenaive = np.zeros(self.numsteps + 2, dtype=float)
+        etimenaive[0] = 0
+        err = np.zeros(self.numsteps + 1, dtype=float)
+        etimebayes = np.zeros(self.numsteps + 2, dtype=float)
+        errbayes = np.zeros(self.numsteps + 1, dtype=float)
+        self.data1_0_0 = []
+        for i in range(0, self.ntraj):
+            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.lentraj)))
+        dataarray = np.asarray(self.data1_0_0)
+        try:
+            return self.performance_and_error_calculation(
+            dataarray, err, errbayes, etimebayes, etimenaive)
+        except:
+            return self.test_scale_win_helper()
 
     def test_taumeta_num_traj(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
@@ -213,25 +236,13 @@ class Approach_Test(TestCase):
                 # here we take the MINIMUM value of scale_win instead of the MIDDLE value on purpose
                 self.nwindow = (self.min_scale_win) * self.nstep
                 self.ntraj = num_traj
-                self.numsteps = int(self.numsteps_global / (self.mid_eta * self.min_scale_win * num_traj))
-                self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
+                self.lentraj = int(self.ntraj_lentraj_max / self.ntraj)
+                self.numsteps = Utility.calc_numsteps(self.lentraj, self.nwindow, self.nstep)
                 self.r = (self.nwindow - self.nstep) / self.nwindow
 
                 self.print_param_values("NUM_TRAJ",self.taumeta, self.nstep, self.nwindow, self.numsteps, self.lentraj, self.ntraj, self.mid_eta, self.mid_scale_win)
 
-                etimenaive = np.zeros(self.numsteps + 2, dtype=float)
-                etimenaive[0] = 0
-                err = np.zeros(self.numsteps + 1, dtype=float)
-
-                etimebayes = np.zeros(self.numsteps + 2, dtype=float)
-                errbayes = np.zeros(self.numsteps + 1, dtype=float)
-
-                self.data1_0_0 = []
-                for i in range(0, self.ntraj):
-                    self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.lentraj)))
-                dataarray = np.asarray(self.data1_0_0)
-
-                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.performance_and_error_calculation(dataarray, err, errbayes, etimebayes, etimenaive)
+                avg_err_bayes, avg_err_naive, slope_time_bayes, slope_time_naive = self.test_num_traj_helper()
 
                 avg_times_naive[one][two] = slope_time_naive
                 avg_errs_naive[one][two] = avg_err_naive
@@ -245,17 +256,35 @@ class Approach_Test(TestCase):
         print("Bayes Error:", avg_errs_bayes)
         return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, num_traj_values
 
+    def test_num_traj_helper(self):
+        etimenaive = np.zeros(self.numsteps + 2, dtype=float)
+        etimenaive[0] = 0
+        err = np.zeros(self.numsteps + 1, dtype=float)
+        etimebayes = np.zeros(self.numsteps + 2, dtype=float)
+        errbayes = np.zeros(self.numsteps + 1, dtype=float)
+        self.data1_0_0 = []
+        for i in range(0, self.ntraj):
+            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.lentraj)))
+        dataarray = np.asarray(self.data1_0_0)
+        try:
+            return self.performance_and_error_calculation(dataarray, err, errbayes, etimebayes, etimenaive)
+        except:
+            return self.test_num_traj_helper()
+
     def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
         for k in range(0, self.numsteps + 1):
-            ##### naive sliding window approach
+            assert (self.nwindow + k * self.nstep) < np.shape(dataarray)[1]
             data0 = dataarray[:, k * self.nstep: (self.nwindow + k * self.nstep)]
             dataslice0 = []
+
             for i in range(0, self.ntraj):
                 dataslice0.append(data0[i, :])
             t0 = process_time()
             C0 = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)  # count matrix for whole window
+            C0 += Utility.get_small_nr()
             t1 = process_time()
             A0 = _tm(C0)
+            # substract from A0 again?
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
             err[k] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
             if k == 0:
@@ -305,4 +334,5 @@ class Approach_Test(TestCase):
         print("numsteps:\t", numsteps)
         print("lentraj:\t", lentraj)
         print("ntraj:\t", ntraj)
-        print("\n\n")
+        print("ntraj*lentraj:\t", ntraj*lentraj)
+        print("\n")

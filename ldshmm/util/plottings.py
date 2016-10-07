@@ -121,7 +121,8 @@ class ProbPlot():
 
     def add_to_plot(self, data):
         plt.subplot(self.rows, self.cols, self.current)
-        probplot(x=data, plot=plt)
+        res = probplot(x=data, plot=plt)
+        print(res)
         self.current = self.current+1
         plt.tight_layout(0.5)
 
