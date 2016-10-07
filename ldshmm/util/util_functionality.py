@@ -1,8 +1,8 @@
 from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
 import numpy as np
 
-def estimate_via_sliding_windows(data, nstates):
-    C = count_matrix_coo2_mult(data, lag=1, sliding=False, sparse=False, nstates=nstates)
+def estimate_via_sliding_windows(data, num_states):
+    C = count_matrix_coo2_mult(data, lag=1, sliding=False, sparse=False, nstates=num_states)
     return C
 
 

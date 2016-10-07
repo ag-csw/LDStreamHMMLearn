@@ -7,27 +7,25 @@ from time import process_time
 from ldshmm.util.mm_family import MMFamily1
 from ldshmm.util.qmm_family import QMMFamily1
 from ldshmm.util.util_math import Utility
+from ldshmm.util.util_functionality import *
 
 class Complexity_Test(TestCase):
     def setUp(self):
-        self.nstates = 4
+        self.num_states = 4
         self.timescaledisp = 2.0
         self.statconc = 0.05
-        self.mmf1_0 = MMFamily1(self.nstates, self.timescaledisp, self.statconc)
+        self.mmf1_0 = MMFamily1(self.num_states, self.timescaledisp, self.statconc)
         self.qmmf1_0 = QMMFamily1(self.mmf1_0)
         self.qmm1_0_0 = self.qmmf1_0.sample()[0]
-        self.numsteps = 2
+        self.num_estimations = 2
 
-    def estimate_via_sliding_windows(self, data):
-        C = count_matrix_coo2_mult(data, lag=1, sliding=False, sparse=False, nstates = self.nstates)
-        return C
 
     def test_complexity(self):
-        etimenaive = np.zeros(self.numsteps + 2, dtype=float)
+        etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
         etimenaive[0] = 0
-        etimebayes = np.zeros(self.numsteps + 2, dtype=float)
+        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
 
-        # specify values for taumeta to iterate over - taumeta influences nsteps and therefore the data slice size
+        # specify values for taumeta to iterate over - taumeta influences shifts and therefore the data slice size
         taumeta_values = [1.7,3.4,6.8]
 
         for one,taumeta in enumerate(taumeta_values):
@@ -38,52 +36,51 @@ class Complexity_Test(TestCase):
             self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta, self.tauquasi)
 
             self.nu = 10
-            self.nstep = math.ceil(self.nu * self.timescaledisp * self.taumeta * self.tauquasi)
-            self.nwindow = 10 * self.nstep
-            self.numsteps = 2
-            self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-            self.ntraj = 1
-            self.r = (self.nwindow - self.nstep) / self.nwindow
+            self.shift = math.ceil(self.nu * self.timescaledisp * self.taumeta * self.tauquasi)
+            self.nwindow = 10 * self.shift
+            self.num_estimations = 2
+            self.len_trajectory = self.nwindow + self.num_estimations * self.shift + 1
+            self.num_trajectories = 1
+            self.r = (self.nwindow - self.shift) / self.nwindow
 
             self.data1_0_0 = []
-            for i in range(0, self.ntraj):
-                self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(self.lentraj))
+            for i in range(0, self.num_trajectories):
+                self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(self.len_trajectory))
             dataarray = np.asarray(self.data1_0_0)
 
-            # do the timing and error calculation (numsteps+1)- times and calculate the average from these
-            for k in range(0, self.numsteps + 1):
+            # do the timing and error calculation (num_estimations+1)- times and calculate the average from these
+            for k in range(0, self.num_estimations + 1):
 
                 ##### naive sliding window approach
-                data0 = dataarray[:, k * self.nstep: (self.nwindow + k * self.nstep)]
+                data0 = dataarray[:, k * self.shift: (self.nwindow + k * self.shift)]
                 dataslice0 = []
-                for i in range(0, self.ntraj):
+                for i in range(0, self.num_trajectories):
                     dataslice0.append(data0[i, :])
                 t0 = process_time()
-                C0 = self.estimate_via_sliding_windows(dataslice0)  # count matrix for whole window
+                C0 = estimate_via_sliding_windows(dataslice0, num_states=self.num_states)  # count matrix for whole window
                 t1 = process_time()
                 A0 = _tm(C0)
                 etimenaive[k + 1] = t1 - t0 + etimenaive[k]
 
                 if k == 0:
                     ##### Bayes approach: Calculate C0 separately
-                    data0 = dataarray[:, 0 * self.nstep: (self.nwindow + 0 * self.nstep)]
+                    data0 = dataarray[:, 0 * self.shift: (self.nwindow + 0 * self.shift)]
                     dataslice0 = []
-                    for i in range(0, self.ntraj):
+                    for i in range(0, self.num_trajectories):
                         dataslice0.append(data0[i, :])
 
                     t0 = process_time()
-                    C_old = self.estimate_via_sliding_windows(dataslice0)
+                    C_old = estimate_via_sliding_windows(dataslice0, num_states=self.num_states)
                     etimebayes[1] = process_time() - t0
 
                 if k >= 1:
                     ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
-                    data1new = dataarray[:, self.nwindow + (k - 1) * self.nstep - 1: (self.nwindow + k * self.nstep)]
+                    data1new = dataarray[:, self.nwindow + (k - 1) * self.shift - 1: (self.nwindow + k * self.shift)]
                     dataslice1new = []
-                    for i in range(0, self.ntraj):
+                    for i in range(0, self.num_trajectories):
                         dataslice1new.append(data1new[i, :])
                     t0 = process_time()
-                    C_new = self.estimate_via_sliding_windows(
-                        dataslice1new)  # count matrix for just new transitions
+                    C_new = estimate_via_sliding_windows(dataslice1new, num_states=self.num_states)  # count matrix for just new transitions
 
                     weight0 = self.r
                     weight1 = 1.0

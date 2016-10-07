@@ -11,8 +11,8 @@ class Test_Probability_plot(TestCase):
 
     def setUp(self):
         self.min_eta = Variable_Holder.min_eta
-        self.min_scale_win = Variable_Holder.min_scale_win
-        self.min_num_traj = Variable_Holder.min_num_traj
+        self.min_scale_win = Variable_Holder.min_scale_window
+        self.min_num_traj = Variable_Holder.min_num_trajectories
         self.heatmap_size = Variable_Holder.heatmap_size
         self.min_taumeta = Variable_Holder.min_taumeta
         self.taumeta = Variable_Holder.mid_taumeta
@@ -23,7 +23,7 @@ class Test_Probability_plot(TestCase):
 
         self.nstep_mid = self.mid_eta * self.mid_taumeta
         self.nwindow_mid = self.mid_scale_win * self.nstep_mid
-        self.numsteps_mid = Utility.calc_numsteps_mid(self.nwindow_mid, self.heatmap_size, self.nstep_mid)
+        self.numsteps_mid = Utility.calc_num_estimations_mid(self.nwindow_mid, self.heatmap_size, self.nstep_mid)
         self.lentraj = int(self.nwindow_mid + self.numsteps_mid * self.nstep_mid + 1)
 
     def test_probability_plot(self):
@@ -71,7 +71,7 @@ class Test_Probability_plot(TestCase):
                     dataslice0.append(data0[i, :])
 
                 t0 = process_time()
-                C_old = estimate_via_sliding_windows(data=dataslice0, nstates=self.nstates)
+                C_old = estimate_via_sliding_windows(data=dataslice0, num_states=self.nstates)
                 errbayes[0] = Utility.log_value(np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans))
 
             if k >= 1:
@@ -81,7 +81,7 @@ class Test_Probability_plot(TestCase):
                 for i in range(0, self.ntraj):
                     dataslice1new.append(data1new[i, :])
                 C_new = estimate_via_sliding_windows(data=dataslice1new,
-                                                     nstates=self.nstates)  # count matrix for just new transitions
+                                                     num_states=self.nstates)  # count matrix for just new transitions
                 weight0 = self.r
                 weight1 = 1.0
 

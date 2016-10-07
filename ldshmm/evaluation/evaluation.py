@@ -25,12 +25,12 @@ class Evaluation():
         """
         return self.qHMM_Family.sample(nsamp)
 
-    def simulate_data(self, qHMM, ntraj):
+    def simulate_data(self, qHMM, num_trajectories):
         """
         sample from this qHMM
         :param qHMM:
             qHMM model for the simulated data
-        :param ntraj
+        :param num_trajectories
             number of trajectories to be returned
         :return: [trajectories]
         """
@@ -41,8 +41,8 @@ class Evaluation():
         performance evaluation on the qHMM using simulated data
         :return:
         """
-        ntraj = 1000
-        simulated_data = self.simulate_data(qHMM, ntraj)
+        num_trajectories = 1000
+        simulated_data = self.simulate_data(qHMM, num_trajectories)
 
         nwindow = 100
         est1, delt1 = self.elapsed_time_learn(simulated_data, self.cluster_prior, nsamples, nwindow)
@@ -60,7 +60,7 @@ class Evaluation():
         :param simulated_data:
         :return: elapsed time
         """
-        nstates = 4
+        num_states = 4
         lag = 1
         stride = 'effective'
         nsamples = 100
@@ -76,7 +76,7 @@ class Evaluation():
         store_hidden = False
         show_progress = False
         t0 = time.time()
-        estimator = BayesianQHMM(nstates, lag, stride,
+        estimator = BayesianQHMM(num_states, lag, stride,
                                  self.cluster_prior,
                                  nsamples, init_hmsm, reversible, stationary,
                                  connectivity, mincount_connectivity, separate, observe_nonempty,

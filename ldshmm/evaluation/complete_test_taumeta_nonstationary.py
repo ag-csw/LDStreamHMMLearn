@@ -13,22 +13,22 @@ from ldshmm.util.util_functionality import *
 
 class Approach_Test(TestCase):
     def setUp(self):
-        self.nstates = 4
+        self.num_states = 4
         self.timescaledisp = 2.0
         self.statconc = 0.05
-        self.mmf1_0 = MMFamily1(self.nstates, self.timescaledisp, self.statconc)
+        self.mmf1_0 = MMFamily1(self.num_states, self.timescaledisp, self.statconc)
         self.qmmf1_0 = QMMFamily1(self.mmf1_0)
         self.qmm1_0_0 = self.qmmf1_0.sample()[0]
 
         self.heatmap_size = Variable_Holder.heatmap_size
         self.min_taumeta = Variable_Holder.min_taumeta
         self.min_eta = Variable_Holder.min_eta
-        self.min_scale_win = Variable_Holder.min_scale_win
-        self.min_num_traj = Variable_Holder.min_num_traj
+        self.min_scale_window = Variable_Holder.min_scale_window
+        self.min_num_trajectories = Variable_Holder.min_num_trajectories
 
         self.mid_eta = Variable_Holder.mid_eta
-        self.mid_scale_win = Variable_Holder.mid_scale_win
-        self.mid_num_traj = Variable_Holder.mid_num_traj
+        self.mid_scale_window = Variable_Holder.mid_scale_window
+        self.mid_num_trajectories = Variable_Holder.mid_num_trajectories
 
 
     def test_run_all_tests(self):
@@ -38,7 +38,7 @@ class Approach_Test(TestCase):
         # calculate performances and errors for the three parameters
         avg_times_naive1, avg_times_bayes1, avg_errs_naive1, avg_errs_bayes1, taumeta_values, eta_values = self.test_taumeta_eta()
 
-        avg_times_naive2, avg_times_bayes2, avg_errs_naive2, avg_errs_bayes2, taumeta_values, scale_win_values = self.test_taumeta_scale_win()
+        avg_times_naive2, avg_times_bayes2, avg_errs_naive2, avg_errs_bayes2, taumeta_values, scale_window_values = self.test_taumeta_scale_window()
 
         avg_times_naive3, avg_times_bayes3, avg_errs_naive3, avg_errs_bayes3, taumeta_values, num_traj_values = self.test_taumeta_numtraj()
 
@@ -52,7 +52,7 @@ class Approach_Test(TestCase):
 
         # input data into one plot
         plots.add_to_plot_same_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=eta_values, y_label="eta", minimum=min_val, maximum=max_val)
-        plots.add_to_plot_same_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_win_values, y_label="scale_win", minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj", minimum=min_val, maximum=max_val)
 
         plots.save_plot_same_colorbar("Performance-nonstat")
@@ -61,7 +61,7 @@ class Approach_Test(TestCase):
         plots = ComplexPlot()
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=eta_values, y_label="eta")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_win_values, y_label="scale_win")
+        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window")
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
         plots.save_plot_separate_colorbars("Performance_separate_colorbars-nonstat")
         ###########################################################
@@ -87,7 +87,7 @@ class Approach_Test(TestCase):
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive1, data_bayes=avg_errs_bayes1, x_labels=taumeta_values,
                             y_labels=eta_values, y_label="eta", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2, x_labels=taumeta_values,
-                            y_labels=scale_win_values, y_label="scale_win", minimum=min_val, maximum=max_val)
+                            y_labels=scale_window_values, y_label="scale_window", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive3, data_bayes=avg_errs_bayes3, x_labels=taumeta_values,
                             y_labels=num_traj_values, y_label="num_traj", minimum=min_val, maximum=max_val)
 
@@ -99,20 +99,20 @@ class Approach_Test(TestCase):
         plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive1, data_bayes=avg_errs_bayes1,
                                             x_labels=taumeta_values, y_labels=eta_values, y_label="eta")
         plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2,
-                                            x_labels=taumeta_values, y_labels=scale_win_values, y_label="scale_win")
+                                            x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window")
         plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive3, data_bayes=avg_errs_bayes3,
                                             x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
         plots.save_plot_separate_colorbars("Error_separate_colorbars-nonstat")
         ###########################################################
 
-    def test_taumeta_scale_win(self):
+    def test_taumeta_scale_window(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
 
         taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
-        scale_win_values = create_value_list(self.min_scale_win, self.heatmap_size)  # 5,10,20
+        scale_window_values = create_value_list(self.min_scale_window, self.heatmap_size)  # 5,10,20
 
         for one,taumeta in enumerate(taumeta_values):
-            for two,scale_win in enumerate(scale_win_values):
+            for two,scale_window in enumerate(scale_window_values):
 
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
@@ -121,24 +121,24 @@ class Approach_Test(TestCase):
 
                 self.eta = self.mid_eta
                 self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
-                self.nstep = math.ceil(self.eta * self.drift_timescale)
-                self.nwindow = scale_win * self.nstep
-                self.numsteps = int(Variable_Holder.numsteps_global_nonstat / Variable_Holder.product_mid_values_nonstat)
-                self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-                self.ntraj = self.mid_num_traj
-                self.r = (self.nwindow - self.nstep) / self.nwindow
+                self.shift = math.ceil(self.eta * self.drift_timescale)
+                self.nwindow = scale_window * self.shift
+                self.num_estimations = int(Variable_Holder.num_estimations_global_nonstat / Variable_Holder.product_mid_values_nonstat)
+                self.len_trajectory = self.nwindow + self.num_estimations * self.shift + 1
+                self.num_trajectories = self.mid_num_trajectories
+                self.r = (self.nwindow - self.shift) / self.nwindow
 
 
-                etimenaive = np.zeros(self.numsteps + 2, dtype=float)
+                etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
                 etimenaive[0] = 0
-                err = np.zeros(self.numsteps + 1, dtype=float)
+                err = np.zeros(self.num_estimations + 1, dtype=float)
 
-                etimebayes = np.zeros(self.numsteps + 2, dtype=float)
-                errbayes = np.zeros(self.numsteps + 1, dtype=float)
+                etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
+                errbayes = np.zeros(self.num_estimations + 1, dtype=float)
 
                 self.data1_0_0 = []
-                for i in range(0, self.ntraj):
-                    self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(self.lentraj))
+                for i in range(0, self.num_trajectories):
+                    self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(self.len_trajectory))
                 dataarray = np.asarray(self.data1_0_0)
 
                 slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.performance_and_error_calculation(
@@ -154,7 +154,7 @@ class Approach_Test(TestCase):
         print("Naive Error:", avg_errs_naive)
         print("Bayes Error:", avg_errs_bayes)
 
-        return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, scale_win_values
+        return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, scale_window_values
 
     def test_taumeta_eta(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
@@ -171,25 +171,25 @@ class Approach_Test(TestCase):
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta, self.tauquasi)
                 self.eta = eta
                 self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
-                self.nstep = math.ceil(self.eta * self.drift_timescale)
-                self.nwindow = self.mid_scale_win * self.nstep
-                self.numsteps = int(Variable_Holder.numsteps_global_nonstat / Variable_Holder.product_mid_values_nonstat)
-                self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-                self.ntraj = self.mid_num_traj
+                self.shift = math.ceil(self.eta * self.drift_timescale)
+                self.nwindow = self.mid_scale_window * self.shift
+                self.num_estimations = int(Variable_Holder.num_estimations_global_nonstat / Variable_Holder.product_mid_values_nonstat)
+                self.len_trajectory = self.nwindow + self.num_estimations * self.shift + 1
+                self.num_trajectories = self.mid_num_trajectories
 
 
-                self.r = (self.nwindow - self.nstep) / self.nwindow
+                self.r = (self.nwindow - self.shift) / self.nwindow
 
-                etimenaive = np.zeros(self.numsteps + 2, dtype=float)
+                etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
                 etimenaive[0] = 0
-                err = np.zeros(self.numsteps + 1, dtype=float)
+                err = np.zeros(self.num_estimations + 1, dtype=float)
 
-                etimebayes = np.zeros(self.numsteps + 2, dtype=float)
-                errbayes = np.zeros(self.numsteps + 1, dtype=float)
+                etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
+                errbayes = np.zeros(self.num_estimations + 1, dtype=float)
 
                 self.data1_0_0 = []
-                for i in range(0, self.ntraj):
-                    self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(self.lentraj))
+                for i in range(0, self.num_trajectories):
+                    self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(self.len_trajectory))
                 dataarray = np.asarray(self.data1_0_0)
 
                 slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.performance_and_error_calculation(dataarray, err, errbayes, etimebayes, etimenaive)
@@ -210,7 +210,7 @@ class Approach_Test(TestCase):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
 
         taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
-        num_traj_values = create_value_list(self.min_num_traj, self.heatmap_size)
+        num_traj_values = create_value_list(self.min_num_trajectories, self.heatmap_size)
 
         for one, taumeta in enumerate(taumeta_values):
             for two, num_traj in enumerate(num_traj_values):
@@ -222,24 +222,24 @@ class Approach_Test(TestCase):
 
                 self.eta = self.mid_eta
                 self.drift_timescale = self.mmf1_0.timescale_max * self.taumeta * self.tauquasi
-                self.nstep = math.ceil(self.eta * self.drift_timescale)
-                self.nwindow = self.min_scale_win * self.nstep
-                self.numsteps = int(Variable_Holder.numsteps_global_nonstat / Variable_Holder.product_mid_values_nonstat)
-                self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-                self.ntraj = num_traj
+                self.shift = math.ceil(self.eta * self.drift_timescale)
+                self.nwindow = self.min_scale_window * self.shift
+                self.num_estimations = int(Variable_Holder.num_estimations_global_nonstat / Variable_Holder.product_mid_values_nonstat)
+                self.len_trajectory = self.nwindow + self.num_estimations * self.shift + 1
+                self.num_trajectories = num_traj
 
-                self.r = (self.nwindow - self.nstep) / self.nwindow
+                self.r = (self.nwindow - self.shift) / self.nwindow
 
-                etimenaive = np.zeros(self.numsteps + 2, dtype=float)
+                etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
                 etimenaive[0] = 0
-                err = np.zeros(self.numsteps + 1, dtype=float)
+                err = np.zeros(self.num_estimations + 1, dtype=float)
 
-                etimebayes = np.zeros(self.numsteps + 2, dtype=float)
-                errbayes = np.zeros(self.numsteps + 1, dtype=float)
+                etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
+                errbayes = np.zeros(self.num_estimations + 1, dtype=float)
 
                 self.data1_0_0 = []
-                for i in range(0, self.ntraj):
-                    self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(self.lentraj))
+                for i in range(0, self.num_trajectories):
+                    self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(self.len_trajectory))
                 dataarray = np.asarray(self.data1_0_0)
 
                 slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.performance_and_error_calculation(
@@ -258,44 +258,44 @@ class Approach_Test(TestCase):
         return avg_times_naive, avg_times_bayes, avg_errs_naive, avg_errs_bayes, taumeta_values, num_traj_values
 
     def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
-        # do the timing and error calculation (numsteps+1)- times and calculate the average from these
-        for k in range(0, self.numsteps + 1):
+        # do the timing and error calculation (num_estimations+1)- times and calculate the average from these
+        for k in range(0, self.num_estimations + 1):
 
             ##### naive sliding window approach
-            data0 = dataarray[:, k * self.nstep: (self.nwindow + k * self.nstep)]
+            data0 = dataarray[:, k * self.shift: (self.nwindow + k * self.shift)]
             dataslice0 = []
-            for i in range(0, self.ntraj):
+            for i in range(0, self.num_trajectories):
                 dataslice0.append(data0[i, :])
             t0 = process_time()
-            C0 = estimate_via_sliding_windows(dataslice0, self.nstates)  # count matrix for whole window
+            C0 = estimate_via_sliding_windows(dataslice0, self.num_states)  # count matrix for whole window
             t1 = process_time()
             A0 = _tm(C0)
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
-            err[k] = np.linalg.norm(A0 - self.qmm1_0_0_scaled.eval(self.nwindow + (k - 0.5) * self.nstep).trans)
+            err[k] = np.linalg.norm(A0 - self.qmm1_0_0_scaled.eval(self.nwindow + (k - 0.5) * self.shift).trans)
 
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
-                data0 = dataarray[:, 0 * self.nstep: (self.nwindow + 0 * self.nstep)]
+                data0 = dataarray[:, 0 * self.shift: (self.nwindow + 0 * self.shift)]
                 dataslice0 = []
-                for i in range(0, self.ntraj):
+                for i in range(0, self.num_trajectories):
                     dataslice0.append(data0[i, :])
 
                 t0 = process_time()
-                C_old = estimate_via_sliding_windows(dataslice0, self.nstates)
+                C_old = estimate_via_sliding_windows(dataslice0, self.num_states)
                 etimebayes[1] = process_time() - t0
                 errbayes[0] = np.linalg.norm(
-                    _tm(C_old) - self.qmm1_0_0_scaled.eval(self.nwindow + (k - 0.5) * self.nstep).trans)
+                    _tm(C_old) - self.qmm1_0_0_scaled.eval(self.nwindow + (k - 0.5) * self.shift).trans)
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
                 data1new = dataarray[:,
-                           self.nwindow + (k - 1) * self.nstep - 1: (self.nwindow + k * self.nstep)]
+                           self.nwindow + (k - 1) * self.shift - 1: (self.nwindow + k * self.shift)]
                 dataslice1new = []
-                for i in range(0, self.ntraj):
+                for i in range(0, self.num_trajectories):
                     dataslice1new.append(data1new[i, :])
                 t0 = process_time()
                 C_new = estimate_via_sliding_windows(dataslice1new,
-                                                     self.nstates)  # count matrix for just new transitions
+                                                     self.num_states)  # count matrix for just new transitions
 
                 weight0 = self.r
                 weight1 = 1.0
@@ -307,7 +307,7 @@ class Approach_Test(TestCase):
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
                 A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(
-                A1bayes - self.qmm1_0_0_scaled.eval(self.nwindow + (k - 0.5) * self.nstep).trans)
+                A1bayes - self.qmm1_0_0_scaled.eval(self.nwindow + (k - 0.5) * self.shift).trans)
         slope_time_naive = Utility.log_value(Utility.calc_slope(etimenaive))
         avg_err_naive = Utility.log_value(sum(err) / len(err))
         slope_time_bayes = Utility.log_value(Utility.calc_slope(etimebayes))

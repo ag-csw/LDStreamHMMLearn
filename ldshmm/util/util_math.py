@@ -48,7 +48,7 @@ class Utility():
         return int(value * math.pow(2, num_values_mid))
 
     @staticmethod
-    def calc_numsteps(lentraj, nwindow, nstep):
+    def calc_num_estimations(lentraj, nwindow, nstep):
         import math
         numsteps = math.floor((lentraj - nwindow -1)/nstep)
         if numsteps < 0:
@@ -57,7 +57,7 @@ class Utility():
             return numsteps
 
     @staticmethod
-    def calc_numsteps_mid(nwindow_mid, heatmap_size, nstep_mid):
+    def calc_num_estimations_mid(nwindow_mid, heatmap_size, nstep_mid):
         import math
         numsteps_mid_tmp = math.ceil(nwindow_mid * (math.pow(2, (heatmap_size-1)/2)-1)/nstep_mid)
         factor = math.ceil(math.log2(numsteps_mid_tmp))+1
