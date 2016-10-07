@@ -5,8 +5,8 @@ import scipy
 
 from ldshmm.util.nonstationary_hmm import ConvexCombinationNSHMM
 from ldshmm.util.spectral_hmm import SpectralHMM
-from hmm_family import HMMFamily1
-from qhmm_family import QHMMFamily1
+from ldshmm.util.hmm_family import HMMFamily1
+from ldshmm.util.qhmm_family import QHMMFamily1
 
 class TestConvexCombinationNSHMM(TestCase):
     def create_spectral_HMM(self, transD, transU, pobs):
@@ -109,10 +109,10 @@ class TestConvexCombinationNSHMM(TestCase):
 
     def test_simulate(self):
         N = int(self.timeendpoint)+1
-        ntraj = 1000
-        htrajns = np.zeros((ntraj, N))
-        otrajns = np.zeros((ntraj, N))
-        for j in range(0, ntraj):
+        num_trajectories = 1000
+        htrajns = np.zeros((num_trajectories, N))
+        otrajns = np.zeros((num_trajectories, N))
+        for j in range(0, num_trajectories):
             trajns = self.nshmm1_0.simulate(N)
             #print(trajns)
             htrajns[j,:] = trajns[0]
@@ -125,10 +125,10 @@ class TestConvexCombinationNSHMM(TestCase):
         # with start coming from some initial distribution
         # the distributions should look like the result of propagate
         for i in range(0, N):
-            print("Sampled: ", scipy.stats.itemfreq(htrajns[:, i])[:, 1]*(1/ntraj))
+            print("Sampled: ", scipy.stats.itemfreq(htrajns[:, i])[:, 1]*(1/num_trajectories))
             print("Propagated: ", self.nshmm1_0.propagate(self.nshmm1_0.eval(0).stationary_distribution, i))
             self.assertTrue(
-                np.allclose(scipy.stats.itemfreq(htrajns[:, i])[:, 1]*(1/ntraj) ,
+                np.allclose(scipy.stats.itemfreq(htrajns[:, i])[:, 1]*(1/num_trajectories) ,
                 self.nshmm1_0.propagate(self.nshmm1_0.eval(0).stationary_distribution, i),
                 2e-1,
                 1e-1

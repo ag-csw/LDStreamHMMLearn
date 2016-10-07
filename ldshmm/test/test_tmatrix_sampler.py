@@ -26,28 +26,28 @@ class Test_TMatrix_Sampler(TestCase):
             # Setting taumeta and eta values and recalculate dependent variables for scaling
             self.taumeta = Variable_Holder.min_taumeta
             self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
-            self.nstep = Variable_Holder.mid_eta * self.taumeta
-            self.nwindow = Variable_Holder.mid_scale_window * self.nstep
-            self.numsteps = int(Variable_Holder.numsteps_global / Variable_Holder.product_mid_values)
-            self.lentraj = self.nwindow + self.numsteps * self.nstep + 1
-            self.ntraj = 16#Variable_Holder.mid_num_traj
-            self.r = (self.nwindow - self.nstep) / self.nwindow
+            self.shift = Variable_Holder.mid_eta * self.taumeta
+            self.window_size = Variable_Holder.mid_scale_window * self.shift
+            self.num_estimations = int(Variable_Holder.num_estimations_global / Variable_Holder.product_mid_values)
+            self.len_trajectory = self.window_size + self.num_estimations * self.shift + 1
+            self.num_trajectories = 16#Variable_Holder.mid_num_traj
+            self.r = (self.window_size - self.shift) / self.window_size
 
-            errbayes = np.zeros(self.numsteps, dtype=float)
-            errTMatrSampl = np.zeros(self.numsteps, dtype=float)
+            errbayes = np.zeros(self.num_estimations, dtype=float)
+            errTMatrSampl = np.zeros(self.num_estimations, dtype=float)
 
             self.data1_0_0 = []
-            for i in range(0, self.ntraj):
-                self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.lentraj)))
+            for i in range(0, self.num_trajectories):
+                self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
             dataarray = np.asarray(self.data1_0_0)
 
-            for k in range(0, self.numsteps):
+            for k in range(0, self.num_estimations):
                 print(k)
                 if k == 0:
                     ##### Bayes approach: Calculate C0 separately
-                    data0 = dataarray[:, 0 * self.nstep: (self.nwindow + 0 * self.nstep)]
+                    data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
                     dataslice0 = []
-                    for i in range(0, self.ntraj):
+                    for i in range(0, self.num_trajectories):
                         dataslice0.append(data0[i, :])
                     C_old = estimate_via_sliding_windows(data=dataslice0, num_states=self.nstates)
                     errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
@@ -67,9 +67,9 @@ class Test_TMatrix_Sampler(TestCase):
 
                 if k >= 1:
                     ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
-                    data1new = dataarray[:, self.nwindow + (k - 1) * self.nstep - 1: (self.nwindow + k * self.nstep)]
+                    data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (self.window_size + k * self.shift)]
                     dataslice1new = []
-                    for i in range(0, self.ntraj):
+                    for i in range(0, self.num_trajectories):
                         dataslice1new.append(data1new[i, :])
                     C_new = estimate_via_sliding_windows(data=dataslice1new, num_states=self.nstates)  # count matrix for just new transitions
 

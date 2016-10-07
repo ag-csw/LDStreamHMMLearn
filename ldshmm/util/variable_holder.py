@@ -36,7 +36,7 @@ class Variable_Holder():
 
 
     product_mid_values = mid_eta * mid_scale_window * mid_num_trajectories
-    numsteps_global = 16 * product_mid_values
+    num_estimations_global = 16 * product_mid_values
 
     product_mid_values_nonstat = mid_eta * mid_scale_window * mid_num_trajectories
     num_estimations_global_nonstat = 16 * product_mid_values_nonstat

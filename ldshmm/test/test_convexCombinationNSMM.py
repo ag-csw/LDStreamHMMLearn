@@ -111,9 +111,9 @@ class TestConvexCombinationNSMM(TestCase):
 
     def test_simulate(self):
         N = int(self.timeendpoint)+1
-        ntraj = 1000
-        dtrajs = np.zeros((ntraj, N))
-        for j in range(0, ntraj):
+        num_trajectories = 1000
+        dtrajs = np.zeros((num_trajectories, N))
+        for j in range(0, num_trajectories):
             dtrajs[j,:] = self.lcnsmm3.simulate(N)
         #print(htrajns)
         self.assertEqual(dtrajs[0].size, N)
@@ -122,10 +122,10 @@ class TestConvexCombinationNSMM(TestCase):
         # with start coming from some initial distribution
         # the distributions should look like the result of propagate
         for i in range(0, N):
-            print("Sampled: ", scipy.stats.itemfreq(dtrajs[:, i])[:, 1]*(1/ntraj))
+            print("Sampled: ", scipy.stats.itemfreq(dtrajs[:, i])[:, 1]*(1/num_trajectories))
             print("Propagated: ", self.lcnsmm3.propagate(self.lcnsmm3.eval(0).stationary_distribution, i))
             self.assertTrue(
-                np.allclose(scipy.stats.itemfreq(dtrajs[:, i])[:, 1]*(1/ntraj) ,
+                np.allclose(scipy.stats.itemfreq(dtrajs[:, i])[:, 1]*(1/num_trajectories) ,
                 self.lcnsmm3.propagate(self.lcnsmm3.eval(0).stationary_distribution, i),
                 2e-1,
                 1e-1

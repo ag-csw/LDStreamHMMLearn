@@ -11,20 +11,20 @@ class Test_Probability_plot(TestCase):
 
     def setUp(self):
         self.min_eta = Variable_Holder.min_eta
-        self.min_scale_win = Variable_Holder.min_scale_window
+        self.min_scale_window = Variable_Holder.min_scale_window
         self.min_num_traj = Variable_Holder.min_num_trajectories
         self.heatmap_size = Variable_Holder.heatmap_size
         self.min_taumeta = Variable_Holder.min_taumeta
         self.taumeta = Variable_Holder.mid_taumeta
         self.mid_eta = Variable_Holder.mid_eta
-        self.mid_scale_win = 512#Variable_Holder.mid_scale_win
-        self.mid_num_traj = Variable_Holder.mid_num_traj
+        self.mid_scale_window = 512#Variable_Holder.mid_scale_window
+        self.mid_num_trajectories = Variable_Holder.mid_num_trajectories
         self.mid_taumeta = Variable_Holder.mid_taumeta
 
-        self.nstep_mid = self.mid_eta * self.mid_taumeta
-        self.nwindow_mid = self.mid_scale_win * self.nstep_mid
-        self.numsteps_mid = Utility.calc_num_estimations_mid(self.nwindow_mid, self.heatmap_size, self.nstep_mid)
-        self.lentraj = int(self.nwindow_mid + self.numsteps_mid * self.nstep_mid + 1)
+        self.shift_mid = self.mid_eta * self.mid_taumeta
+        self.window_size_mid = self.mid_scale_window * self.shift_mid
+        self.num_estimations_mid = Utility.calc_num_estimations_mid(self.window_size_mid, self.heatmap_size, self.shift_mid)
+        self.len_trajectory = int(self.window_size_mid + self.num_estimations_mid * self.shift_mid + 1)
 
     def test_probability_plot(self):
         plot = ProbPlot()
@@ -37,17 +37,17 @@ class Test_Probability_plot(TestCase):
             self.mm1_0_0 = self.mmf1_0.sample()[0]
 
             self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
-            self.nstep = Variable_Holder.mid_eta * self.taumeta
-            self.nwindow = self.mid_scale_win * self.nstep
-            self.numsteps = Utility.calc_numsteps(self.lentraj, self.nwindow, self.nstep)
-            self.ntraj = self.mid_num_traj
-            self.r = (self.nwindow - self.nstep) / self.nwindow
+            self.shift = Variable_Holder.mid_eta * self.taumeta
+            self.window_size = self.mid_scale_window * self.shift
+            self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
+            self.num_trajectories = self.mid_num_trajectories
+            self.r = (self.window_size - self.shift) / self.window_size
 
-            errbayes = np.zeros(self.numsteps + 1, dtype=float)
+            errbayes = np.zeros(self.num_estimations + 1, dtype=float)
 
             self.data1_0_0 = []
-            for i in range(0, self.ntraj):
-                self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.lentraj)))
+            for i in range(0, self.num_trajectories):
+                self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
             dataarray = np.asarray(self.data1_0_0)
 
 
@@ -58,16 +58,16 @@ class Test_Probability_plot(TestCase):
 
 
     def performance_and_error_calculation(self, dataarray, errbayes):
-        for k in range(0, self.numsteps + 1):
-            data0 = dataarray[:, k * self.nstep: (self.nwindow + k * self.nstep)]
+        for k in range(0, self.num_estimations + 1):
+            data0 = dataarray[:, k * self.shift: (self.window_size + k * self.shift)]
             dataslice0 = []
-            for i in range(0, self.ntraj):
+            for i in range(0, self.num_trajectories):
                 dataslice0.append(data0[i, :])
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
-                data0 = dataarray[:, 0 * self.nstep: (self.nwindow + 0 * self.nstep)]
+                data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
                 dataslice0 = []
-                for i in range(0, self.ntraj):
+                for i in range(0, self.num_trajectories):
                     dataslice0.append(data0[i, :])
 
                 t0 = process_time()
@@ -76,9 +76,9 @@ class Test_Probability_plot(TestCase):
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
-                data1new = dataarray[:, self.nwindow + (k - 1) * self.nstep - 1: (self.nwindow + k * self.nstep)]
+                data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (self.window_size + k * self.shift)]
                 dataslice1new = []
-                for i in range(0, self.ntraj):
+                for i in range(0, self.num_trajectories):
                     dataslice1new.append(data1new[i, :])
                 C_new = estimate_via_sliding_windows(data=dataslice1new,
                                                      num_states=self.nstates)  # count matrix for just new transitions
