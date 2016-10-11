@@ -42,7 +42,6 @@ class Test_TMatrix_Sampler(TestCase):
             dataarray = np.asarray(self.data1_0_0)
 
             for k in range(0, self.num_estimations):
-                print(k)
                 if k == 0:
                     ##### Bayes approach: Calculate C0 separately
                     data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
@@ -94,6 +93,10 @@ class Test_TMatrix_Sampler(TestCase):
 
                     average_err = np.mean(err)
                     errTMatrSampl[k] = average_err
+                    
+            ratio = errbayes / errTMatrSampl
+            print("Ratio",ratio)
+            self.assertTrue(ratio.all() <= 4 and ratio.all() >= 1/4)
 
             plt.add_to_plot(err_data=errbayes, tmatrix_err_data=errTMatrSampl)
         plt.save_plot("error_comparison")
