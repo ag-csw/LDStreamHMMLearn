@@ -69,4 +69,16 @@ class TestMM_Family1(TestCase):
         max_first_row = np.max(sample[0])
         print(max_first_row)
         print(abs(max_first_row-1))
-        assert(abs(max_first_row-1) <= 1e-4)
+        self.assertTrue(abs(max_first_row-1) <= 1e-4)
+
+    def test_sample_basis_rows(self):
+        sample = self.mmf1_0.sample_basis()
+        print(sample)
+        first_row = sample[0]
+        sum_row = np.sum(first_row)
+        print(sum_row)
+        self.assertTrue(np.isclose(sum_row, 1.0))
+        for i in sample[1:]:
+            sum_row = np.sum(i)
+            print(sum_row)
+            self.assertTrue(np.isclose(sum_row, 0.0))
