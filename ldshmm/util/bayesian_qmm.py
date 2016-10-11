@@ -85,7 +85,7 @@ class BayesianQMM(_BMSM):
         #  (imax + 1)*self.nslide <= data_len - nburnin
         #   imax + 1 = int((data_len - nburnin)/self.nslide)
         data_len = dtrajs.shape[1]
-        for i in range(0, int((data_len - nburnin)/self.nslide))
+        for i in range(0, int((data_len - nburnin)/self.nslide)):
             time = nburnin + (i+1) * self.nslide
             _MSM._estimate(self, dtrajs[:, (time - self.nslide):time])
             # FIXME: check to see if the estimate method truncates to observed values
