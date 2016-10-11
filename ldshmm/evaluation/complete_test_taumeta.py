@@ -42,13 +42,72 @@ class Approach_Test(TestCase):
     def test_run_all_tests(self):
         plots = ComplexPlot()
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
+        arr = [
+            [[-5.52658511, -6.72827426, -7.74214149],
+             [-6.71375064, -7.75816751, -8.91260064],
+             [-7.75019514, -8.96967687, -11.54131791]],
 
-        # calculate performances and errors for the three parameters
-        avg_times_naive1, avg_errs_naive1, avg_times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = self.test_taumeta_eta()
+            [[-5.71693564, -6.72199915, -7.74351512],
+             [-6.72607739, -7.75209266, -8.95572776],
+             [-7.76595084, -8.94433796, -11.50939865]]
+            ]
+        #print(np.mean(arr, axis=0))
 
-        avg_times_naive2, avg_errs_naive2, avg_times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = self.test_taumeta_scale_window()
+        #return
+        avg_times_naive1_list = {}
+        avg_times_naive2_list =  {}
+        avg_times_naive3_list =  {}
+        avg_times_bayes1_list =  {}
+        avg_times_bayes2_list =  {}
+        avg_times_bayes3_list = {}
+        avg_errs_naive1_list =  {}
+        avg_errs_naive2_list =  {}
+        avg_errs_naive3_list =  {}
+        avg_errs_bayes1_list = {}
+        avg_errs_bayes2_list = {}
+        avg_errs_bayes3_list = {}
 
-        avg_times_naive3,  avg_errs_naive3, avg_times_bayes3, avg_errs_bayes3, taumeta_values, num_traj_values = self.test_taumeta_num_traj()
+        taumeta_values = []
+        eta_values = []
+        scale_window_values = []
+        num_traj_values = []
+
+        for i in range (0,8):
+            # calculate performances and errors for the three parameters
+            avg_times_naive1, avg_errs_naive1, avg_times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = self.test_taumeta_eta()
+            avg_times_naive2, avg_errs_naive2, avg_times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = self.test_taumeta_scale_window()
+
+            avg_times_naive3,  avg_errs_naive3, avg_times_bayes3, avg_errs_bayes3, taumeta_values, num_traj_values = self.test_taumeta_num_traj()
+
+            avg_times_naive1_list[i] = (avg_times_naive1)
+            avg_times_naive2_list[i] = (avg_times_naive2)
+            avg_times_naive3_list[i] = (avg_times_naive3)
+
+            avg_times_bayes1_list[i] = (avg_times_bayes1)
+            avg_times_bayes2_list[i] = (avg_times_bayes2)
+            avg_times_bayes3_list[i] = (avg_times_bayes3)
+
+            avg_errs_naive1_list[i] = (avg_errs_naive1)
+            avg_errs_naive2_list[i] = (avg_errs_naive2)
+            avg_errs_naive3_list[i] = (avg_errs_naive3)
+
+            avg_errs_bayes1_list[i] = (avg_errs_bayes1)
+            avg_errs_bayes2_list[i] = (avg_errs_bayes2)
+            avg_errs_bayes3_list[i] = (avg_errs_bayes3)
+
+        avg_times_naive1 = np.mean(list(avg_times_naive1_list.values()), axis=0)
+        avg_times_naive2 = np.mean(list(avg_times_naive2_list.values()), axis=0)
+        avg_times_naive3 = np.mean(list(avg_times_naive3_list.values()), axis=0)
+        avg_times_bayes1 = np.mean(list(avg_times_bayes1_list.values()), axis=0)
+        avg_times_bayes2 = np.mean(list(avg_times_bayes2_list.values()), axis=0)
+        avg_times_bayes3 = np.mean(list(avg_times_bayes3_list.values()), axis=0)
+
+        print("NORMAL",list(avg_times_naive1_list.values()),"MEAN ARRAY",avg_times_naive1)
+        print("NORMAL", list(avg_times_naive2_list.values()), "MEAN ARRAY", avg_times_naive2)
+        print("NORMAL", list(avg_times_naive3_list.values()), "MEAN ARRAY", avg_times_naive3)
+        print("NORMAL", list(avg_times_bayes1_list.values()), "MEAN ARRAY", avg_times_bayes1)
+        print("NORMAL", list(avg_times_bayes2_list.values()), "MEAN ARRAY", avg_times_bayes2)
+        print("NORMAL", list(avg_times_bayes3_list.values()), "MEAN ARRAY", avg_times_bayes3)
 
         # get minimum and maximum performance
         min_val = np.amin([avg_times_naive1,avg_times_naive2,avg_times_naive3,avg_times_bayes1,avg_times_bayes2,avg_times_bayes3])
@@ -74,6 +133,20 @@ class Approach_Test(TestCase):
         ###########################################################
         plots = ComplexPlot()
         plots.new_plot("Naive Error vs. Bayes Error", rows=3)
+
+        avg_errs_naive1 = np.mean(list(avg_errs_naive1_list.values()), axis=0)
+        avg_errs_naive2 = np.mean(list(avg_errs_naive2_list.values()), axis=0)
+        avg_errs_naive3 = np.mean(list(avg_errs_naive3_list.values()), axis=0)
+        avg_errs_bayes1 = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
+        avg_errs_bayes2 = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
+        avg_errs_bayes3 = np.mean(list(avg_errs_bayes3_list.values()), axis=0)
+
+        print("NORMAL", list(avg_errs_naive1_list.values()), "MEAN ARRAY", avg_errs_naive1)
+        print("NORMAL", list(avg_errs_naive2_list.values()), "MEAN ARRAY", avg_errs_naive2)
+        print("NORMAL", list(avg_errs_naive3_list.values()), "MEAN ARRAY", avg_errs_naive3)
+        print("NORMAL", list(avg_errs_bayes1_list.values()), "MEAN ARRAY", avg_errs_bayes1)
+        print("NORMAL", list(avg_errs_bayes2_list.values()), "MEAN ARRAY", avg_errs_bayes2)
+        print("NORMAL", list(avg_errs_bayes3_list.values()), "MEAN ARRAY", avg_errs_bayes3)
 
         # get minimum and maximum error
         min_val = np.amin([avg_errs_naive1, avg_errs_naive2, avg_errs_naive3, avg_errs_bayes1, avg_errs_bayes2,
@@ -124,7 +197,7 @@ class Approach_Test(TestCase):
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
-                self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, eta, self.mid_scale_window)
+                #self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, eta, self.mid_scale_window)
 
                 slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_eta_helper()
 
@@ -135,10 +208,10 @@ class Approach_Test(TestCase):
                 avg_errs_bayes[two][one] = avg_err_bayes
 
 
-        print("Naive Performance:", avg_times_naive)
+        """print("Naive Performance:", avg_times_naive)
         print("Bayes Performance:", avg_times_bayes)
         print("Naive Error:", avg_errs_naive)
-        print("Bayes Error:", avg_errs_bayes)
+        print("Bayes Error:", avg_errs_bayes)"""
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values
 
@@ -179,7 +252,7 @@ class Approach_Test(TestCase):
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
-                self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, scale_window)
+                #self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, scale_window)
 
                 slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes  = self.test_scale_window_helper()
 
@@ -189,10 +262,10 @@ class Approach_Test(TestCase):
                 avg_times_bayes[two][one] = slope_time_bayes
                 avg_errs_bayes[two][one] = avg_err_bayes
 
-        print("Naive Performance:", avg_times_naive)
+        """print("Naive Performance:", avg_times_naive)
         print("Bayes Performance:", avg_times_bayes)
         print("Naive Error:", avg_errs_naive)
-        print("Bayes Error:", avg_errs_bayes)
+        print("Bayes Error:", avg_errs_bayes)"""
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, scale_window_values
 
@@ -234,7 +307,7 @@ class Approach_Test(TestCase):
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
-                self.print_param_values("NUM_TRAJ",self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, self.mid_scale_window)
+                #self.print_param_values("NUM_TRAJ",self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, self.mid_scale_window)
 
                 slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_num_traj_helper()
 
@@ -244,10 +317,10 @@ class Approach_Test(TestCase):
                 avg_times_bayes[two][one] = slope_time_bayes
                 avg_errs_bayes[two][one] = avg_err_bayes
 
-        print("Naive Performance:", avg_times_naive)
+        """print("Naive Performance:", avg_times_naive)
         print("Bayes Performance:", avg_times_bayes)
         print("Naive Error:", avg_errs_naive)
-        print("Bayes Error:", avg_errs_bayes)
+        print("Bayes Error:", avg_errs_bayes)"""
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, num_traj_values
 
     def test_num_traj_helper(self):
