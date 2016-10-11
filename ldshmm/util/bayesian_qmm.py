@@ -47,7 +47,7 @@ class BayesianQMM(_BMSM):
         self.conf = conf
         self.show_progress = show_progress
 
-    def estimate_MSM(self, dtrajs, nslide=1, nwindow=10, nburnin=10):
+    def estimate_MSM(self, dtrajs, nslide=1, window_size=10, nburnin=10):
 
         # ensure right format
         dtrajs = ensure_dtraj_list(dtrajs)
@@ -56,7 +56,7 @@ class BayesianQMM(_BMSM):
 
         self.effective_count_matrix_posterior_list = []
 
-        count_prior = ((self.nwindow - self.nslide) / nburnin) * self.effective_count_matrix_
+        count_prior = ((self.window_size - self.nslide) / nburnin) * self.effective_count_matrix_
 
         #i=0
         # but this overwrites some previous values
@@ -68,7 +68,7 @@ class BayesianQMM(_BMSM):
 
         #count_posterior = count_prior + count_data
         #self.effective_count_matrix_posterior_list.append(( time, count_posterior))
-        #count_prior = ((self.nwindow - self.nslide) / self.nwindow) * count_posterior
+        #count_prior = ((self.window_size - self.nslide) / self.window_size) * count_posterior
 
         #i=1
         #time = nburnin + (i+1)*self.nslide
@@ -78,7 +78,7 @@ class BayesianQMM(_BMSM):
 
         #count_posterior = count_prior + count_data
         #self.effective_count_matrix_posterior_list.append((time, count_posterior))
-        #count_prior = ((self.nwindow - self.nslide) / self.nwindow) * count_posterior
+        #count_prior = ((self.window_size - self.nslide) / self.window_size) * count_posterior
 
         # imax is where
         # time = nburnin + (imax + 1)*self.nslide <= data_len
@@ -94,7 +94,7 @@ class BayesianQMM(_BMSM):
             # Does this need to be rounded?
             count_posterior = count_prior + count_data
             self.effective_count_matrix_posterior_list.append((time, count_posterior))
-            count_prior = ((self.nwindow - self.nslide) / self.nwindow) * count_posterior
+            count_prior = ((self.window_size - self.nslide) / self.window_size) * count_posterior
 
 
         # what other parameters should be set?

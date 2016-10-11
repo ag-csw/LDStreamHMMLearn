@@ -22,7 +22,7 @@ class BayesianQHMM():
                  conf = 0.95,
                  store_hidden = False,
                  show_progress = True,
-                 nwindow = 100,
+                 window_size = 100,
                  step = 10):
         self.nstates = nstates
         self.lag = lag
@@ -40,13 +40,13 @@ class BayesianQHMM():
         self.conf = conf
         self.store_hidden = store_hidden
         self.show_progress = show_progress
-        self.nwindow = nwindow
+        self.window_size = window_size
         self.step = step
 
     def estimate_HMSM(self, dtrajs):
         self.dtrajs = dtrajs
         ntime_steps = self.data.shape[1]
-        nlearn = (self.ntime_steps - self.nwindow) / self.step
+        nlearn = (self.ntime_steps - self.window_size) / self.step
         tms = []
         ems = []
         for j in range(nlearn):
@@ -54,7 +54,7 @@ class BayesianQHMM():
                                    self.init_hmsm, self.reversible, self.stationary, self.connectivity,
                                    self.mincount_connectivity, self.separate, self.observe_nonempty, self.dt_traj,
                                    self.conf, self.store_hidden, self.show_progress)
-            tm, em = hmm.estimate(self.dtrajs[:, j * self.step: j * self.step + self.nwindow - 1])
+            tm, em = hmm.estimate(self.dtrajs[:, j * self.step: j * self.step + self.window_size - 1])
             tms.append(tm)
             ems.append(em)
         return tms, ems

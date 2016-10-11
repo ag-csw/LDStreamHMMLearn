@@ -48,18 +48,18 @@ class Utility():
         return int(value * math.pow(2, num_values_mid))
 
     @staticmethod
-    def calc_num_estimations(lentraj, nwindow, nstep):
+    def calc_num_estimations(len_trajectory, window_size, shift):
         import math
-        num_estimations = math.floor((lentraj - nwindow -1)/nstep)
+        num_estimations = math.floor((len_trajectory - window_size -1)/shift)
         if num_estimations < 0:
             raise Exception
         else:
             return num_estimations
 
     @staticmethod
-    def calc_num_estimations_mid(nwindow_mid, heatmap_size, nstep_mid):
+    def calc_num_estimations_mid(window_size_mid, heatmap_size, shift_mid):
         import math
-        num_estimations_mid_tmp = math.ceil(nwindow_mid * (math.pow(2, (heatmap_size-1)/2)-1)/nstep_mid)
+        num_estimations_mid_tmp = math.ceil(window_size_mid * (math.pow(2, (heatmap_size-1)/2)-1)/shift_mid)
         factor = math.ceil(math.log2(num_estimations_mid_tmp))+1
         num_estimations_mid = math.pow(2,factor)
         return num_estimations_mid
