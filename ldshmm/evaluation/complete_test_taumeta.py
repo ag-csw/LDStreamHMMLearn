@@ -42,18 +42,7 @@ class Approach_Test(TestCase):
     def test_run_all_tests(self):
         plots = ComplexPlot()
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
-        arr = [
-            [[-5.52658511, -6.72827426, -7.74214149],
-             [-6.71375064, -7.75816751, -8.91260064],
-             [-7.75019514, -8.96967687, -11.54131791]],
-
-            [[-5.71693564, -6.72199915, -7.74351512],
-             [-6.72607739, -7.75209266, -8.95572776],
-             [-7.76595084, -8.94433796, -11.50939865]]
-            ]
-        #print(np.mean(arr, axis=0))
-
-        #return
+        
         avg_times_naive1_list = {}
         avg_times_naive2_list =  {}
         avg_times_naive3_list =  {}
