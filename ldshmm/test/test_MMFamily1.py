@@ -4,6 +4,7 @@ import numpy as np
 
 from ldshmm.util.mm_family import MMFamily1
 from ldshmm.util.spectral_mm import SpectralMM
+import math
 
 
 class TestMM_Family1(TestCase):
@@ -63,4 +64,9 @@ class TestMM_Family1(TestCase):
         self.nstates = 4
         self.statconc = 1/64
         self.mmf = MMFamily1(self.nstates, statconc=self.statconc)
-        print(self.mmf.sample_basis())
+        sample = self.mmf.sample_basis()
+        print(sample)
+        max_first_row = np.max(sample[0])
+        print(max_first_row)
+        print(abs(max_first_row-1))
+        assert(abs(max_first_row-1) <= 1e-4)
