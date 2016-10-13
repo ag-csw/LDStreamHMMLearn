@@ -42,7 +42,7 @@ class Approach_Test(TestCase):
     def test_run_all_tests(self):
         plots = ComplexPlot()
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
-        
+
         avg_times_naive1_list = {}
         avg_times_naive2_list =  {}
         avg_times_naive3_list =  {}
@@ -186,7 +186,7 @@ class Approach_Test(TestCase):
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
-                #self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, eta, self.mid_scale_window)
+                self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, eta, self.mid_scale_window)
 
                 slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_eta_helper()
 
@@ -241,7 +241,7 @@ class Approach_Test(TestCase):
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
-                #self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, scale_window)
+                self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, scale_window)
 
                 slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes  = self.test_scale_window_helper()
 
@@ -296,7 +296,7 @@ class Approach_Test(TestCase):
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
-                #self.print_param_values("NUM_TRAJ",self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, self.mid_scale_window)
+                self.print_param_values("NUM_TRAJ",self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, self.mid_scale_window)
 
                 slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_num_traj_helper()
 
@@ -328,6 +328,8 @@ class Approach_Test(TestCase):
             return self.test_num_traj_helper()
 
     def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
+        #f = open("data.txt", "a")
+
         for k in range(0, self.num_estimations + 1):
             assert (self.window_size + k * self.shift) < np.shape(dataarray)[1]
             data0 = dataarray[:, k * self.shift: (self.window_size + k * self.shift)]
@@ -335,6 +337,10 @@ class Approach_Test(TestCase):
 
             for i in range(0, self.num_trajectories):
                 dataslice0.append(data0[i, :])
+            if k==0:
+                # init
+                estimate_via_sliding_windows(data=dataslice0, num_states=self.num_states)
+
             t0 = process_time()
             C0 = estimate_via_sliding_windows(data=dataslice0, num_states=self.num_states)  # count matrix for whole window
             C0 += 1e-8
@@ -342,6 +348,7 @@ class Approach_Test(TestCase):
             A0 = _tm(C0)
 
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
+            #f.write("NAIVE "+str(etimenaive[k+1])+"\n")
             err[k] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
@@ -353,6 +360,7 @@ class Approach_Test(TestCase):
                 t0 = process_time()
                 C_old = estimate_via_sliding_windows(data=dataslice0, num_states=self.num_states)
                 etimebayes[1] = process_time() - t0
+                #f.write("BAYES "+str(etimebayes[1])+"\n")
                 errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
 
             if k >= 1:
@@ -372,9 +380,11 @@ class Approach_Test(TestCase):
 
                 t1 = process_time()
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
+                #f.write("BAYES "+str(etimebayes[k+1])+"\n")
                 A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
-
+        #f.write("\n\n")
+        #f.close()
         slope_time_naive = Utility.log_value(etimenaive[-1])
         avg_err_naive = Utility.log_value(sum(err) / len(err))
         slope_time_bayes = Utility.log_value(etimebayes[-1])
@@ -393,4 +403,6 @@ class Approach_Test(TestCase):
         print("len_trajectory:\t", len_trajectory)
         print("num_trajectories:\t", num_trajectories)
         print("num_trajectories*len_trajectory:\t", num_trajectories*len_trajectory)
+        print("NAIVE window_size * num_estimations\t", window_size * (num_estimations+1))
+        print("BAYES window_size + num_estimations*shift\t", window_size + num_estimations*shift)
         print("\n")
