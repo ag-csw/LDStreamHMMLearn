@@ -64,12 +64,17 @@ class TestMM_Family1(TestCase):
         self.nstates = 4
         self.statconc = 1/64
         self.mmf = MMFamily1(self.nstates, statconc=self.statconc)
-        sample = self.mmf.sample_basis()
-        print(sample)
-        max_first_row = np.max(sample[0])
-        print(max_first_row)
-        print(abs(max_first_row-1))
-        self.assertTrue(abs(max_first_row-1) <= 1e-4)
+        runs=1000
+        arr = np.zeros(runs)
+        for i in range(0,runs):
+            sample = self.mmf.sample_basis()
+            first_row = sample[0]
+            max_first_row = np.max(first_row)
+            diff = sum(first_row[first_row != max_first_row])
+            arr[i] = diff
+
+        print("Median difference from 1:", np.median(arr))
+        self.assertTrue(np.median(arr) < (1e-4))
 
     def test_sample_basis_rows(self):
         sample = self.mmf1_0.sample_basis()
