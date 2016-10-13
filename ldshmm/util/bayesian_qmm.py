@@ -4,7 +4,7 @@ This class is for learning the model of a non-stationary HMM.
 import pyemma.msm as MSM
 from pyemma.util.types import ensure_dtraj_list
 from pyemma.msm.estimators.bayesian_msm import BayesianMSM as _BMSM
-from pyemma.msm.estimators.maximum_likelihood_msm import _msm import MSM as _MSM
+from pyemma.msm.estimators import MaximumLikelihoodMSM as _MSM
 from pyemma.msm.models.msm import MSM as _MSM
 from pyemma.msm.models.msm_sampled import SampledMSM as _SampledMSM
 
@@ -52,7 +52,7 @@ class BayesianQMM(_BMSM):
         # ensure right format
         dtrajs = ensure_dtraj_list(dtrajs)
         # conduct MLE estimation (superclass) of burnin data first
-        _MSM._estimate(self, dtrajs[:, 0:nburnin])
+        _MSM._estimate(dtrajs[:, 0:nburnin])
 
         self.effective_count_matrix_posterior_list = []
 
@@ -87,7 +87,7 @@ class BayesianQMM(_BMSM):
         data_len = dtrajs.shape[1]
         for i in range(0, int((data_len - nburnin)/self.nslide)):
             time = nburnin + (i+1) * self.nslide
-            _MSM._estimate(self, dtrajs[:, (time - self.nslide):time])
+            _MSM._estimate(dtrajs[:, (time - self.nslide):time])
             # FIXME: check to see if the estimate method truncates to observed values
             # If so, then the effective count matrix must be blown up to size nstates by nstates
             count_data = self.effective_count_matrix_
