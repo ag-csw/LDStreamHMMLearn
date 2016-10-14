@@ -7,10 +7,14 @@ class ComplexPlot():
     current = 1
     im = None
 
-    def new_plot(self, heading, rows):
+    def new_plot(self, heading, rows, cols):
         plt.figure()
         plt.suptitle(heading)
         self.rows=rows+1
+        if cols != None:
+            self.cols = cols
+        else:
+            self.cols = 2
 
 
     def add_to_plot_separate_colorbar(self, data_naive, data_bayes, x_labels, y_labels, y_label):
@@ -43,6 +47,34 @@ class ComplexPlot():
         plt.ylabel(y_label)
         plt.tight_layout(2)
         self.current = self.current+1
+
+        plt.subplot(self.rows, self.cols, self.current)
+        self.im = plt.pcolor(data_bayes, vmin=minimum, vmax=maximum, cmap="Reds")
+        plt.xticks(np.arange(len(x_labels)), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(len(y_labels)), (str(y_label) for y_label in y_labels))
+        plt.xlabel("taumeta")
+        plt.ylabel(y_label)
+        plt.tight_layout(2)
+        self.current = self.current + 1
+
+    def add_to_plot_same_colorbar_new(self, data_naive, data_naive_new, data_bayes, x_labels, y_labels, y_label, minimum, maximum):
+        plt.subplot(self.rows, self.cols, self.current)
+        self.im = plt.pcolor(data_naive, vmin=minimum, vmax=maximum, cmap="Reds")
+        plt.xticks(np.arange(len(x_labels)), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(len(x_labels)), (str(y_label) for y_label in y_labels))
+        plt.xlabel("taumeta")
+        plt.ylabel(y_label)
+        plt.tight_layout(2)
+        self.current = self.current+1
+
+        plt.subplot(self.rows, self.cols, self.current)
+        self.im = plt.pcolor(data_naive_new, vmin=minimum, vmax=maximum, cmap="Reds")
+        plt.xticks(np.arange(len(x_labels)), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(len(y_labels)), (str(y_label) for y_label in y_labels))
+        plt.xlabel("taumeta")
+        plt.ylabel(y_label)
+        plt.tight_layout(2)
+        self.current = self.current + 1
 
         plt.subplot(self.rows, self.cols, self.current)
         self.im = plt.pcolor(data_bayes, vmin=minimum, vmax=maximum, cmap="Reds")
