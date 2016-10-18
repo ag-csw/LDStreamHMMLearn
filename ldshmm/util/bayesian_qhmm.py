@@ -1,10 +1,12 @@
-"""
-This class is for learning the model of a non-stationary HMM.
-"""
+
 import pyemma.msm as MSM
 
 
 class BayesianQHMM():
+    """
+    This class is for learning the model of a non-stationary HMM.
+    """
+
     def __init__(self,
                  nstates=4,
                  lag=1,
@@ -24,6 +26,29 @@ class BayesianQHMM():
                  show_progress = True,
                  window_size = 100,
                  step = 10):
+        """
+        ToDo Document show_progress probably leftover from pyemmas BayesianHMSM
+
+        :param nstates: int (default=4) - number of states
+        :param lag: int (default=1) - lag time
+        :param stride: (default='effective')
+        :param cluster_prior:  (default=None)
+        :param nsamples: int (default=100) - number of samples
+        :param init_hmsm: (default=None)
+        :param reversible: (default=False)
+        :param stationary: (default=False)
+        :param connectivity: (default='largest')
+        :param mincount_connectivity: (default='1/n')
+        :param separate: (default=None)
+        :param observe_nonempty: (default=True)
+        :param dt_traj: (default='1 step')
+        :param conf: float (default=0.95)
+        :param store_hidden: (default=False)
+        :param show_progress: (default=True)
+        :param window_size: int (default=100)
+        :param step: int (default=10)
+        """
+
         self.nstates = nstates
         self.lag = lag
         self.stride = stride
@@ -44,6 +69,13 @@ class BayesianQHMM():
         self.step = step
 
     def estimate_HMSM(self, dtrajs):
+        """
+        ToDo Document
+
+        :param dtrajs: ndarray
+        :return:
+        """
+
         self.dtrajs = dtrajs
         ntime_steps = self.data.shape[1]
         nlearn = (self.ntime_steps - self.window_size) / self.step
@@ -60,6 +92,14 @@ class BayesianQHMM():
         return tms, ems
 
     def estimate_MSM(self, dtrajs, nslide=10):
+        """
+        ToDo Document
+
+        :param dtrajs: ndarray
+        :param nslide: int (default=10)
+        :return:
+        """
+
         from pyemma.util.types import ensure_dtraj_list
         from pyemma.msm.estimators.maximum_likelihood_msm import MaximumLikelihoodMSM as _MLMSM
         # ensure right format

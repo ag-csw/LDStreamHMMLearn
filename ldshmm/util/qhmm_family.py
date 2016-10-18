@@ -7,35 +7,59 @@ from ldshmm.util.quasi_hmm import ConvexCombinationQuasiHMM
 
 
 class QHMMFamily(object):
+    """
+   Family of QMMs
+   """
+
     def sample(self, size=1):
+        """
+        sample routine to return an ndarray of SpectralHMMs
+
+        :param size: int (default=1) - size of the returned sample
+        :return: ndarray instance of SpectralHMM
+        """
         raise NotImplementedError("Please implement this method")
 
 
 class QHMMFamily1(QHMMFamily):
-    # No Dominant Relaxation Mode
-    # No Dominant Metastable State
-    # Crisply-clustered observables
+    """
+    * No Dominant Relaxation Mode
+    * No Dominant Metastable State
+    * Crisply-clustered observables
+    """
 
     def __init__(self, hmmfam,
                  edgewidth=1, edgeshift=0, gammamin=1, gammamax=1,
                  mu0 = lambda t: (np.tanh(t) + 1) / 2):
+        """
+
+        :param hmmfam: HMMFamily
+        :param edgewidth: (default=1) - base timescale of the phase transition
+        :param edgeshift: (default=0) - base edge shift before multiplier
+        :param gammamin: (default=1) - minimum value of edge shift multiplier
+        :param gammamax: (default=1) - maximum value of edge shift multiplier
+        :param mu0: (default=lambda t: (np.tanh(t) + 1) / 2) - template weight function
+        """
+
         self.hmmfam = hmmfam
         self.nstates = self.hmmfam.nstates
         self.nobserved = self.hmmfam.nobserved
 
-        self.edgewidth = edgewidth # base timescale of the phase transition
-        self.edgeshift = edgeshift # base edge shift before multiplier
-        self.gammamin = gammamin # minimum value of edge shift multiplier
-        self.gammamax = gammamax # maximum value of edge shift multiplier
-        # FIXME pass in the template weight function instead of all these parameters
-        self.mu0 = mu0 # template weight function
+        self.edgewidth = edgewidth
+        self.edgeshift = edgeshift
+        self.gammamin = gammamin
+        self.gammamax = gammamax
 
-        # FIXME pass in the HMMFamily instead of all these parameters
-        #self.hmmfam = HMMFamily1(self.nstates, self.nobserved, self.clusterconc, self.withinclusterconc, self.clusters,
-        #                         self.timescaledisp, self.statconc)
+        self.mu0 = mu0
         self.gammadist = scipy.stats.uniform(self.gammamin, self.gammamax)
 
     def sample(self, size=1):
+        """
+        ToDo Document
+
+        :return:
+        """
+
         smp = np.empty(size, object)
         for i in range(0, size):
             try:
@@ -47,11 +71,6 @@ class QHMMFamily1(QHMMFamily):
                 if np.linalg.det(shmms[0].eigenvectors_left()) * np.linalg.det(shmms[1].eigenvectors_left()) < 0:
                     raise Exception
                 gamma = self.gammadist.rvs(1)
-
-                # the template weight function
-                # FIXME: pass this in as a parameter to the constructor
-                #def mu0(t):
-                #    return (np.tanh(t) + 1) / 2
 
                 # construct the base (taumeta = tauquasi = 1) weight function from the template
                 def mu(t):

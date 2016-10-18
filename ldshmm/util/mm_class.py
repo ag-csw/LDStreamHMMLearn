@@ -1,8 +1,3 @@
-"""
-This class is for classes of HMMs, including:
-    * parameterized classes of HMMs with one float parameter.
-    * metastable classes of HMMs with one float parameter.
-"""
 import numpy as np
 from pyemma.msm.models.msm import MSM as _MM
 
@@ -10,25 +5,61 @@ from ldshmm.util.spectral_mm import SpectralMM
 
 
 class MMClass:
+    """
+    This class is for classes of HMMs, including:
+    * parameterized classes of HMMs with one float parameter.
+    * metastable classes of HMMs with one float parameter.
+    """
     def ismember(self, x) -> bool:
+        """
+        ToDo Document
+
+        :param x:
+        :return: bool
+        """
+
         raise NotImplementedError("Please implement this method")
 
 
 class MMClass1(MMClass):
+    """
+    ToDo Document
+    """
     def eval(self, tau: float) -> MMClass:
+        """
+        ToDo Document
+
+        :param tau: float
+        :return: a MM
+        """
+
         raise NotImplementedError("Please implement this method")
 
 
 class MMM(MMClass1):
+    """
+    ToDo Document
+    """
     def eval(self, tau: float) -> MMClass:
         raise NotImplementedError("Please implement this method")
 
     def constant(self) -> float:
+        """
+        ToDo Document
+
+        :return: float
+        """
+
         raise NotImplementedError("Please implement this method")
 
 
 class MMMScaled(MMM):
     def __init__(self, smm: SpectralMM):
+        """
+
+        :param smm: SpectralMM
+        """
+
         assert smm.isdiagonal(), "smm is not diagonal"
         assert (np.diag(smm.transD) > 0).all(), "Some eigenvalues of smm are not positive"
         self.sMM = smm

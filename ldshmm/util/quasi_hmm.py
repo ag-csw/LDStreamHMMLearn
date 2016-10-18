@@ -1,23 +1,51 @@
-"""
-This class is for generic quasiHMMs. which are two-parameter families of mHMMs.
-"""
 from ldshmm.util.nonstationary_hmm import ConvexCombinationNSHMM
 from ldshmm.util.nonstationary_hmm import NonstationaryHMMClass
 
 
 class QuasiHMM(NonstationaryHMMClass):
+    """
+    This class is for generic quasiHMMs. which are two-parameter families of mHMMs.
+    """
+
     def eval(self, taumeta, tauquasi):
+        """
+        ToDo Document
+
+        :param taumeta: int - scaling factor for the implied timescales of the snapshot MM
+        :param tauquasi: int - drift timescale (non-stationary behaviour) relative to the largest implied timescale of the snapshot MM
+        :return:
+        """
+
         assert taumeta >= 1, "taumeta is not greater or equal 1"
         assert tauquasi >= 1, "tauquasi is not greater or equal 1"
         # return an MHMM
         raise NotImplementedError("Please implement this method")
 
     def ismember(self, x) -> bool:
+        """
+        ToDo Document
+
+        :param x:
+        :return: bool
+        """
+
         raise NotImplementedError("Please implement this method")
 
 
 class ConvexCombinationQuasiHMM(QuasiHMM):
+    """
+    ToDo Document
+    """
+
     def __init__(self, shmms, mu, timeendpoint='infinity'):
+        """
+        ToDo Document
+
+        :param shmms: ndarray - SpectralHMMs
+        :param mu: function
+        :param timeendpoint: (default='infinity') - time domain endpoint
+        """
+
         # the spectral HMM for mu = 0
         self.sHMM0 = shmms[0]
         # the spectral HMM for mu = 1

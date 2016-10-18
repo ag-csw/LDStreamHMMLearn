@@ -9,21 +9,42 @@ from ldshmm.util.spectral_hmm import SpectralHMM
 
 
 class HMMFamily(object):
+    """
+    A Family of HMMs
+    """
     def sample(self, size=1):
+        """
+        sample routine to return an ndarray of SpectralHMMs
+
+        :param size: int (default=1) - size of the returned sample
+        :return: ndarray instance of SpectralHMM
+        """
         raise NotImplementedError("Please implement this method")
 
 
 class HMMFamily1(HMMFamily):
-    # No Dominant Relaxation Mode
-    # No Dominant Metastable State
-    # Crisply-clustered observables
+    """
+    * No Dominant Relaxation Mode
+    * No Dominant Metastable State
+    * Crisply-clustered observables
+    """
 
     def __init__(self, nstates, nobserved=None, clusterconc=1, withinclusterconc=1, clusters=None, timescaledisp=2,
                  statconc=1):
-        self.nstates = nstates # number of hidden states
+        """
 
-        self.clusterconc = clusterconc # Dirchlet concentration of cluster assignment
-        self.withinclusterconc = withinclusterconc # Dirchlet concentration within clusters
+        :param nstates: int - number of hidden states
+        :param nobserved: int - number of observed states
+        :param clusterconc: Dirchlet concentration of cluster assignment
+        :param withinclusterconc: Dirchlet concentration within clusters
+        :param clusters: ndarray -
+        :param timescaledisp: dispersion of the implied timescales in the base HMM
+        :param statconc: state concentration used to sample for the stationary distribution from the initialized Dirichlet
+        """
+
+        self.nstates = nstates
+        self.clusterconc = clusterconc
+        self.withinclusterconc = withinclusterconc
         # crisp cluster assigment of observables to hidden variables
         if clusters is None:
             self.nobserved = nobserved
@@ -32,7 +53,6 @@ class HMMFamily1(HMMFamily):
             self.cluster_rv = scipy.stats.dirichlet(self.clusterconcvec)
             logging.debug("Clusters are not specified. ")
         else:
-            # number of observed states
             if nobserved is None:
                 self.nobserved = self.nstates
             else:
@@ -52,7 +72,7 @@ class HMMFamily1(HMMFamily):
             self.clustersizes = clustersizes
             self.clusterindices = clusterindices
         self.eigenvaluemin = np.exp(-1.0)
-        self.timescaledisp = timescaledisp # dispersion of the implied timescales in the base HMM
+        self.timescaledisp = timescaledisp
 
         # Derived attributes
         self.eigenvaluemax = np.exp(-1.0 / self.timescaledisp)
@@ -64,6 +84,12 @@ class HMMFamily1(HMMFamily):
         self.basis_rv = scipy.stats.dirichlet(self.basisconcvec)
 
     def sample_emission_matrix(self):
+        """
+        sample the emission matrix
+
+        :return: ndarray of emission probabilities
+        """
+
         # one sample only
         if self.clusters is None:
             # sample for a crisp cluster assignment
@@ -95,14 +121,33 @@ class HMMFamily1(HMMFamily):
         return pobs
 
     def sample_eigenvalues(self):
+        """
+        sample eigenvalues
+
+        :return: ndarray of eigenvalues
+        """
+
         eigenvalues = np.ones(self.nstates, float) # initialize vector of eigenvalues
         eigenvalues[1:] = self.eigenvaluedist.rvs(size=self.nstates - 1) # sample for the non-stationary eigenvalues
         return eigenvalues
 
     def sample_stationary(self):
-        return self.stat_rv.rvs(1) #sample for the stationary distribution from the initialized Dirichlet
+        """
+        sample for the stationary distribution from the initialized Dirichlet
+
+        :return: ndarray of stationary distribution
+        """
+
+        return self.stat_rv.rvs(1)
 
     def sample_basis(self):
+        """
+        sample basis (left eigenvector matrix)
+        ToDo Document
+
+        :return: ndarray of row eigenvectors
+        """
+
         basis = np.empty((self.nstates, self.nstates)) # initialize the left eigenvector matrix
         stat = self.sample_stationary()
         basis[0, :] = stat # stationary distribution is the left eigenvector with eigenvalue one
@@ -113,6 +158,12 @@ class HMMFamily1(HMMFamily):
             return self.sample_basis() # discard sample if not linearly independent
 
     def sample_transition_matrix(self):
+        """
+        sample transition matrix by calculating D (transd), U (transu) and V (transv)
+
+        :return: transd - diagonal array, transu - left eigenvector matrix, transv - inverse matrix of transu, trans - dot product transd * transu * transv
+        """
+
         transd = np.diag(self.sample_eigenvalues())
         transu = self.sample_basis()
         transv = np.linalg.inv(transu)
