@@ -2,6 +2,9 @@ from ldshmm.util.util_math import Utility
 import math
 
 class Variable_Holder():
+    """
+    This class serves as holder class for various parameters used in evaluation scripts
+    """
 
     min_eta = 8
     min_scale_window = 8

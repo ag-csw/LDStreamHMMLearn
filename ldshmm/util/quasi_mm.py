@@ -1,23 +1,50 @@
-"""
-This class is for generic quasiMMs. which are two-parameter families of mMMs.
-"""
 from ldshmm.util.nonstationary_mm import ConvexCombinationNSMM
 from ldshmm.util.nonstationary_mm import NonstationaryMMClass
 
 
 class QuasiMM(NonstationaryMMClass):
+    """
+    This class is for generic quasiMMs. which are two-parameter families of mMMs.
+    """
     def eval(self, taumeta, tauquasi):
+        """
+        ToDo Document
+
+        :param taumeta: int - scaling factor for the implied timescales of the snapshot MM
+        :param tauquasi: int - drift timescale (non-stationary behaviour) relative to the largest implied timescale of the snapshot MM
+        :return:
+        """
+
         assert taumeta >= 1, "taumeta is not greater or equal 1"
         assert tauquasi >= 1, "tauquasi is not greater or equal 1"
         # return an MMM
         raise NotImplementedError("Please implement this method")
 
     def ismember(self, x) -> bool:
+        """
+        ToDo Document
+
+        :param x:
+        :return: bool
+        """
+
         raise NotImplementedError("Please implement this method")
 
 
 class ConvexCombinationQuasiMM(QuasiMM):
+    """
+    ToDo Document
+    """
+
     def __init__(self, mmms, mu, timeendpoint='infinity'):
+        """
+        ToDo Document
+
+        :param mmms:
+        :param mu: function
+        :param timeendpoint: (default='infinity') - time domain endpoint
+        """
+
         # the metastable MM for mu = 0
         self.mMM0 = mmms[0]
         # the metastable MM for mu = 1

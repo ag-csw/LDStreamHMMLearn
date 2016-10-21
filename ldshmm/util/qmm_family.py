@@ -7,30 +7,58 @@ from ldshmm.util.quasi_mm import ConvexCombinationQuasiMM
 
 
 class QMMFamily(object):
+    """
+    Family of QMMs
+    """
     def sample(self, size=1):
+        """
+        sample routine to return an ndarray of SpectralMMs
+
+        :param size: int (default=1) - size of the returned sample
+        :return: ndarray instance of SpectralMM
+       """
         raise NotImplementedError("Please implement this method")
 
 
 class QMMFamily1(QMMFamily):
-    # No Dominant Relaxation Mode
-    # No Dominant Metastable State
+    """
+    * No Dominant Relaxation Mode
+    * No Dominant Metastable State
+    """
 
     def __init__(self, mmfam,
                  edgewidth=1, edgeshift=0, gammamin=1, gammamax=1,
                  mu0 = lambda t: (np.tanh(t) + 1) / 2, delta=1):
+        """
+
+        :param mmfam: MMFamily
+        :param edgewidth: (default=1) - base timescale of the phase transition
+        :param edgeshift: (default=0) - base edge shift before multiplier
+        :param gammamin: (default=1) - minimum value of edge shift multiplier
+        :param gammamax: (default=1) - maximum value of edge shift multiplier
+        :param mu0: (default=lambda t: (np.tanh(t) + 1) / 2) - template weight function
+        :param delta: (default=1) -
+        """
+
         self.mmfam = mmfam
         self.nstates = self.mmfam.nstates
 
-        self.edgewidth = edgewidth # base timescale of the phase transition
-        self.edgeshift = edgeshift # base edge shift before multiplier
-        self.gammamin = gammamin # minimum value of edge shift multiplier
-        self.gammamax = gammamax # maximum value of edge shift multiplier
+        self.edgewidth = edgewidth
+        self.edgeshift = edgeshift
+        self.gammamin = gammamin
+        self.gammamax = gammamax
 
-        self.mu0 = mu0 # template weight function
+        self.mu0 = mu0
         self.delta=delta
         self.gammadist = scipy.stats.uniform(self.gammamin, self.gammamax)
 
     def _sample_one(self):
+        """
+        ToDo Document
+
+        :return:
+        """
+
         try:
             # get two spectral MMs from the MM family self.mmfam
             mmms = self.mmfam.sample(2)

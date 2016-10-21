@@ -25,9 +25,17 @@ class MMFamily1(MMFamily):
     timescale_max = None
 
     def __init__(self, nstates, timescaledisp=2, statconc=1, timescale_min=1):
-        self.nstates = nstates # number of states
+        """
+
+        :param nstates: int - number of states
+        :param timescaledisp: (default=2) dispersion of the implied timescales in the base MM
+        :param statconc: (default=1) state concentration used to sample for the stationary distribution from the initialized Dirichlet
+        :param timescale_min: (default=1) minimum of the implied timescales in the base MM
+        """
+
+        self.nstates = nstates
         self.timescale_min = timescale_min
-        self.timescaledisp = timescaledisp # dispersion of the implied timescales in the base MM
+        self.timescaledisp = timescaledisp
         self.timescale_max = self.timescaledisp * self.timescale_min
         self.eigenvaluemin = np.exp(-1.0 / self.timescale_min)
 
@@ -41,14 +49,33 @@ class MMFamily1(MMFamily):
         self.basis_rv = scipy.stats.dirichlet(self.basisconcvec)
 
     def sample_eigenvalues(self):
+        """
+        sample for the non-stationary eigenvalues
+
+        :return: ndarray of eigenvalues
+        """
+
         eigenvalues = np.ones(self.nstates, float) # initialize vector of eigenvalues
-        eigenvalues[1:] = self.eigenvaluedist.rvs(size=self.nstates - 1) # sample for the non-stationary eigenvalues
+        eigenvalues[1:] = self.eigenvaluedist.rvs(size=self.nstates - 1)
         return eigenvalues
 
     def sample_stationary(self):
-        return self.stat_rv.rvs(1) #sample for the stationary distribution from the initialized Dirichlet
+        """
+        sample for the stationary distribution from the initialized Dirichlet
+
+        :return: ndarray of stationary distribution
+        """
+
+        return self.stat_rv.rvs(1)
 
     def sample_basis(self):
+        """
+        sample basis (left eigenvector matrix)
+        ToDo Document
+
+        :return: ndarray of row eigenvectors
+        """
+
         basis = np.empty((self.nstates, self.nstates)) # initialize the left eigenvector matrix
         stat = self.sample_stationary()
         basis[0, :] = stat # stationary distribution is the left eigenvector with eigenvalue one
@@ -59,6 +86,12 @@ class MMFamily1(MMFamily):
             return self.sample_basis() # discard sample if not linearly independent
 
     def sample_transition_matrix(self):
+        """
+        sample transition matrix by calculating D (transd), U (transu) and V (transv)
+
+        :return: transd - diagonal array, transu - left eigenvector matrix, transv - inverse matrix of transu, trans - dot product transd * transu * transv
+        """
+
         transd = np.diag(self.sample_eigenvalues())
         transu = self.sample_basis()
         transv = np.linalg.inv(transu)
@@ -70,6 +103,12 @@ class MMFamily1(MMFamily):
             return self.sample_transition_matrix()
 
     def _sample_one(self):
+        """
+        sample routine to return a SpectralMM
+
+        :return: MMMScaled which is an instance of SpectralMM
+        """
+
         transd, transu, transv, trans = self.sample_transition_matrix()
         smms = SpectralMM(transd, transu, transv, trans)  # construct a spectral MM
         try:
@@ -78,12 +117,28 @@ class MMFamily1(MMFamily):
             return self._sample_one()
 
     def sample(self, size=1):
+        """
+       sample routine to return an ndarray of SpectralHMMs
+
+       :param size: int (default=1) - size of the returned sample
+       :return: ndarray instance of SpectralHMM
+       """
+
         mmms = np.empty(size, dtype=object) # initialize sample vector
         for i in range(0, size):
             mmms[i] = self._sample_one() # construct a spectral MM
         return mmms
 
     def is_scalable_tm(self, transd, transu, transv=None):
+        """
+        ToDo Document
+
+        :param transd: ndarray - diagonal array
+        :param transu: ndarray - left eigenvector matrix
+        :param transv: ndarray (default=None) - inverse matrix of transu
+        :return: bool - True if D*U*V is scalable, otherwise False
+        """
+
         if transv is None:
             transv = np.linalg.inv(transu)
         lntransd = np.diag(np.log(np.diag(transd)))

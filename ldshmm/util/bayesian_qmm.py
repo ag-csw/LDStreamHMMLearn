@@ -1,6 +1,3 @@
-"""
-This class is for learning the model of a non-stationary HMM.
-"""
 import pyemma.msm as MSM
 from pyemma.util.types import ensure_dtraj_list
 from pyemma.msm.estimators.bayesian_msm import BayesianMSM as _BMSM
@@ -9,38 +6,26 @@ from pyemma.msm.models.msm import MSM as _MSM
 from pyemma.msm.models.msm_sampled import SampledMSM as _SampledMSM
 
 class BayesianQMM(_BMSM):
+    """
+    This class is for learning the model of a non-stationary HMM.
+    """
+
     def __init__(self, lag=1, nsamples=100, nsteps=None,
                  conf=0.95,
                  show_progress=True):
-        r""" Bayesian estimator for MSMs given discrete trajectory statistics
-
-        Parameters
-        ----------
-        lag : int, optional, default=1
-            lagtime to estimate the HMSM at
-
-        nsamples : int, optional, default=100
-            number of sampled transition matrices used
-
-        nsteps : int, optional, default=None
-            number of Gibbs sampling steps for each transition matrix used.
-            If None, nstep will be determined automatically
-
-
-        conf : float, optional, default=0.95
-            Confidence interval. By default one-sigma (68.3%) is used. Use 95.4%
-            for two sigma or 99.7% for three sigma.
-
-        show_progress : bool, default=True
-            Show progressbars for calculation?
-
-        References
-        ----------
-        .. [1] Trendelkamp-Schroer, B., H. Wu, F. Paul and F. Noe: Estimation and
-            uncertainty of reversible Markov models. J. Chem. Phys. (in review)
-            Preprint: http://arxiv.org/abs/1507.05990
-
         """
+        ToDo Document show_progress probably a leftover from pyemmas BMSM
+        Bayesian estimator for MSMs given discrete trajectory statistics
+
+        :param lag: int (default=1) -  lagtime to estimate the HMSM at
+        :param nsamples: int (default=100) - number of sampled transition matrices used
+        :param nsteps: int (default=None) - number of Gibbs sampling steps for each transition matrix used.
+            If None, nstep will be determined automatically
+        :param conf: float (default=0.95) - Confidence interval. By default one-sigma (68.3%) is used. Use 95.4%
+            for two sigma or 99.7% for three sigma.
+        :param show_progress: bool (default=True) - Show progressbar
+        """
+
         _BMSM.__init__(self, lag=lag)
         self.nsamples = nsamples
         self.nsteps = nsteps
@@ -48,6 +33,15 @@ class BayesianQMM(_BMSM):
         self.show_progress = show_progress
 
     def estimate_MSM(self, dtrajs, nslide=1, window_size=10, nburnin=10):
+        """
+        ToDo document
+
+        :param dtrajs: ndarray
+        :param nslide: int (default=1) -
+        :param window_size: int (default=10) -
+        :param nburnin: int (default=10) -
+        :return:
+        """
 
         # ensure right format
         dtrajs = ensure_dtraj_list(dtrajs)
@@ -104,6 +98,13 @@ class BayesianQMM(_BMSM):
         return self
 
     def eval(self, time) -> _BMSM:
+        """
+        ToDo Document
+
+        :param time:
+        :return:
+        """
+
         # initialize this array
         self.bmsm[time] = _BMSM(lag=self.lag, nsamples=self.nsamples, nsteps=None, reversible=False,
                  statdist_constraint=None, count_mode='effective', sparse=False,
@@ -114,6 +115,13 @@ class BayesianQMM(_BMSM):
         pass
 
     def eval_sample(self, time):
+        """
+        ToDo Document
+
+        :param time:
+        :return:
+        """
+
         # transition matrix sampler
         from msmtools.estimation import tmatrix_sampler
         from math import sqrt
