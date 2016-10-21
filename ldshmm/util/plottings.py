@@ -115,14 +115,14 @@ class ProbPlot():
     cols = 2
     current = 1
 
-    def new_plot(self, rows):
+    def new_plot(self, rows, cols=2):
         plt.figure()
         self.rows = rows
+        self.cols = cols
 
     def add_to_plot(self, data):
         plt.subplot(self.rows, self.cols, self.current)
         res = probplot(x=data, plot=plt)
-        print(res)
         self.current = self.current+1
         plt.tight_layout(0.5)
 
@@ -138,6 +138,14 @@ class PointPlot():
         plt.figure()
         plt.suptitle(heading)
         self.rows = rows
+
+    def add_data_to_plot(self, err_data, x_axis_data):
+        plt.subplot(self.rows, self.cols, self.current)
+        plt.plot(x_axis_data, err_data, marker='o')
+        plt.xlabel("window_size")
+        plt.ylabel("error")
+        self.current += 1
+        plt.tight_layout(2)
 
     def add_to_plot(self, err_data, tmatrix_err_data):
         plt.subplot(self.rows, self.cols, self.current)
