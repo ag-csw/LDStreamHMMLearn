@@ -16,34 +16,18 @@ class Effective_Window_Size_Test(TestCase):
         self.num_estimations = [1,2,4,8,16]
 
     def test_effective_window_size(self):
-        naive = {}
-        bayes = {}
-        window_size = []
-        effective_window_size_values = []
+
         for num_estimation in self.num_estimations:
             avg_err_final, avg_err_bayes_final, window_size, effective_window_size_values = self.get_errors(num_estimation)
-            naive[num_estimation] = avg_err_final
-            bayes[num_estimation] = avg_err_bayes_final
 
 
-        plot = PointPlot()
-        plot.new_plot("Effective Window Size", rows=1)
-        plot.new_subplot()
-
-        for key, value in naive.items():
-            plot.add_data_to_plot(value, window_size, key)
-        plot.create_legend()
-        plot.new_subplot()
-        for key, value in bayes.items():
-            plot.add_data_to_plot(value, effective_window_size_values, key)
-        plot.create_legend()
-        plot.save_plot("effective_window_size_plot")
 
     def get_errors(self, num_estimations):
         first_run=True
         effective_window_size_values = []
         avg_err, avg_err_bayes = {}, {}
-        num_runs = 128
+        num_runs = 1
+
         for j in range(0, num_runs):
             if j > 0:
                 first_run = False
@@ -130,5 +114,16 @@ class Effective_Window_Size_Test(TestCase):
                 C_old = C1bayes
                 A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
+        print("\nNum_estimations: ", num_estimations)
+        print("window_size:", window_size)
+
+        print("### Bayes last error ###", errbayes[-1])
+        print("### Bayes Error estimation ###", error_estimation_formula(num_estimations, window_size, self.shift, self.r))
         return err[-1], errbayes[-1]
 
+def error_estimation_formula(ne, w, shift, r):
+    sum_tmp = 0
+    for i in range(0, ne-1):
+        sum_tmp+= math.pow(r, i)*math.sqrt(i+1)
+
+    return (math.pow(r, ne) * math.sqrt(w + ne * shift) + math.sqrt(shift) * (1 - r) * sum_tmp) / math.sqrt(w)
