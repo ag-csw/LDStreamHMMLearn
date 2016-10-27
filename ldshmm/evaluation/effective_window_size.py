@@ -21,8 +21,9 @@ class Effective_Window_Size_Test(TestCase):
 
         avg_err_bayes = self.get_errors(self.num_estimations)
 
-        for i,err in enumerate(avg_err_bayes):
-            self.print_values(i, self.window_sizes[i], err[i], err[0])
+        for i in range (0,len(self.window_sizes)):
+            for k in range (0, self.num_estimations+1):
+                self.print_values(k, self.window_sizes[i], avg_err_bayes[i][k], avg_err_bayes[i][0])
 
         for k in range(0, len(avg_err_bayes[0])): # which is numestimations+1
             k_array = avg_err_bayes[:,k]
@@ -44,7 +45,7 @@ class Effective_Window_Size_Test(TestCase):
 
     def get_errors(self, num_estimations):
         err_bayes_dict = {}
-        num_runs = 512
+        num_runs = 8
         sum_errs = np.zeros(shape=(len(self.window_sizes),self.num_estimations+1))
         divide_arr = np.zeros(shape=(sum_errs.shape))
         divide_arr = divide_arr+num_runs
