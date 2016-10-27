@@ -166,22 +166,26 @@ class PointPlot():
     cols = 2
     current = 1
 
-    def new_plot(self, heading, rows):
+    def new_plot(self, heading, rows, num_curves):
         plt.figure()
         plt.suptitle(heading)
         self.rows = rows
+        NUM_COLORS = num_curves
+        cm = plt.get_cmap('gist_rainbow')
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.set_color_cycle([cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
+        plt.rc('text', usetex=True)
 
-    def new_subplot(self):
-        plt.subplot(self.rows, self.cols, self.current)
-        self.current += 1
 
     def add_data_to_plot(self, err_data, x_axis_data, label):
-        plt.plot(x_axis_data, err_data, marker='o', label="num_estimations="+str(label))
-        plt.xlabel("window_size")
-        plt.ylabel("error")
+        plt.plot(x_axis_data, err_data, marker='o', label=label)
+        plt.xticks(x_axis_data)
+        plt.xlabel(r'$log_2 (window_size)$')
+        plt.ylabel(r'$log_2 (error)$')
 
     def create_legend(self):
-        plt.legend(loc="upper right", fontsize=4)
+        plt.legend(loc="upper right", fontsize=8)
         #plt.tight_layout(2)
 
     def add_to_plot(self, err_data, tmatrix_err_data):

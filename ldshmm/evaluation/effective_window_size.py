@@ -11,32 +11,41 @@ class Effective_Window_Size_Test(TestCase):
         self.taumeta = 4
         self.shift = 64
         self.num_trajectories = 1
-        self.window_size = [int(128*math.pow(2,i)) for i in range (1,7)]
-        self.len_trajectory = self.window_size[-1] + 16 * self.shift
+        self.window_sizes = [int(128 * math.pow(2, i)) for i in range (1, 7)]
+        self.len_trajectory = self.window_sizes[-1] + 16 * self.shift
         self.num_estimations=16
 
     def test_effective_window_size(self):
-        avg_err_bayes, window_size = self.get_errors(self.num_estimations)
-
-        naive = avg_err_bayes[0]
-
+        log_window_sizes = [math.log2(z) for z in self.window_sizes]
         plot = PointPlot()
-        plot.new_plot("Effective Window Size", rows=1)
-        plot.new_subplot()
+        plot.new_plot("Effective Window Size", rows=1, num_curves=self.num_estimations+1)
 
-        for value in avg_err_bayes:
-            plot.add_data_to_plot(value, window_size, value)
-        plot.new_subplot()
+        avg_err_bayes = self.get_errors(self.num_estimations)
 
-        for value in naive:
-            plot.add_data_to_plot(value, window_size, value)
+
+        for k in range(0, len(avg_err_bayes[0])): # which is numestimations+1
+            k_array = avg_err_bayes[:,k]
+            log_k_array =  [math.log2(y) for y in k_array]
+            if k == 0:
+                plot.add_data_to_plot(log_k_array,log_window_sizes,label = "Naive ("+str(k)+" Shifts)")
+            else:
+                plot.add_data_to_plot(log_k_array, log_window_sizes, label=str(k)+" Shifts")
+
+        """naive = avg_err_bayes[0]
+        avg_err_naive = [naive]* len(avg_err_bayes)
+
+
+        plot.add_to_plot()"""
 
         plot.create_legend()
         plot.save_plot("effective_window_size_plot")
 
     def get_errors(self, num_estimations):
         err_bayes_dict = {}
-        num_runs = 256
+        num_runs = 8
+        sum_errs = np.zeros(shape=(len(self.window_sizes),self.num_estimations+1))
+        divide_arr = np.zeros(shape=(sum_errs.shape))
+        divide_arr = divide_arr+num_runs
 
         for j in range(0, num_runs):
 
@@ -53,21 +62,26 @@ class Effective_Window_Size_Test(TestCase):
             dataarray = np.asarray(self.data1_0_0)
             err_bayes_list = []
 
-            for window_size in self.window_size:
+            for window_size in self.window_sizes:
                 self.r = (window_size - self.shift) / window_size
 
                 errbayes = self.performance_and_error_calculation(dataarray, window_size, num_estimations)
 
                 err_bayes_list.append(errbayes)
-            err_bayes_dict[j] = err_bayes_list
-        avg_err_bayes = np.mean(list(err_bayes_dict.values()), axis=0)
 
+            sum_errs = np.add(sum_errs, err_bayes_list)
+            err_bayes_dict[j] = err_bayes_list
+
+        avg_err_bayes = np.divide(sum_errs, divide_arr)
+
+        #avg_err_bayes = np.mean(list(err_bayes_dict.values()), axis=0)
+        #avg_err_bayes = avg_err_bayes[0]
         # take the log values
-        avg_err_bayes = [math.log2(y) for y in avg_err_bayes]
-        window_size = [math.log2(z) for z in self.window_size]
+        #avg_err_bayes = [math.log2(y) for y in avg_err_bayes]
+        #window_size = [math.log2(z) for z in self.window_sizes]
         print("Avg bayes errors:", avg_err_bayes)
 
-        return avg_err_bayes, window_size
+        return avg_err_bayes
 
     def performance_and_error_calculation(self, dataarray, window_size, num_estimations):
         errbayes = np.zeros(num_estimations + 1, dtype=float)
@@ -101,17 +115,17 @@ class Effective_Window_Size_Test(TestCase):
                 C_old = C1bayes
                 A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
-            self.print_values(window_size, num_estimations, errbayes[k], errbayes[0])
+            self.print_values(k, window_size, num_estimations, errbayes[k], errbayes[0])
         return errbayes
 
 
-    def print_values(self, window_size, num_estimations, bayes_error, naive_error):
-        print("**********")
+    def print_values(self, k, window_size, num_estimations, bayes_error, naive_error):
+        print("********** k = "+str(k)+" / "+str(num_estimations+1))
         print("Window Size:", window_size)
-        print("Number of Estimations:", num_estimations)
+        print("Number of Shifts:", num_estimations)
         print("Shift:",self.shift)
         print("Actual Expected Bayes/Naive Ratio:", bayes_error/naive_error)
-        print("Theoretical Bound for Expected Bayes/Naive Ratio:", self.error_estimation_formula((num_estimations,window_size,self.shift,self.r)))
+        print("Theoretical Bound for Expected Bayes/Naive Ratio:", self.error_estimation_formula(num_estimations,window_size,self.shift,self.r))
 
 
     def error_estimation_formula(self, ne, w, shift, r):
