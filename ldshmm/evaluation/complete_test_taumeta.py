@@ -331,8 +331,9 @@ class Approach_Test(TestCase):
         #f = open("data.txt", "a")
 
         for k in range(0, self.num_estimations + 1):
-            assert (self.window_size + k * self.shift) < np.shape(dataarray)[1]
-            data0 = dataarray[:, k * self.shift: (self.window_size + k * self.shift)]
+            current_time = self.window_size + k * self.shift -1
+            assert (current_time < np.shape(dataarray)[1])
+            data0 = dataarray[:,current_time-self.window_size +1: (current_time + 1)]
             dataslice0 = []
 
             for i in range(0, self.num_trajectories):
@@ -365,7 +366,7 @@ class Approach_Test(TestCase):
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
-                data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (self.window_size + k * self.shift)]
+                data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (current_time + 1)]
                 dataslice1new = []
                 for i in range(0, self.num_trajectories):
                     dataslice1new.append(data1new[i, :])
