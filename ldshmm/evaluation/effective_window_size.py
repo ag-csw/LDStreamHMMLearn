@@ -7,7 +7,6 @@ from ldshmm.util.plottings import PointPlot
 
 class Effective_Window_Size_Test(TestCase):
     def setUp(self):
-
         self.taumeta = 4
         self.shift = 64
         self.num_trajectories = 1
@@ -22,9 +21,12 @@ class Effective_Window_Size_Test(TestCase):
 
         avg_err_bayes = self.get_errors(self.num_estimations)
 
+        for i,err in enumerate(avg_err_bayes):
+            self.print_values(i, self.window_sizes[i], err[i], err[0])
 
         for k in range(0, len(avg_err_bayes[0])): # which is numestimations+1
             k_array = avg_err_bayes[:,k]
+
             log_k_array =  [math.log2(y) for y in k_array]
             if k == 0:
                 plot.add_data_to_plot(log_k_array,log_window_sizes,label = "Naive ("+str(k)+" Shifts)")
@@ -42,7 +44,7 @@ class Effective_Window_Size_Test(TestCase):
 
     def get_errors(self, num_estimations):
         err_bayes_dict = {}
-        num_runs = 8
+        num_runs = 512
         sum_errs = np.zeros(shape=(len(self.window_sizes),self.num_estimations+1))
         divide_arr = np.zeros(shape=(sum_errs.shape))
         divide_arr = divide_arr+num_runs
@@ -115,17 +117,17 @@ class Effective_Window_Size_Test(TestCase):
                 C_old = C1bayes
                 A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
-            self.print_values(k, window_size, num_estimations, errbayes[k], errbayes[0])
+            #self.print_values(k, window_size, errbayes[k], errbayes[0])
         return errbayes
 
 
-    def print_values(self, k, window_size, num_estimations, bayes_error, naive_error):
-        print("********** k = "+str(k)+" / "+str(num_estimations+1))
+    def print_values(self, k, window_size, bayes_error, naive_error):
+        print("**********")
         print("Window Size:", window_size)
-        print("Number of Shifts:", num_estimations)
+        print("Number of Shifts:", k)
         print("Shift:",self.shift)
         print("Actual Expected Bayes/Naive Ratio:", bayes_error/naive_error)
-        print("Theoretical Bound for Expected Bayes/Naive Ratio:", self.error_estimation_formula(num_estimations,window_size,self.shift,self.r))
+        print("Theoretical Bound for Expected Bayes/Naive Ratio:", self.error_estimation_formula(k,window_size,self.shift,self.r))
 
 
     def error_estimation_formula(self, ne, w, shift, r):

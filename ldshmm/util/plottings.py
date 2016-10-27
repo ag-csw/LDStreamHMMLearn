@@ -181,8 +181,8 @@ class PointPlot():
     def add_data_to_plot(self, err_data, x_axis_data, label):
         plt.plot(x_axis_data, err_data, marker='o', label=label)
         plt.xticks(x_axis_data)
-        plt.xlabel(r'$log_2 (window_size)$')
-        plt.ylabel(r'$log_2 (error)$')
+        plt.xlabel(r'$log_2 (window\_size)$')
+        plt.ylabel(r'$log_2 (E(error))$')
 
     def create_legend(self):
         plt.legend(loc="upper right", fontsize=8)

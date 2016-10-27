@@ -27,17 +27,17 @@ class NonstationaryMM:
         assert nstates > 0, "The number of states is not a positive integer"
         self.nstates = nstates
 
-    def eval(self, time: int) -> _MM:
+    def eval(self, ground_truth_time: int) -> _MM:
         """
         ToDo Document
 
-        :param time: int - evaluation time point < 0
+        :param ground_truth_time: int - evaluation time point < 0
         :return:
         """
 
-        assert time >= 0, "The evaluation time point is not a non-negative integer"
+        assert ground_truth_time >= 0, "The evaluation time point is not a non-negative integer"
         if self.timeendpoint is not 'infinity':
-            assert time <= self.timeendpoint, \
+            assert ground_truth_time <= self.timeendpoint, \
                 "The evaluation time point is not less than or equal to the time domain endpoint."
         raise NotImplementedError("Please implement this method")
 
@@ -132,8 +132,8 @@ class ConvexCombinationNSMM(NonstationaryMM):
         self.sMM1 = smm1
         self.mu = mu
 
-    def eval(self, time: int) -> SpectralMM:
-        return self.sMM0.lincomb(self.sMM1, self.mu(time))
+    def eval(self, ground_truth_time: int) -> SpectralMM:
+        return self.sMM0.lincomb(self.sMM1, self.mu(ground_truth_time))
 
     def isclose(self, other, timepoints=None):
         """
