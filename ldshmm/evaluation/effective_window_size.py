@@ -10,42 +10,35 @@ class Effective_Window_Size_Test(TestCase):
 
         self.taumeta = 4
         self.shift = 64
-        self.num_trajectories = 2
+        self.num_trajectories = 1
         self.window_size = [int(128*math.pow(2,i)) for i in range (1,7)]
         self.len_trajectory = self.window_size[-1] + 16 * self.shift
-        self.times = [1, 2, 4, 8, 16]
         self.num_estimations=16
 
     def test_effective_window_size(self):
-        naive = {}
-        bayes = {}
-        avg_err_final, avg_err_bayes_final, window_size, effective_window_size_values = self.get_errors(self.num_estimations)
-        for time in self.times:
-            bayes[time] = avg_err_bayes_final[time]
-            naive[time] = avg_err_final
+        avg_err_bayes, window_size = self.get_errors(self.num_estimations)
 
+        naive = avg_err_bayes[0]
 
         plot = PointPlot()
         plot.new_plot("Effective Window Size", rows=1)
         plot.new_subplot()
 
-        for key, value in naive.items():
-            plot.add_data_to_plot(value, window_size, key)
-        plot.create_legend()
+        for value in avg_err_bayes:
+            plot.add_data_to_plot(value, window_size, value)
         plot.new_subplot()
-        for key, value in bayes.items():
-            plot.add_data_to_plot(value, effective_window_size_values, key)
+
+        for value in naive:
+            plot.add_data_to_plot(value, window_size, value)
+
         plot.create_legend()
         plot.save_plot("effective_window_size_plot")
 
     def get_errors(self, num_estimations):
-        first_run=True
-        effective_window_size_values = []
-        avg_err, avg_err_bayes = {}, {}
-        num_runs = 128
+        err_bayes_dict = {}
+        num_runs = 256
+
         for j in range(0, num_runs):
-            if j > 0:
-                first_run = False
 
             # sample and simulate the trajectory only once for one iteration over the windows values
             self.num_states = 4
@@ -58,45 +51,35 @@ class Effective_Window_Size_Test(TestCase):
             for i in range(0, self.num_trajectories):
                 self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
             dataarray = np.asarray(self.data1_0_0)
-            err_list = []
             err_bayes_list = []
 
             for window_size in self.window_size:
                 self.r = (window_size - self.shift) / window_size
-                if first_run:
-                    effective_window_size_values.append(self.shift / (1 - self.r))
-                err = np.zeros(num_estimations + 1, dtype=float)
-                errbayes = np.zeros(num_estimations + 1, dtype=float)
-                errbayes = self.performance_and_error_calculation(dataarray, errbayes, window_size, num_estimations)
+
+                errbayes = self.performance_and_error_calculation(dataarray, window_size, num_estimations)
 
                 err_bayes_list.append(errbayes)
-            avg_err[j] = err_list
-            avg_err_bayes[j] = err_bayes_list
-        avg_err_final = np.mean(list(avg_err.values()), axis=0)
-        avg_err_bayes_final = np.mean(list(avg_err_bayes.values()), axis=0)
-
-        print(avg_err_final)
-        print(avg_err_bayes_final)
+            err_bayes_dict[j] = err_bayes_list
+        avg_err_bayes = np.mean(list(err_bayes_dict.values()), axis=0)
 
         # take the log values
-        avg_err_final = [math.log2(x) for x in avg_err_final]
-        avg_err_bayes_final = [math.log2(y) for y in avg_err_bayes_final]
+        avg_err_bayes = [math.log2(y) for y in avg_err_bayes]
         window_size = [math.log2(z) for z in self.window_size]
-        effective_window_size_values = [math.log2(a) for a in effective_window_size_values]
-        print("Final avg naive errors:", avg_err_final)
-        print("Final avg bayes errors:", avg_err_bayes_final)
+        print("Avg bayes errors:", avg_err_bayes)
 
-        return avg_err_final, avg_err_bayes_final, window_size, effective_window_size_values
+        return avg_err_bayes, window_size
 
-    def performance_and_error_calculation(self, dataarray, errbayes, window_size, num_estimations):
+    def performance_and_error_calculation(self, dataarray, window_size, num_estimations):
+        errbayes = np.zeros(num_estimations + 1, dtype=float)
         for k in range(0, num_estimations + 1):
             data0 = dataarray[:, k * self.shift: (window_size + k * self.shift)]
             dataslice0 = []
 
             for i in range(0, self.num_trajectories):
                 dataslice0.append(data0[i, :])
+
+
             if k == 0:
-                ##### Bayes approach: Calculate C0 separately
                 data0 = dataarray[:, 0 * self.shift: (window_size + 0 * self.shift)]
                 dataslice0 = []
                 for i in range(0, self.num_trajectories):
@@ -105,7 +88,6 @@ class Effective_Window_Size_Test(TestCase):
                 C_old += 1e-8
                 errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
             if k >= 1:
-                ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
                 data1new = dataarray[:, window_size + (k - 1) * self.shift - 1: (window_size + k * self.shift)]
                 dataslice1new = []
                 for i in range(0, self.num_trajectories):
@@ -119,5 +101,22 @@ class Effective_Window_Size_Test(TestCase):
                 C_old = C1bayes
                 A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
+            self.print_values(window_size, num_estimations, errbayes[k], errbayes[0])
         return errbayes
 
+
+    def print_values(self, window_size, num_estimations, bayes_error, naive_error):
+        print("**********")
+        print("Window Size:", window_size)
+        print("Number of Estimations:", num_estimations)
+        print("Shift:",self.shift)
+        print("Actual Expected Bayes/Naive Ratio:", bayes_error/naive_error)
+        print("Theoretical Bound for Expected Bayes/Naive Ratio:", self.error_estimation_formula((num_estimations,window_size,self.shift,self.r)))
+
+
+    def error_estimation_formula(self, ne, w, shift, r):
+        sum_tmp = 0
+        for i in range(0, ne-1):
+            sum_tmp+= math.pow(r, i)*math.sqrt(i+1)
+
+        return (math.pow(r, ne) * math.sqrt(w + ne * shift) + math.sqrt(shift) * (1 - r) * sum_tmp) / math.sqrt(w)
