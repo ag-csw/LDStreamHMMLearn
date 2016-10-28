@@ -286,7 +286,7 @@ class Approach_Test(TestCase):
 
         # specify values for taumeta and eta to iterate over
         taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
-        statconc_values = create_value_list_floats(Variable_Holder.min_statconc, self.heatmap_size)
+        statconc_values = Variable_Holder.statconc_values#create_value_list_floats(Variable_Holder.min_statconc, self.heatmap_size)
 
 
 

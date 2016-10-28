@@ -17,7 +17,7 @@ class Variable_Holder():
     min_timescaledisp = 2
     min_statconc = math.pow(2,-3)
     mid_statconc = 1 # math.pow(2,0)
-
+    statconc_values = [min_statconc, mid_statconc, 8]
     min_omega = 1
 
     mid_taumeta = Utility.get_mid_value(min_taumeta, heatmap_size)
