@@ -45,7 +45,7 @@ class Effective_Window_Size_Test(TestCase):
 
     def get_errors(self, num_estimations):
         err_bayes_dict = {}
-        num_runs = 8
+        num_runs = 1028
         sum_errs = np.zeros(shape=(len(self.window_sizes),self.num_estimations+1))
         divide_arr = np.zeros(shape=(sum_errs.shape))
         divide_arr = divide_arr+num_runs
@@ -128,10 +128,12 @@ class Effective_Window_Size_Test(TestCase):
         print("Number of Shifts:", k)
         print("Shift:",self.shift)
         print("Actual Expected Bayes/Naive Ratio:", bayes_error/naive_error)
-        print("Theoretical Bound for Expected Bayes/Naive Ratio:", self.error_estimation_formula(k,window_size,self.shift,self.r))
+        print("Theoretical Bound for Expected Bayes/Naive Ratio:", self.error_estimation_formula(k,window_size,self.shift))
 
 
-    def error_estimation_formula(self, ne, w, shift, r):
+    def error_estimation_formula(self, ne, w, shift):
+        r = (w - self.shift) / w
+
         sum_tmp = 0
         for i in range(0, ne-1):
             sum_tmp+= math.pow(r, i)*math.sqrt(i+1)

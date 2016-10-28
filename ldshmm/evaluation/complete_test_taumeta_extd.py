@@ -11,12 +11,13 @@ from ldshmm.util.variable_holder import Variable_Holder
 
 
 class Approach_Test(TestCase):
+    # add a heatmap for timescaledisp 2,4,8
+    # add a heatmap for statconc 2^(-3) - - 2 ^3
     def setUp(self):
-
-        # heatmap size of 5
-
+        #np.random.seed(1)
         self.num_states = 4
-        self.mmf1_0 = MMFamily1(self.num_states)
+
+        self.mmf1_0 = MMFamily1(self.num_states, timescaledisp=Variable_Holder.mid_timescaledisp, statconc=Variable_Holder.mid_statconc)
         self.mm1_0_0 = self.mmf1_0.sample()[0]
 
         self.min_eta=Variable_Holder.min_eta
@@ -43,20 +44,28 @@ class Approach_Test(TestCase):
 
     def test_run_all_tests(self):
         plots = ComplexPlot()
-        plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
+        plots.new_plot("Naive Performance vs. Bayes Performance", rows=5)
 
         avg_times_naive1_list = {}
         avg_times_naive2_list =  {}
         avg_times_naive3_list =  {}
+        avg_times_naive4_list =  {}
+        avg_times_naive5_list =  {}
         avg_times_bayes1_list =  {}
         avg_times_bayes2_list =  {}
         avg_times_bayes3_list = {}
+        avg_times_bayes4_list = {}
+        avg_times_bayes5_list = {}
         avg_errs_naive1_list =  {}
         avg_errs_naive2_list =  {}
         avg_errs_naive3_list =  {}
+        avg_errs_naive4_list =  {}
+        avg_errs_naive5_list =  {}
         avg_errs_bayes1_list = {}
         avg_errs_bayes2_list = {}
         avg_errs_bayes3_list = {}
+        avg_errs_bayes4_list = {}
+        avg_errs_bayes5_list = {}
 
         taumeta_values = []
         eta_values = []
@@ -67,83 +76,124 @@ class Approach_Test(TestCase):
             # calculate performances and errors for the three parameters
             avg_times_naive1, avg_errs_naive1, avg_times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = self.test_taumeta_eta()
             avg_times_naive2, avg_errs_naive2, avg_times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = self.test_taumeta_scale_window()
-
             avg_times_naive3,  avg_errs_naive3, avg_times_bayes3, avg_errs_bayes3, taumeta_values, num_traj_values = self.test_taumeta_num_traj()
+            avg_times_naive4, avg_errs_naive4, avg_times_bayes4, avg_errs_bayes4, taumeta_values, timescaledisp_values = self.test_taumeta_timescaledisp()
+            avg_times_naive5, avg_errs_naive5, avg_times_bayes5, avg_errs_bayes5, taumeta_values, statconc_values = self.test_taumeta_statconc()
 
             avg_times_naive1_list[i] = (avg_times_naive1)
             avg_times_naive2_list[i] = (avg_times_naive2)
             avg_times_naive3_list[i] = (avg_times_naive3)
+            avg_times_naive4_list[i] = (avg_times_naive4)
+            avg_times_naive5_list[i] = (avg_times_naive5)
 
             avg_times_bayes1_list[i] = (avg_times_bayes1)
             avg_times_bayes2_list[i] = (avg_times_bayes2)
             avg_times_bayes3_list[i] = (avg_times_bayes3)
+            avg_times_bayes4_list[i] = (avg_times_bayes4)
+            avg_times_bayes5_list[i] = (avg_times_bayes5)
 
             avg_errs_naive1_list[i] = (avg_errs_naive1)
             avg_errs_naive2_list[i] = (avg_errs_naive2)
             avg_errs_naive3_list[i] = (avg_errs_naive3)
+            avg_errs_naive4_list[i] = (avg_errs_naive4)
+            avg_errs_naive5_list[i] = (avg_errs_naive5)
 
             avg_errs_bayes1_list[i] = (avg_errs_bayes1)
             avg_errs_bayes2_list[i] = (avg_errs_bayes2)
             avg_errs_bayes3_list[i] = (avg_errs_bayes3)
+            avg_errs_bayes4_list[i] = (avg_errs_bayes4)
+            avg_errs_bayes5_list[i] = (avg_errs_bayes5)
 
         avg_times_naive1 = np.mean(list(avg_times_naive1_list.values()), axis=0)
         avg_times_naive2 = np.mean(list(avg_times_naive2_list.values()), axis=0)
         avg_times_naive3 = np.mean(list(avg_times_naive3_list.values()), axis=0)
+        avg_times_naive4 = np.mean(list(avg_times_naive4_list.values()), axis=0)
+        avg_times_naive5 = np.mean(list(avg_times_naive5_list.values()), axis=0)
+
         avg_times_bayes1 = np.mean(list(avg_times_bayes1_list.values()), axis=0)
         avg_times_bayes2 = np.mean(list(avg_times_bayes2_list.values()), axis=0)
         avg_times_bayes3 = np.mean(list(avg_times_bayes3_list.values()), axis=0)
+        avg_times_bayes4 = np.mean(list(avg_times_bayes4_list.values()), axis=0)
+        avg_times_bayes5 = np.mean(list(avg_times_bayes5_list.values()), axis=0)
+
 
         print("NORMAL",list(avg_times_naive1_list.values()),"MEAN ARRAY",avg_times_naive1)
         print("NORMAL", list(avg_times_naive2_list.values()), "MEAN ARRAY", avg_times_naive2)
         print("NORMAL", list(avg_times_naive3_list.values()), "MEAN ARRAY", avg_times_naive3)
+        print("NORMAL", list(avg_times_naive4_list.values()), "MEAN ARRAY", avg_times_naive4)
+        print("NORMAL", list(avg_times_naive5_list.values()), "MEAN ARRAY", avg_times_naive5)
+
         print("NORMAL", list(avg_times_bayes1_list.values()), "MEAN ARRAY", avg_times_bayes1)
         print("NORMAL", list(avg_times_bayes2_list.values()), "MEAN ARRAY", avg_times_bayes2)
         print("NORMAL", list(avg_times_bayes3_list.values()), "MEAN ARRAY", avg_times_bayes3)
+        print("NORMAL", list(avg_times_bayes4_list.values()), "MEAN ARRAY", avg_times_bayes4)
+        print("NORMAL", list(avg_times_bayes5_list.values()), "MEAN ARRAY", avg_times_bayes5)
 
         # get minimum and maximum performance
-        min_val = np.amin([avg_times_naive1,avg_times_naive2,avg_times_naive3,avg_times_bayes1,avg_times_bayes2,avg_times_bayes3])
-        max_val = np.amax([avg_times_naive1,avg_times_naive2,avg_times_naive3,avg_times_bayes1,avg_times_bayes2,avg_times_bayes3])
+        min_val = np.amin([avg_times_naive1,avg_times_naive2,avg_times_naive3, avg_times_naive4, avg_times_naive5, avg_times_bayes1,avg_times_bayes2,avg_times_bayes3, avg_times_bayes4, avg_times_bayes5])
+        max_val = np.amax([avg_times_naive1,avg_times_naive2,avg_times_naive3,avg_times_naive4, avg_times_naive5, avg_times_bayes1,avg_times_bayes2,avg_times_bayes3,avg_times_bayes4,avg_times_bayes5])
 
 
         # input data into one plot
         plots.add_to_plot_same_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=eta_values, y_label="eta", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj", minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_naive4, data_bayes=avg_times_bayes4,
+                                        x_labels=taumeta_values, y_labels=timescaledisp_values, y_label="tdisp",
+                                        minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_naive5, data_bayes=avg_times_bayes5,
+                                        x_labels=taumeta_values, y_labels=statconc_values, y_label="conc",
+                                        minimum=min_val, maximum=max_val)
 
         plots.save_plot_same_colorbar("Performance")
 
         ###########################################################
         plots = ComplexPlot()
-        plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
+        plots.new_plot("Naive Performance vs. Bayes Performance", rows=5)
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=eta_values, y_label="eta")
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window")
         plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
+        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive4, data_bayes=avg_times_bayes4,
+                                            x_labels=taumeta_values, y_labels=timescaledisp_values,
+                                            y_label="timescaledisp")
+        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive5, data_bayes=avg_times_bayes5,
+                                            x_labels=taumeta_values, y_labels=statconc_values, y_label="statconc")
         plots.save_plot_separate_colorbars("Performance_separate_colorbars")
-        ###########################################################self.num_estimations_mid = Utility.calc_num_estimations_mid(self.window_size, self.heatmap_size, self.shift)
+        ###########################################################
 
         ###########################################################
         plots = ComplexPlot()
-        plots.new_plot("Naive Error vs. Bayes Error", rows=3)
+        plots.new_plot("Naive Error vs. Bayes Error", rows=5)
 
         avg_errs_naive1 = np.mean(list(avg_errs_naive1_list.values()), axis=0)
         avg_errs_naive2 = np.mean(list(avg_errs_naive2_list.values()), axis=0)
         avg_errs_naive3 = np.mean(list(avg_errs_naive3_list.values()), axis=0)
+        avg_errs_naive4 = np.mean(list(avg_errs_naive4_list.values()), axis=0)
+        avg_errs_naive5 = np.mean(list(avg_errs_naive5_list.values()), axis=0)
+
         avg_errs_bayes1 = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
         avg_errs_bayes2 = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
         avg_errs_bayes3 = np.mean(list(avg_errs_bayes3_list.values()), axis=0)
+        avg_errs_bayes4 = np.mean(list(avg_errs_bayes4_list.values()), axis=0)
+        avg_errs_bayes5 = np.mean(list(avg_errs_bayes5_list.values()), axis=0)
 
         print("NORMAL", list(avg_errs_naive1_list.values()), "MEAN ARRAY", avg_errs_naive1)
         print("NORMAL", list(avg_errs_naive2_list.values()), "MEAN ARRAY", avg_errs_naive2)
         print("NORMAL", list(avg_errs_naive3_list.values()), "MEAN ARRAY", avg_errs_naive3)
+        print("NORMAL", list(avg_errs_naive4_list.values()), "MEAN ARRAY", avg_errs_naive4)
+        print("NORMAL", list(avg_errs_naive5_list.values()), "MEAN ARRAY", avg_errs_naive5)
+
         print("NORMAL", list(avg_errs_bayes1_list.values()), "MEAN ARRAY", avg_errs_bayes1)
         print("NORMAL", list(avg_errs_bayes2_list.values()), "MEAN ARRAY", avg_errs_bayes2)
         print("NORMAL", list(avg_errs_bayes3_list.values()), "MEAN ARRAY", avg_errs_bayes3)
+        print("NORMAL", list(avg_errs_bayes4_list.values()), "MEAN ARRAY", avg_errs_bayes4)
+        print("NORMAL", list(avg_errs_bayes5_list.values()), "MEAN ARRAY", avg_errs_bayes5)
 
         # get minimum and maximum error
-        min_val = np.amin([avg_errs_naive1, avg_errs_naive2, avg_errs_naive3, avg_errs_bayes1, avg_errs_bayes2,
-                           avg_errs_bayes3])
-        max_val = np.amax([avg_errs_naive1, avg_errs_naive2, avg_errs_naive3, avg_errs_bayes1, avg_errs_bayes2,
-                           avg_errs_bayes3])
+        min_val = np.amin([avg_errs_naive1, avg_errs_naive2, avg_errs_naive3, avg_errs_naive4,avg_errs_naive5,  avg_errs_bayes1, avg_errs_bayes2,
+                           avg_errs_bayes3, avg_errs_bayes4, avg_errs_bayes5])
+        max_val = np.amax([avg_errs_naive1, avg_errs_naive2, avg_errs_naive3, avg_errs_naive4,avg_errs_naive5, avg_errs_bayes1, avg_errs_bayes2,
+                           avg_errs_bayes3,  avg_errs_bayes4, avg_errs_bayes5])
 
         # input data into one plot
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive1, data_bayes=avg_errs_bayes1, x_labels=taumeta_values,
@@ -151,21 +201,139 @@ class Approach_Test(TestCase):
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2, x_labels=taumeta_values,
                             y_labels=scale_window_values, y_label="scale_window", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive3, data_bayes=avg_errs_bayes3, x_labels=taumeta_values,
-                            y_labels=num_traj_values, y_label="num   _traj", minimum=min_val, maximum=max_val)
-
+                            y_labels=num_traj_values, y_label="num_traj", minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive4, data_bayes=avg_errs_bayes4, x_labels=taumeta_values,
+                                        y_labels=timescaledisp_values, y_label="tdisp", minimum=min_val,
+                                        maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive5, data_bayes=avg_errs_bayes5, x_labels=taumeta_values,
+                                        y_labels=statconc_values, y_label="conc", minimum=min_val,
+                                        maximum=max_val)
 
         plots.save_plot_same_colorbar("Error")
         ##########################################################
         plots = ComplexPlot()
-        plots.new_plot("Naive Error vs. Bayes Error", rows=3)
+        plots.new_plot("Naive Error vs. Bayes Error", rows=5)
         plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive1, data_bayes=avg_errs_bayes1,
                                             x_labels=taumeta_values, y_labels=eta_values, y_label="eta")
         plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2,
                                             x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window")
         plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive3, data_bayes=avg_errs_bayes3,
                                             x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
+        plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive4, data_bayes=avg_errs_bayes4,
+                                            x_labels=taumeta_values, y_labels=timescaledisp_values,
+                                            y_label="timescaledisp")
+        plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive5, data_bayes=avg_errs_bayes5,
+                                            x_labels=taumeta_values, y_labels=statconc_values, y_label="statconc")
+
         plots.save_plot_separate_colorbars("Error_separate_colorbars")
         ###########################################################
+
+    def test_taumeta_timescaledisp(self):
+        avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
+
+        # specify values for taumeta and eta to iterate over
+        taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
+        timescaledisp_values = create_value_list(Variable_Holder.min_timescaledisp, self.heatmap_size)
+
+
+
+        for one,taumeta in enumerate(taumeta_values):
+            for two,timescaledisp in enumerate(timescaledisp_values):
+
+                self.mmf1_0 = MMFamily1(self.num_states, timescaledisp=timescaledisp, statconc=Variable_Holder.mid_statconc)
+                self.mm1_0_0 = self.mmf1_0.sample()[0]
+
+                self.taumeta = taumeta
+                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.shift = Variable_Holder.mid_eta * self.taumeta
+                self.window_size = Variable_Holder.mid_scale_window * self.shift
+                self.num_trajectories = Variable_Holder.mid_num_trajectories
+
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.r = (self.window_size - self.shift) / self.window_size
+
+                self.print_param_values("TIMESCALEDISP", self.taumeta, self.shift, self.window_size, self.num_estimations, Variable_Holder.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta, Variable_Holder.mid_scale_window, timescaledisp, Variable_Holder.mid_statconc)
+
+                slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_timescaledisp_helper()
+
+                avg_times_naive[two][one] = slope_time_naive
+                avg_errs_naive[two][one] = avg_err_naive
+
+                avg_times_bayes[two][one] = slope_time_bayes
+                avg_errs_bayes[two][one] = avg_err_bayes
+
+        return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, timescaledisp_values
+
+    def test_timescaledisp_helper(self):
+        # initialize timing and error arrays for naive and bayes
+        etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
+        etimenaive[0] = 0
+        err = np.zeros(self.num_estimations + 1, dtype=float)
+        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
+        errbayes = np.zeros(self.num_estimations + 1, dtype=float)
+        self.data1_0_0 = []
+        for i in range(0, self.num_trajectories):
+            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
+        dataarray = np.asarray(self.data1_0_0)
+        try:
+            return self.performance_and_error_calculation(
+                dataarray, err, errbayes, etimebayes, etimenaive)
+        except:
+            return self.test_timescaledisp_helper()
+
+    def test_taumeta_statconc(self):
+        avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
+
+        # specify values for taumeta and eta to iterate over
+        taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
+        statconc_values = create_value_list_floats(Variable_Holder.min_statconc, self.heatmap_size)
+
+
+
+        for one,taumeta in enumerate(taumeta_values):
+            for two,statconc in enumerate(statconc_values):
+
+                self.mmf1_0 = MMFamily1(self.num_states, timescaledisp=Variable_Holder.mid_timescaledisp, statconc=statconc)
+                self.mm1_0_0 = self.mmf1_0.sample()[0]
+
+                self.taumeta = taumeta
+                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.shift = Variable_Holder.mid_eta * self.taumeta
+                self.window_size = Variable_Holder.mid_scale_window * self.shift
+                self.num_trajectories = Variable_Holder.mid_num_trajectories
+
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.r = (self.window_size - self.shift) / self.window_size
+
+                self.print_param_values("STATCONC", self.taumeta, self.shift, self.window_size, self.num_estimations, Variable_Holder.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta, Variable_Holder.mid_scale_window, Variable_Holder.mid_timescaledisp, statconc)
+
+                slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_statconc_helper()
+
+                avg_times_naive[two][one] = slope_time_naive
+                avg_errs_naive[two][one] = avg_err_naive
+
+                avg_times_bayes[two][one] = slope_time_bayes
+                avg_errs_bayes[two][one] = avg_err_bayes
+
+        return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, statconc_values
+
+    def test_statconc_helper(self):
+        # initialize timing and error arrays for naive and bayes
+        etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
+        etimenaive[0] = 0
+        err = np.zeros(self.num_estimations + 1, dtype=float)
+        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
+        errbayes = np.zeros(self.num_estimations + 1, dtype=float)
+        self.data1_0_0 = []
+        for i in range(0, self.num_trajectories):
+            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
+        dataarray = np.asarray(self.data1_0_0)
+        try:
+            return self.performance_and_error_calculation(
+                dataarray, err, errbayes, etimebayes, etimenaive)
+        except:
+            return self.test_timescaledisp_helper()
+
 
     def test_taumeta_eta(self):
 
@@ -188,7 +356,7 @@ class Approach_Test(TestCase):
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
-                self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, eta, self.mid_scale_window)
+                self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, eta, self.mid_scale_window, Variable_Holder.mid_timescaledisp, Variable_Holder.mid_statconc)
 
                 slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_eta_helper()
 
@@ -221,8 +389,7 @@ class Approach_Test(TestCase):
             return self.performance_and_error_calculation(
                 dataarray, err, errbayes, etimebayes, etimenaive)
         except:
-            return self.test_eta_helper()
-
+            return self.test_scale_window_helper()
 
     def test_taumeta_scale_window(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
@@ -243,7 +410,7 @@ class Approach_Test(TestCase):
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
-                self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, scale_window)
+                self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, scale_window, Variable_Holder.mid_timescaledisp, Variable_Holder.mid_statconc)
 
                 slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes  = self.test_scale_window_helper()
 
@@ -298,7 +465,7 @@ class Approach_Test(TestCase):
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
-                self.print_param_values("NUM_TRAJ",self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, self.mid_scale_window)
+                self.print_param_values("NUM_TRAJ",self.taumeta, self.shift, self.window_size, self.num_estimations, self.len_trajectory, self.num_trajectories, self.mid_eta, self.mid_scale_window, Variable_Holder.mid_timescaledisp, Variable_Holder.mid_statconc)
 
                 slope_time_naive, avg_err_naive,  slope_time_bayes, avg_err_bayes  = self.test_num_traj_helper()
 
@@ -362,6 +529,7 @@ class Approach_Test(TestCase):
 
                 t0 = process_time()
                 C_old = estimate_via_sliding_windows(data=dataslice0, num_states=self.num_states)
+                C0 += 1e-8
                 etimebayes[1] = process_time() - t0
                 #f.write("BAYES "+str(etimebayes[1])+"\n")
                 errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
@@ -395,7 +563,7 @@ class Approach_Test(TestCase):
 
         return slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes
 
-    def print_param_values(self, evaluation_name, taumeta, shift, window_size, num_estimations, len_trajectory, num_trajectories, eta, scale_window):
+    def print_param_values(self, evaluation_name, taumeta, shift, window_size, num_estimations, len_trajectory, num_trajectories, eta, scale_window, timescaledisp, statconc):
         print("Parameter Overview for " + evaluation_name+ ":")
         print("taumeta:\t", taumeta)
         print("eta:\t", eta)
@@ -405,6 +573,8 @@ class Approach_Test(TestCase):
         print("num_estimations:\t", num_estimations)
         print("len_trajectory:\t", len_trajectory)
         print("num_trajectories:\t", num_trajectories)
+        print("timescaledisp:\t",timescaledisp)
+        print("statconc:\t",statconc)
         print("num_trajectories*len_trajectory:\t", num_trajectories*len_trajectory)
         print("NAIVE window_size * num_estimations\t", window_size * (num_estimations+1))
         print("BAYES window_size + num_estimations*shift\t", window_size + num_estimations*shift)

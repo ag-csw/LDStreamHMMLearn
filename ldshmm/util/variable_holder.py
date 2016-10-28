@@ -12,8 +12,12 @@ class Variable_Holder():
     heatmap_size = 3
     min_taumeta = 2
     min_timescale_min = 1
-    min_timescaledisp = 1
-    min_statconc = 1/64
+
+
+    min_timescaledisp = 2
+    min_statconc = math.pow(2,-3)
+    mid_statconc = 1 # math.pow(2,0)
+
     min_omega = 1
 
     mid_taumeta = Utility.get_mid_value(min_taumeta, heatmap_size)
@@ -22,8 +26,9 @@ class Variable_Holder():
     mid_num_trajectories = Utility.get_mid_value(min_num_trajectories, heatmap_size)
     mid_timescalemin  = Utility.get_mid_value(min_timescale_min, heatmap_size)
     mid_timescaledisp = Utility.get_mid_value(min_timescaledisp, heatmap_size)
-    mid_statconc = 1
+    #mid_statconc = Utility.get_mid_value(min_statconc, heatmap_size)
     mid_omega = Utility.get_mid_value(min_omega, heatmap_size)
+
 
 
     max_eta = min_eta * math.pow(2, heatmap_size - 1)

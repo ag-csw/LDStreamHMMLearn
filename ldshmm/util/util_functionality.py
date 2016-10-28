@@ -12,6 +12,11 @@ def create_value_list(first_value, len_list):
     return list
 
 
+def create_value_list_floats(first_value, len_list):
+    import math
+    list = [(math.pow(2, x) * first_value) for x in range(0, len_list)]
+    return list
+
 def init_time_and_error_arrays(heatmap_size):
     # initialize average timing and error arrays for naive and bayes
     avg_times_naive = np.zeros((heatmap_size, heatmap_size))

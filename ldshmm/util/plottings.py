@@ -7,14 +7,11 @@ class ComplexPlot():
     current = 1
     im = None
 
-    def new_plot(self, heading, rows, cols):
+    def new_plot(self, heading, rows, cols=2):
         plt.figure()
         plt.suptitle(heading)
         self.rows=rows+1
-        if cols != None:
-            self.cols = cols
-        else:
-            self.cols = 2
+        self.cols = cols
 
 
     def add_to_plot_separate_colorbar(self, data_naive, data_bayes, x_labels, y_labels, y_label):
@@ -25,7 +22,7 @@ class ComplexPlot():
         plt.xlabel("taumeta")
         plt.ylabel(y_label)
         plt.colorbar()
-        plt.tight_layout(2)
+        #plt.tight_layout(0.5)
         self.current = self.current+1
 
         plt.subplot(self.rows,self.cols,self.current)
@@ -35,7 +32,7 @@ class ComplexPlot():
         plt.xlabel("taumeta")
         plt.ylabel(y_label)
         plt.colorbar()
-        plt.tight_layout(2)
+        #plt.tight_layout(0.5)
         self.current = self.current + 1
 
     def add_to_plot_same_colorbar (self, data_naive, data_bayes, x_labels, y_labels, y_label, minimum, maximum):
@@ -45,7 +42,7 @@ class ComplexPlot():
         plt.yticks(np.arange(len(x_labels)), (str(y_label) for y_label in y_labels))
         plt.xlabel("taumeta")
         plt.ylabel(y_label)
-        plt.tight_layout(2)
+        #plt.tight_layout(0.5)
         self.current = self.current+1
 
         plt.subplot(self.rows, self.cols, self.current)
@@ -54,7 +51,7 @@ class ComplexPlot():
         plt.yticks(np.arange(len(y_labels)), (str(y_label) for y_label in y_labels))
         plt.xlabel("taumeta")
         plt.ylabel(y_label)
-        plt.tight_layout(2)
+        #plt.tight_layout(0.5)
         self.current = self.current + 1
 
     def add_to_plot_same_colorbar_new(self, data_naive, data_naive_new, data_bayes, x_labels, y_labels, y_label, minimum, maximum):

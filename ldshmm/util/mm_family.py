@@ -104,9 +104,9 @@ class MMFamily1(MMFamily):
 
     def _sample_one(self):
         """
-        sample routine to return a SpectralMM
+        sample routine to return a MMMScaled
 
-        :return: MMMScaled which is an instance of SpectralMM
+        :return: MMMScaled which is an instance of MMMScaled
         """
 
         transd, transu, transv, trans = self.sample_transition_matrix()
@@ -118,10 +118,10 @@ class MMFamily1(MMFamily):
 
     def sample(self, size=1):
         """
-       sample routine to return an ndarray of SpectralHMMs
+       sample routine to return an ndarray of MMMScaled
 
        :param size: int (default=1) - size of the returned sample
-       :return: ndarray instance of SpectralHMM
+       :return: ndarray instance of MMMScaled
        """
 
         mmms = np.empty(size, dtype=object) # initialize sample vector
