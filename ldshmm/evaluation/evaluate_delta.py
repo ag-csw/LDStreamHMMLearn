@@ -1,24 +1,25 @@
 from time import process_time
-from unittest import TestCase
 
 from msmtools.estimation import transition_matrix as _tm
 
 from ldshmm.util.mm_family import MMFamily1
+from ldshmm.util.qmm_family import QMMFamily1
 from ldshmm.util.plottings import ComplexPlot
 from ldshmm.util.util_functionality import *
 from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
 
 
-class Approach_Test(TestCase):
-    # add a heatmap for timescaledisp 2,4,8
-    # add a heatmap for statconc 2^(-3) - - 2 ^3
-    def setUp(self):
+class Delta_Evaluation():
+
+    def __init__(self, delta=0):
         self.num_states = 4
+        self.delta = delta
 
         np.random.seed(1)
-        self.mmf1_0 = MMFamily1(self.num_states, timescaledisp=Variable_Holder.mid_timescaledisp, statconc=Variable_Holder.mid_statconc)
-        self.mm1_0_0 = self.mmf1_0.sample()[0]
+        self.mmf1_0 = MMFamily1(self.num_states)
+        self.qmmf1_0 = QMMFamily1(self.mmf1_0, delta = self.delta)
+        self.qmm1_0_0 = self.qmmf1_0.sample()[0]
 
         self.min_eta=Variable_Holder.min_eta
         self.min_scale_window=Variable_Holder.min_scale_window
@@ -73,7 +74,7 @@ class Approach_Test(TestCase):
         num_traj_values = []
 
         numruns = 1
-        for i in range (0,1):
+        for i in range (0,numruns):
             # calculate performances and errors for the three parameters
             avg_times_naive1, avg_errs_naive1, avg_times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = self.test_taumeta_eta()
             avg_times_naive2, avg_errs_naive2, avg_times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = self.test_taumeta_scale_window()
@@ -146,21 +147,8 @@ class Approach_Test(TestCase):
                                         x_labels=taumeta_values, y_labels=statconc_values, y_label="conc",
                                         minimum=min_val, maximum=max_val)
 
-        plots.save_plot_same_colorbar("Performance")
+        plots.save_plot_same_colorbar("Performance"+str(self.delta))
 
-        ###########################################################
-        plots = ComplexPlot()
-        plots.new_plot("Naive Performance vs. Bayes Performance", rows=5)
-        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=eta_values, y_label="eta")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive4, data_bayes=avg_times_bayes4,
-                                            x_labels=taumeta_values, y_labels=timescaledisp_values,
-                                            y_label="timescaledisp")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive5, data_bayes=avg_times_bayes5,
-                                            x_labels=taumeta_values, y_labels=statconc_values, y_label="statconc")
-        plots.save_plot_separate_colorbars("Performance_separate_colorbars")
-        ###########################################################
 
         ###########################################################
         plots = ComplexPlot()
@@ -210,24 +198,8 @@ class Approach_Test(TestCase):
                                         y_labels=statconc_values, y_label="conc", minimum=min_val,
                                         maximum=max_val)
 
-        plots.save_plot_same_colorbar("Error")
-        ##########################################################
-        plots = ComplexPlot()
-        plots.new_plot("Naive Error vs. Bayes Error", rows=5)
-        plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive1, data_bayes=avg_errs_bayes1,
-                                            x_labels=taumeta_values, y_labels=eta_values, y_label="eta")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2,
-                                            x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive3, data_bayes=avg_errs_bayes3,
-                                            x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive4, data_bayes=avg_errs_bayes4,
-                                            x_labels=taumeta_values, y_labels=timescaledisp_values,
-                                            y_label="timescaledisp")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive5, data_bayes=avg_errs_bayes5,
-                                            x_labels=taumeta_values, y_labels=statconc_values, y_label="statconc")
+        plots.save_plot_same_colorbar("Error"+str(self.delta))
 
-        plots.save_plot_separate_colorbars("Error_separate_colorbars")
-        ###########################################################
 
     def test_taumeta_timescaledisp(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(self.heatmap_size)
@@ -236,16 +208,16 @@ class Approach_Test(TestCase):
         taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
         timescaledisp_values = create_value_list(Variable_Holder.min_timescaledisp, self.heatmap_size)
 
-
-
         for one,taumeta in enumerate(taumeta_values):
             for two,timescaledisp in enumerate(timescaledisp_values):
                 np.random.seed(1)
                 self.mmf1_0 = MMFamily1(self.num_states, timescaledisp=timescaledisp, statconc=Variable_Holder.mid_statconc)
-                self.mm1_0_0 = self.mmf1_0.sample()[0]
+                self.qmmf1_0 = QMMFamily1(self.mmf1_0, delta=self.delta)
+                self.qmm1_0_0 = self.qmmf1_0.sample()[0]
 
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
+
                 self.shift = Variable_Holder.mid_eta * self.taumeta
                 self.window_size = Variable_Holder.mid_scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
@@ -274,12 +246,13 @@ class Approach_Test(TestCase):
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
         for i in range(0, self.num_trajectories):
-            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
+            self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(int(self.len_trajectory)))
         dataarray = np.asarray(self.data1_0_0)
         try:
             return self.performance_and_error_calculation(
                 dataarray, err, errbayes, etimebayes, etimenaive)
         except:
+            print("exception timescaledisp")
             return self.test_timescaledisp_helper()
 
     def test_taumeta_statconc(self):
@@ -289,16 +262,16 @@ class Approach_Test(TestCase):
         taumeta_values = create_value_list(self.min_taumeta, self.heatmap_size)
         statconc_values = Variable_Holder.statconc_values#create_value_list_floats(Variable_Holder.min_statconc, self.heatmap_size)
 
-
-
         for one,taumeta in enumerate(taumeta_values):
             for two,statconc in enumerate(statconc_values):
                 np.random.seed(1)
                 self.mmf1_0 = MMFamily1(self.num_states, timescaledisp=Variable_Holder.mid_timescaledisp, statconc=statconc)
-                self.mm1_0_0 = self.mmf1_0.sample()[0]
+                self.qmmf1_0 = QMMFamily1(self.mmf1_0, delta=self.delta)
+                self.qmm1_0_0 = self.qmmf1_0.sample()[0]
 
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
+
                 self.shift = Variable_Holder.mid_eta * self.taumeta
                 self.window_size = Variable_Holder.mid_scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
@@ -327,12 +300,13 @@ class Approach_Test(TestCase):
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
         for i in range(0, self.num_trajectories):
-            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
+            self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(int(self.len_trajectory)))
         dataarray = np.asarray(self.data1_0_0)
         try:
             return self.performance_and_error_calculation(
                 dataarray, err, errbayes, etimebayes, etimenaive)
         except:
+            print("exception statconc")
             return self.test_timescaledisp_helper()
 
 
@@ -349,7 +323,8 @@ class Approach_Test(TestCase):
 
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
+
                 self.shift = eta * self.taumeta
                 self.window_size = self.mid_scale_window * self.shift
                 self.num_trajectories = self.mid_num_trajectories
@@ -384,12 +359,13 @@ class Approach_Test(TestCase):
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
         for i in range(0, self.num_trajectories):
-            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
+            self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(int(self.len_trajectory)))
         dataarray = np.asarray(self.data1_0_0)
         try:
             return self.performance_and_error_calculation(
                 dataarray, err, errbayes, etimebayes, etimenaive)
         except:
+            print("exception eta")
             return self.test_scale_window_helper()
 
     def test_taumeta_scale_window(self):
@@ -404,7 +380,7 @@ class Approach_Test(TestCase):
 
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
                 self.shift = (self.mid_eta) * self.taumeta
                 self.window_size = scale_window * self.shift
                 self.num_trajectories = self.mid_num_trajectories
@@ -437,12 +413,13 @@ class Approach_Test(TestCase):
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
         for i in range(0, self.num_trajectories):
-            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
+            self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(int(self.len_trajectory)))
         dataarray = np.asarray(self.data1_0_0)
         try:
             return self.performance_and_error_calculation(
             dataarray, err, errbayes, etimebayes, etimenaive)
         except:
+            print("exception scale window")
             return self.test_scale_window_helper()
 
     def test_taumeta_num_traj(self):
@@ -457,7 +434,8 @@ class Approach_Test(TestCase):
 
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
+
                 self.shift = (self.mid_eta) * self.taumeta
                 # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
                 self.window_size = (self.min_scale_window) * self.shift
@@ -490,11 +468,12 @@ class Approach_Test(TestCase):
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
         for i in range(0, self.num_trajectories):
-            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
+            self.data1_0_0.append(self.qmm1_0_0_scaled.simulate(int(self.len_trajectory)))
         dataarray = np.asarray(self.data1_0_0)
         try:
             return self.performance_and_error_calculation(dataarray, err, errbayes, etimebayes, etimenaive)
         except:
+            print("exception num trajectories")
             return self.test_num_traj_helper()
 
     def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
@@ -520,7 +499,7 @@ class Approach_Test(TestCase):
 
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
             #f.write("NAIVE "+str(etimenaive[k+1])+"\n")
-            err[k] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
+            err[k] = np.linalg.norm(A0 - self.qmm1_0_0_scaled.eval(k).trans)
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
                 data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
@@ -533,7 +512,7 @@ class Approach_Test(TestCase):
                 C0 += 1e-8
                 etimebayes[1] = process_time() - t0
                 #f.write("BAYES "+str(etimebayes[1])+"\n")
-                errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
+                errbayes[0] = np.linalg.norm(_tm(C_old) - self.qmm1_0_0_scaled.eval(k).trans)
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
@@ -554,7 +533,7 @@ class Approach_Test(TestCase):
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
                 #f.write("BAYES "+str(etimebayes[k+1])+"\n")
                 A1bayes = _tm(C1bayes)
-                errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
+                errbayes[k] = np.linalg.norm(A1bayes - self.qmm1_0_0_scaled.eval(k).trans)
         #f.write("\n\n")
         #f.close()
         slope_time_naive = Utility.log_value(etimenaive[-1])
@@ -580,3 +559,8 @@ class Approach_Test(TestCase):
         print("NAIVE window_size * num_estimations\t", window_size * (num_estimations+1))
         print("BAYES window_size + num_estimations*shift\t", window_size + num_estimations*shift)
         print("\n")
+
+
+delta_eval0 = Delta_Evaluation(delta=0)
+delta_eval0.test_run_all_tests()
+

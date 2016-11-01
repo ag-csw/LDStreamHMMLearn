@@ -55,7 +55,7 @@ class ConvexCombinationQuasiMM(QuasiMM):
         # may be a postive integer or the string 'infinity'
         self.timeendpoint = timeendpoint
 
-    def eval(self, taumeta, tauquasi) -> ConvexCombinationNSMM:
+    def eval(self, taumeta=1, tauquasi=1) -> ConvexCombinationNSMM:
         # return a non-stationary MM
         assert taumeta >= 1, "taumeta is not greater or equal 1"
         assert tauquasi >= 1, "tauquasi is not greater or equal 1"
