@@ -131,33 +131,56 @@ class MMFamily1(MMFamily):
 
     def is_scalable_tm(self, transd, transu, transv=None):
         """
-        ToDo Document
+        A transition matrix has all non-negative entries whose rows sum to one.
+        The input parameters contain the diagonal decomposition of a transition matrix:
+           trans = transv * transd * transu
+        
+        where transd is diagonal and transv is the inverse of transu.
+        The scaling of trans by scaling factor tau is defined as
+        the transition matrix S satisfying
+                  S = trans^(1/tau)
+        For large scaling factors (tau), the scaling of a base transition matrix trans approaches
+          
+           I + (1/tau) ln( trans)
+        Proof: For any matrix M,
+            M = exp( ln(M) )
+            M^(1/tau) = exp( (1/tau)*ln(M) )
+          When |(1/tau)*ln(M)|<< 1,
+            M^(1/tau) ~ I + (1/tau)*ln(M)
+            
+        
+        The matrix I + (1/tau)*ln(trans) will have non-negative elements for sufficiently large tau if and only if
+          1. all diagonal elements of ln(trans) are <= 0
+          2. all off-diagonal elements of ln(trans) are >= 0
+        
+        Therefore the matrix trans is called "scalable" if it satisfies these properties.
+        
+        The definition of the natural logarithm for a matrix is given in terms of its Taylor's series:
+        
+          ln(I + X) = X - (1/2) X^2  + (1/3) X^3 ...
+        
+        Based on this definition, the diagonal decomposition may be used for a fast calculation of natural logarithm of trans.
 
+           ln(trans) = transv * ln(transd) * transu
+        
+        The natural logarithm of a diagonal matrix is obtained by taking the
+        natural logarithm of each diagonal entry.
+        This is also a result of the Taylor's series definition.
+        
         :param transd: ndarray - diagonal array
         :param transu: ndarray - left eigenvector matrix
         :param transv: ndarray (default=None) - inverse matrix of transu
-        :return: bool - True if D*U*V is scalable, otherwise False
+        :return: bool - True if trans = transv*transd*transu is scalable, otherwise False
         """
 
-        if transv is None:
-            transv = np.linalg.inv(transu)
+        if transv is None:n                               
+            transv = np.linalg.inv(transu)                
         lntransd = np.diag(np.log(np.diag(transd)))
-        delta = mdot(transv, lntransd, transu)
-        deltadiag = np.diag(delta)
-        deltatril = np.tril(delta, -1)
-        deltatriu = np.triu(delta, 1)
+        delta = mdot(transv, lntransd, transu)            # delta = natural logarithm of the transition matrix  
+        deltadiag = np.diag(delta)                        # the diagonal of the matrix delta
+        deltatril = np.tril(delta, -1)                    # the strict lower triangular part of delta
+        deltatriu = np.triu(delta, 1)                     # the strict upper triangular part of delta 
         if np.all(deltadiag <= 0) and np.all(deltatril >= 0) and np.all(deltatriu >= 0):
             return True
         else:
-            # For large scaling factors (tau), the scaling of the transition matrix approaches
-            #
-            #   I + (1/tau) ln( trans)
-            #
-            # This will be a  transition matrix for sufficiently large tau if
-            #    1. all diagonal elements are <= 0
-            #    2. all off-diagonal elements are >= 0
-            #
-            # Therefore the matrix is called "scalable" if it satisfies these properties.
-            #
-            # The diagonal decomposition is used for a fast calculation of the log
             return False
