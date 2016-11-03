@@ -13,6 +13,7 @@ class Variable_Holder():
     min_taumeta = 2
     min_timescale_min = 1
 
+    num_states = 4
 
     min_timescaledisp = 2
     min_statconc = math.pow(2,-3)
@@ -37,9 +38,9 @@ class Variable_Holder():
     window_size_max = mid_scale_window * shift_max
     num_estimations_max = 1  # smallest value within the heatmap
 
-    num_trajectories_max = min_num_trajectories * math.pow(2, heatmap_size - 1)
+    max_num_trajectories = min_num_trajectories * math.pow(2, heatmap_size - 1)
     len_trajectory = int(window_size_max + num_estimations_max * shift_max + 1)
-    num_trajectories_len_trajectory_max = num_trajectories_max * len_trajectory
+    num_trajectories_len_trajectory_max = max_num_trajectories * len_trajectory
 
 
 

@@ -8,13 +8,13 @@ from ldshmm.util.plottings import ComplexPlot
 from ldshmm.util.util_functionality import *
 from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
+from ldshmm.util.util_evaluation import *
 
 
 class Approach_Test(TestCase):
     def setUp(self):
 
-        # heatmap size of 5
-
+        np.random.seed(1011)
         self.num_states = 4
         self.mmf1_0 = MMFamily1(self.num_states)
         self.mm1_0_0 = self.mmf1_0.sample()[0]
@@ -36,10 +36,11 @@ class Approach_Test(TestCase):
         self.window_size_max = Variable_Holder.window_size_max
         self.num_estimations_max = Variable_Holder.window_size_max
 
-        self.num_trajectories_max = Variable_Holder.num_trajectories_max
+        self.num_trajectories_max = Variable_Holder.max_num_trajectories
 
         self.len_trajectory = Variable_Holder.len_trajectory
         self.num_trajectories_len_trajectory_max = Variable_Holder.num_trajectories_len_trajectory_max
+        self.simulated_data = read_simulated_data()
 
     def test_run_all_tests(self):
         plots = ComplexPlot()
@@ -63,7 +64,7 @@ class Approach_Test(TestCase):
         scale_window_values = []
         num_traj_values = []
 
-        for i in range (0,8):
+        for i in range (0,1):
             # calculate performances and errors for the three parameters
             avg_times_naive1, avg_errs_naive1, avg_times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = self.test_taumeta_eta()
             avg_times_naive2, avg_errs_naive2, avg_times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = self.test_taumeta_scale_window()
@@ -93,12 +94,12 @@ class Approach_Test(TestCase):
         avg_times_bayes2 = np.mean(list(avg_times_bayes2_list.values()), axis=0)
         avg_times_bayes3 = np.mean(list(avg_times_bayes3_list.values()), axis=0)
 
-        print("NORMAL",list(avg_times_naive1_list.values()),"MEAN ARRAY",avg_times_naive1)
-        print("NORMAL", list(avg_times_naive2_list.values()), "MEAN ARRAY", avg_times_naive2)
-        print("NORMAL", list(avg_times_naive3_list.values()), "MEAN ARRAY", avg_times_naive3)
-        print("NORMAL", list(avg_times_bayes1_list.values()), "MEAN ARRAY", avg_times_bayes1)
-        print("NORMAL", list(avg_times_bayes2_list.values()), "MEAN ARRAY", avg_times_bayes2)
-        print("NORMAL", list(avg_times_bayes3_list.values()), "MEAN ARRAY", avg_times_bayes3)
+        print("NORMAL ETA PERF",list(avg_times_naive1_list.values()),"MEAN ARRAY",avg_times_naive1)
+        print("NORMAL SCALEWIN PERF", list(avg_times_naive2_list.values()), "MEAN ARRAY", avg_times_naive2)
+        print("NORMAL NUMTRAJ PERF", list(avg_times_naive3_list.values()), "MEAN ARRAY", avg_times_naive3)
+        print("BAYES ETA PERF", list(avg_times_bayes1_list.values()), "MEAN ARRAY", avg_times_bayes1)
+        print("NORMAL SCALEWIN PERF", list(avg_times_bayes2_list.values()), "MEAN ARRAY", avg_times_bayes2)
+        print("NORMAL NUMTRAJ PERF", list(avg_times_bayes3_list.values()), "MEAN ARRAY", avg_times_bayes3)
 
         # get minimum and maximum performance
         min_val = np.amin([avg_times_naive1,avg_times_naive2,avg_times_naive3,avg_times_bayes1,avg_times_bayes2,avg_times_bayes3])
@@ -132,12 +133,12 @@ class Approach_Test(TestCase):
         avg_errs_bayes2 = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
         avg_errs_bayes3 = np.mean(list(avg_errs_bayes3_list.values()), axis=0)
 
-        print("NORMAL", list(avg_errs_naive1_list.values()), "MEAN ARRAY", avg_errs_naive1)
-        print("NORMAL", list(avg_errs_naive2_list.values()), "MEAN ARRAY", avg_errs_naive2)
-        print("NORMAL", list(avg_errs_naive3_list.values()), "MEAN ARRAY", avg_errs_naive3)
-        print("NORMAL", list(avg_errs_bayes1_list.values()), "MEAN ARRAY", avg_errs_bayes1)
-        print("NORMAL", list(avg_errs_bayes2_list.values()), "MEAN ARRAY", avg_errs_bayes2)
-        print("NORMAL", list(avg_errs_bayes3_list.values()), "MEAN ARRAY", avg_errs_bayes3)
+        print("NORMAL ETA ERR", list(avg_errs_naive1_list.values()), "MEAN ARRAY", avg_errs_naive1)
+        print("NORMAL SCALEWIN ERR", list(avg_errs_naive2_list.values()), "MEAN ARRAY", avg_errs_naive2)
+        print("NORMAL NUMTRAJ ERR", list(avg_errs_naive3_list.values()), "MEAN ARRAY", avg_errs_naive3)
+        print("BAYES ETA ERR", list(avg_errs_bayes1_list.values()), "MEAN ARRAY", avg_errs_bayes1)
+        print("BAYES SCALEWIN ERR", list(avg_errs_bayes2_list.values()), "MEAN ARRAY", avg_errs_bayes2)
+        print("BAYES NUMTRAJ ERR", list(avg_errs_bayes3_list.values()), "MEAN ARRAY", avg_errs_bayes3)
 
         # get minimum and maximum error
         min_val = np.amin([avg_errs_naive1, avg_errs_naive2, avg_errs_naive3, avg_errs_bayes1, avg_errs_bayes2,
@@ -207,20 +208,21 @@ class Approach_Test(TestCase):
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values
 
     def test_eta_helper(self):
-        # initialize timing and error arrays for naive and bayes
         etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
         etimenaive[0] = 0
         err = np.zeros(self.num_estimations + 1, dtype=float)
         etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
-        for i in range(0, self.num_trajectories):
-            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
-        dataarray = np.asarray(self.data1_0_0)
+        dataarray = np.asarray(self.simulated_data[self.taumeta])
+        dataarray = dataarray[:self.num_trajectories]
+        dataarray = np.asarray([ndarr[:self.len_trajectory] for ndarr in dataarray])
+        print(dataarray)
         try:
             return self.performance_and_error_calculation(
                 dataarray, err, errbayes, etimebayes, etimenaive)
-        except:
+        except Exception as e:
+            print("Exception thrown:", e)
             return self.test_eta_helper()
 
 
@@ -261,20 +263,21 @@ class Approach_Test(TestCase):
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, scale_window_values
 
     def test_scale_window_helper(self):
-        # initialize timing and error arrays for naive and bayes
         etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
         etimenaive[0] = 0
         err = np.zeros(self.num_estimations + 1, dtype=float)
         etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
-        for i in range(0, self.num_trajectories):
-            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
-        dataarray = np.asarray(self.data1_0_0)
+        dataarray = np.asarray(self.simulated_data[self.taumeta])
+        dataarray = dataarray[:self.num_trajectories]
+        dataarray = np.asarray([ndarr[:self.len_trajectory] for ndarr in dataarray])
+        print(dataarray)
         try:
             return self.performance_and_error_calculation(
-            dataarray, err, errbayes, etimebayes, etimenaive)
-        except:
+                dataarray, err, errbayes, etimebayes, etimenaive)
+        except Exception as e:
+            print("Exception thrown:", e)
             return self.test_scale_window_helper()
 
     def test_taumeta_num_traj(self):
@@ -321,12 +324,15 @@ class Approach_Test(TestCase):
         etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
-        for i in range(0, self.num_trajectories):
-            self.data1_0_0.append(self.mm1_0_0_scaled.simulate(int(self.len_trajectory)))
-        dataarray = np.asarray(self.data1_0_0)
+        dataarray = np.asarray(self.simulated_data[self.taumeta])
+        dataarray = dataarray[:self.num_trajectories]
+        dataarray = np.asarray([ndarr[:self.len_trajectory] for ndarr in dataarray])
+        print(dataarray)
         try:
-            return self.performance_and_error_calculation(dataarray, err, errbayes, etimebayes, etimenaive)
-        except:
+            return self.performance_and_error_calculation(
+                dataarray, err, errbayes, etimebayes, etimenaive)
+        except Exception as e:
+            print("Exception thrown:", e)
             return self.test_num_traj_helper()
 
     def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
@@ -347,8 +353,10 @@ class Approach_Test(TestCase):
             t0 = process_time()
             C0 = estimate_via_sliding_windows(data=dataslice0, num_states=self.num_states)  # count matrix for whole window
             C0 += 1e-8
+            #print(C0)
             t1 = process_time()
             A0 = _tm(C0)
+            #print("A0", A0)
 
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
             #f.write("NAIVE "+str(etimenaive[k+1])+"\n")
@@ -380,11 +388,13 @@ class Approach_Test(TestCase):
 
                 C1bayes = weight0 * C_old + weight1 * C_new
                 C_old = C1bayes
+                #print("C_old",C_old)
 
                 t1 = process_time()
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
                 #f.write("BAYES "+str(etimebayes[k+1])+"\n")
                 A1bayes = _tm(C1bayes)
+                #print("A1bayes",A1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
         #f.write("\n\n")
         #f.close()

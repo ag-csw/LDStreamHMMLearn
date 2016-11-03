@@ -34,7 +34,7 @@ class New_Naive_Test(TestCase):
         self.window_size_max = Variable_Holder.window_size_max
         self.num_estimations_max = Variable_Holder.window_size_max
 
-        self.num_trajectories_max = Variable_Holder.num_trajectories_max
+        self.num_trajectories_max = Variable_Holder.max_num_trajectories
 
         self.len_trajectory = Variable_Holder.len_trajectory
         self.num_trajectories_len_trajectory_max = Variable_Holder.num_trajectories_len_trajectory_max
