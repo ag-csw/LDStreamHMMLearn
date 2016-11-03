@@ -173,7 +173,7 @@ class MMFamily1(MMFamily):
         :return: bool - True if trans = transv*transd*transu is scalable, otherwise False
         """
 
-        if transv is None:n                               
+        if transv is None:
             transv = np.linalg.inv(transu)                
         lntransd = np.diag(np.log(np.diag(transd)))
         delta = mdot(transv, lntransd, transu)            # delta = natural logarithm of the transition matrix  
@@ -184,3 +184,4 @@ class MMFamily1(MMFamily):
             return True
         else:
             return False
+

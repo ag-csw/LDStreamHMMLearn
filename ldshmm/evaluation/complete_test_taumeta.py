@@ -395,6 +395,7 @@ class Approach_Test(TestCase):
                 #f.write("BAYES "+str(etimebayes[k+1])+"\n")
                 A1bayes = _tm(C1bayes)
                 #print("A1bayes",A1bayes)
+                print(self.mm1_0_0_scaled.trans)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
         #f.write("\n\n")
         #f.close()
