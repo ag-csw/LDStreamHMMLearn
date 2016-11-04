@@ -61,6 +61,8 @@ class QMMFamily1(QMMFamily):
 
         try:
             # get two spectral MMs from the MM family self.mmfam
+            np.random.seed()
+            #print("before sampling the mmfam in qmmfamily:",np.random.get_state())
             mmms = self.mmfam.sample(2)
             # discard the sample if the basis vectors of the two MMs have
             # determinants of opposite sign, because there will always be

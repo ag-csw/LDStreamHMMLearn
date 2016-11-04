@@ -48,11 +48,14 @@ def simulate_and_store_data(qmm1_0_0):
         data = []
         qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
         max_len_trajectory = Variable_Holder.num_trajectories_len_trajectory_max / Variable_Holder.min_num_trajectories
-
+        print_tm(qmm1_0_0_scaled)
         for i in range(0, int(Variable_Holder.max_num_trajectories)):
-            print(qmm1_0_0_scaled.eval(ground_truth_time=i).trans)
             simulation = (qmm1_0_0_scaled.simulate(int(max_len_trajectory)))
             data.append(simulation)
         np.savetxt("simulated_data" + str(taumeta), data, delimiter=",")
 
 
+def print_tm(qmm1_0_0_scaled):
+    max_len_trajectory = int(Variable_Holder.num_trajectories_len_trajectory_max / Variable_Holder.min_num_trajectories)
+    for i in range(0, max_len_trajectory):
+        print(qmm1_0_0_scaled.eval(ground_truth_time=i).trans)
