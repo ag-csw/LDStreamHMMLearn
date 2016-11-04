@@ -2,11 +2,14 @@ from ldshmm.util.variable_holder import Variable_Holder
 from ldshmm.util.util_functionality import *
 from ldshmm.util.plottings import ComplexPlot
 from ldshmm.util.util_evaluation_mm import Evaluation_Holder_MM
+from ldshmm.util.mm_family import MMFamily1
 
 class MM_Evaluation():
 
-    def __init__(self, mm1_0_0):
-        self.mm1_0_0 = mm1_0_0
+    def __init__(self):
+        self.mmf1_0 = MMFamily1(Variable_Holder.num_states)
+        self.mm1_0_0 = self.mmf1_0.sample()[0]
+
         self.min_eta=Variable_Holder.min_eta
         self.min_scale_window=Variable_Holder.min_scale_window
         self.min_num_trajectories=Variable_Holder.min_num_trajectories

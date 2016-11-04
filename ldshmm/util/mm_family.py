@@ -109,12 +109,14 @@ class MMFamily1(MMFamily):
         :return: MMMScaled which is an instance of MMMScaled
         """
 
-        transd, transu, transv, trans = self.sample_transition_matrix()
-        smms = SpectralMM(transd, transu, transv, trans)  # construct a spectral MM
-        try:
-            return  MMMScaled(smms)
-        except:
-            return self._sample_one()
+        while True:
+            transd, transu, transv, trans = self.sample_transition_matrix()
+            smms = SpectralMM(transd, transu, transv, trans)  # construct a spectral MM
+            is_diagonal = smms.isdiagonal()
+            eigenvalues_pos = (np.diag(smms.transD) > 0).all()
+            if is_diagonal and eigenvalues_pos:
+                return MMMScaled(smms)
+
 
     def sample(self, size=1):
         """
