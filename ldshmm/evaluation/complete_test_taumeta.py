@@ -18,7 +18,7 @@ class Approach_Test(TestCase):
         self.num_states = 4
         self.mmf1_0 = MMFamily1(self.num_states)
         self.mm1_0_0 = self.mmf1_0.sample()[0]
-        print(self.mm1_0_0.eval(2).trans)
+        print(self.mm1_0_0.eval(2))
 
         self.min_eta=Variable_Holder.min_eta
         self.min_scale_window=Variable_Holder.min_scale_window

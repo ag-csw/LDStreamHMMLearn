@@ -6,7 +6,7 @@ from ldshmm.util.mm_family import MMFamily1
 from ldshmm.util.qmm_family import QMMFamily1
 
 
-class Test_QMMSclaed(TestCase):
+class Test_QMMScaled(TestCase):
     def setUp(self):
         self.num_states = 4
         self.delta = 0
@@ -14,11 +14,27 @@ class Test_QMMSclaed(TestCase):
         np.random.seed(1011)
         self.timescaledisp = Variable_Holder.min_timescaledisp
         self.statconc = Variable_Holder.mid_statconc
-        self.mmf1_0 = MMFamily1(self.num_states, timescaledisp=self.timescaledisp, statconc=self.statconc)
+        self.mmf1_0 = MMFamily1(self.num_states)
         self.mm1_0_0 = self.mmf1_0.sample()[0]
+        np.random.seed(1011)
         self.qmmf1_0 = QMMFamily1(self.mmf1_0, delta = self.delta)
         self.convexCombinationQuasiMM = self.qmmf1_0.sample()[0]
 
+    def test_qmm_samples(self):
+        np.random.seed(1011)
+        onesample = self.qmmf1_0.sample()[0]
+        np.random.seed(1011)
+        twosamples = self.qmmf1_0.sample()[0]
+        onesample_scaled = onesample.eval(2).sMM0
+        twosamples_scaled = twosamples.eval(2).sMM0
+        np.testing.assert_array_equal(onesample_scaled.trans, twosamples_scaled.trans)
+
+    def test_mm_samples(self):
+        np.random.seed(1011)
+        onesample = self.mmf1_0.sample()[0]
+        np.random.seed(1011)
+        twosamples = self.mmf1_0.sample(2)[0]
+        np.testing.assert_array_equal(onesample.sMM.trans, twosamples.sMM.trans)
 
     def test_ccnsmm_smms(self):
         ConvexCombinationNSMM = self.convexCombinationQuasiMM.eval(2)

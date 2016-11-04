@@ -61,19 +61,20 @@ class QMMFamily1(QMMFamily):
 
         try:
             # get two spectral MMs from the MM family self.mmfam
-            np.random.seed()
-            #print("before sampling the mmfam in qmmfamily:",np.random.get_state())
             mmms = self.mmfam.sample(2)
             # discard the sample if the basis vectors of the two MMs have
             # determinants of opposite sign, because there will always be
             # some convex combination of the bases that is singular, by continuity.
+            # recalculate the endpoint mm using delta
+            mmms[1] = (1 - self.delta) * mmms[0] + self.delta * mmms[1]
+
             if np.linalg.det(mmms[0].sMM.eigenvectors_left()) * np.linalg.det(mmms[1].sMM.eigenvectors_left()) < 0:
                 raise Exception
             gamma = self.gammadist.rvs(1)
 
             # construct the base (taumeta = tauquasi = 1) weight function from the template
             def mu(t):
-                return self.delta * self.mu0((t - self.edgeshift * gamma) / self.edgewidth)
+                return self.mu0((t - self.edgeshift * gamma) / self.edgewidth)
 
             # construct the convex combination quasi=stationary MM
             try:
