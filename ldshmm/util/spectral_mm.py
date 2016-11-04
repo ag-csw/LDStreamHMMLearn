@@ -8,7 +8,7 @@ from pyemma.util.linalg import mdot
 
 class SpectralMM(_MM):
     """
-    This class is for spectral HMMs. which are HMMs specified in terms of a particular Jordan decomposition of the
+    This class is for spectral MMs. which are MMs specified in terms of a particular Jordan decomposition of the
     transmission matrix.
     """
 
@@ -58,11 +58,21 @@ class SpectralMM(_MM):
 
     def lincomb(self, other, mu):
         """
-        ToDo Document
-
-        :param other:
+        Constructs a matrix M that is a combination of self and other in the following sense:
+        1) The eigenvalues (diagonal of transd) of M are the weighted geometric mean (https://en.wikipedia.org/wiki/Weighted_geometric_mean) of the eigenvalues of self and other 
+        2) the left eigenvectors (rows of transu) of M are the weighted average (linear combination) of the left eigenvectors of self and other
+        In each case the weights are (1-mu) and mu. Cases: 
+          - When mu = 0, self is returned.
+          - When mu = 1, other is returned.
+          - When 0 < mu < 1, M is in some sense "between" self and other.
+        The conditions above are not sufficient to define a unique matrix M.
+        This implementation requires the matrices self and other to be diagonalizable and 
+        provided as a Jordan decomposition.
+        The weight mu is required to be between 0 and 1, inclusive.
+        :param other: SpectralMM
         :param mu:
-        :return: SpectralHMM based on transd, transu and pobs
+        :return: SpectralMM based on transd and transu
+        
         """
 
         assert -1e-8 <= mu <= 1 + 1e-8, "weight is not between 0 and 1, inclusive"
