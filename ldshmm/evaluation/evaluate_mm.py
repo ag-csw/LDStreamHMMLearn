@@ -98,19 +98,10 @@ class MM_Evaluation():
 
         # input data into one plot
         plots.add_to_plot_same_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=eta_values, y_label="eta", minimum=min_val, maximum=max_val)
-        plots.add_to_plot_same_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window", minimum=min_val, maximum=max_val)
-        plots.add_to_plot_same_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj", minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_window_values, y_label="scwin", minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="ntraj", minimum=min_val, maximum=max_val)
 
         plots.save_plot_same_colorbar("Performance")
-
-        ###########################################################
-        plots = ComplexPlot()
-        plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
-        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive1, data_bayes=avg_times_bayes1, x_labels=taumeta_values, y_labels=eta_values, y_label="eta")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive2, data_bayes=avg_times_bayes2, x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_times_naive3, data_bayes=avg_times_bayes3, x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
-        plots.save_plot_separate_colorbars("Performance_separate_colorbars")
-        ###########################################################self.num_estimations_mid = Utility.calc_num_estimations_mid(self.window_size, self.heatmap_size, self.shift)
 
         ###########################################################
         plots = ComplexPlot()
@@ -140,20 +131,9 @@ class MM_Evaluation():
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive1, data_bayes=avg_errs_bayes1, x_labels=taumeta_values,
                             y_labels=eta_values, y_label="eta", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2, x_labels=taumeta_values,
-                            y_labels=scale_window_values, y_label="scale_window", minimum=min_val, maximum=max_val)
+                            y_labels=scale_window_values, y_label="scwin", minimum=min_val, maximum=max_val)
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive3, data_bayes=avg_errs_bayes3, x_labels=taumeta_values,
-                            y_labels=num_traj_values, y_label="num   _traj", minimum=min_val, maximum=max_val)
+                            y_labels=num_traj_values, y_label="ntraj", minimum=min_val, maximum=max_val)
 
 
         plots.save_plot_same_colorbar("Error")
-        ##########################################################
-        plots = ComplexPlot()
-        plots.new_plot("Naive Error vs. Bayes Error", rows=3)
-        plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive1, data_bayes=avg_errs_bayes1,
-                                            x_labels=taumeta_values, y_labels=eta_values, y_label="eta")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2,
-                                            x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window")
-        plots.add_to_plot_separate_colorbar(data_naive=avg_errs_naive3, data_bayes=avg_errs_bayes3,
-                                            x_labels=taumeta_values, y_labels=num_traj_values, y_label="num_traj")
-        plots.save_plot_separate_colorbars("Error_separate_colorbars")
-        ###########################################################
