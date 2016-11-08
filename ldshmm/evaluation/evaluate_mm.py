@@ -31,8 +31,7 @@ class MM_Evaluation():
 
         self.len_trajectory = Variable_Holder.len_trajectory
         self.num_trajectories_len_trajectory_max = Variable_Holder.num_trajectories_len_trajectory_max
-        simulate_and_store_data(self.mm1_0_0, "mm")
-        self.simulated_data = read_simulated_data("mm")
+        #simulate_and_store_data(self.mm1_0_0, "mm")
 
     def test_run_all_tests(self):
         evaluate = Evaluation_Holder_MM(mm1_0_0=self.mm1_0_0)

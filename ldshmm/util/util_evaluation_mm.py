@@ -11,7 +11,7 @@ class Evaluation_Holder_MM():
 
     def __init__(self, mm1_0_0):
         self.mm1_0_0 = mm1_0_0
-        self.simulated_data = read_simulated_data()
+        self.simulated_data = read_simulated_data("mm")
 
     def test_taumeta_eta(self):
 

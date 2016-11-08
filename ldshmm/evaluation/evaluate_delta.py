@@ -8,7 +8,6 @@ class Delta_Evaluation():
         self.num_states = 4
         self.delta = delta
 
-        #np.random.seed(1011)
         self.timescaledisp = Variable_Holder.min_timescaledisp
         self.statconc = Variable_Holder.mid_statconc
         self.mmf1_0 = MMFamily1(self.num_states, timescaledisp=self.timescaledisp, statconc=self.statconc)
@@ -37,8 +36,7 @@ class Delta_Evaluation():
 
         self.len_trajectory = Variable_Holder.len_trajectory
         self.num_trajectories_len_trajectory_max = Variable_Holder.num_trajectories_len_trajectory_max
-        simulate_and_store_data(self.qmm1_0_0, "qmm")
-        self.simulated_data = read_simulated_data("qmm")
+        #simulate_and_store_data(self.qmm1_0_0, "qmm")
 
 
     def test_run_all_tests(self):
@@ -71,7 +69,7 @@ class Delta_Evaluation():
         scale_window_values = []
         num_traj_values = []
 
-        evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, simulated_data=self.simulated_data, delta=self.delta)
+        evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, delta=self.delta)
 
         numruns = 1
         for i in range (0,numruns):

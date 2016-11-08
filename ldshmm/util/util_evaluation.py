@@ -10,9 +10,10 @@ from ldshmm.util.variable_holder import Variable_Holder
 
 class Evaluation_Holder():
 
-    def __init__(self, qmm1_0_0, simulated_data, delta):
+    def __init__(self, qmm1_0_0, delta):
         self.qmm1_0_0 = qmm1_0_0
-        self.simulated_data = simulated_data
+        simulate_and_store_data(qmm1_0_0, "qmm")
+        self.simulated_data = read_simulated_data("qmm")
         self.delta = delta
         self.timescaledisp = Variable_Holder.min_timescaledisp
         self.statconc = Variable_Holder.mid_statconc
