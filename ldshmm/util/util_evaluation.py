@@ -94,7 +94,9 @@ class Evaluation_Holder():
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, statconc_values
 
-    def test_taumeta_eta(self):
+    def test_taumeta_eta(self, simulated_data=None):
+        if simulated_data:
+            self.simulated_data = simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
         # specify values for taumeta and eta to iterate over
@@ -133,7 +135,9 @@ class Evaluation_Holder():
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values
 
-    def test_taumeta_scale_window(self):
+    def test_taumeta_scale_window(self, simulated_data=None):
+        if simulated_data:
+            self.simulated_data = simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
         # specify values for taumeta and eta to iterate over
@@ -188,7 +192,9 @@ class Evaluation_Holder():
             print("Exception thrown:",e )
             return self.helper(len_trajectory, num_trajectories)
 
-    def test_taumeta_num_traj(self):
+    def test_taumeta_num_traj(self, simulated_data=None):
+        if simulated_data:
+            self.simulated_data=simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
         # specify values for taumeta and eta to iterate over

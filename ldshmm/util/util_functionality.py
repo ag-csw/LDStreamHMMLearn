@@ -43,6 +43,7 @@ def read_simulated_data(filename):
     return simulated_data
 
 def simulate_and_store_data(qmm1_0_0, filename):
+    print("Simulatining data")
     for taumeta in create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size):
         data = []
         qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
@@ -51,8 +52,8 @@ def simulate_and_store_data(qmm1_0_0, filename):
         for i in range(0, int(Variable_Holder.max_num_trajectories)):
             simulation = (qmm1_0_0_scaled.simulate(int(max_len_trajectory)))
             data.append(simulation)
+        print("Done with Taumeta " + str(taumeta))
         np.savetxt("simulated_data_" +filename+  str(taumeta), data, delimiter=",")
-
 
 def print_tm(qmm1_0_0_scaled):
     max_len_trajectory = int(Variable_Holder.num_trajectories_len_trajectory_max / Variable_Holder.min_num_trajectories)
