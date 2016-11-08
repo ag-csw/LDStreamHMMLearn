@@ -87,3 +87,42 @@ class MMMScaled(MMM):
     def constant(self):
         eigmin = np.min(np.absolute(np.real(np.diag(self.sMM.transD))))
         return -np.log(eigmin)
+
+    def lincomb(self, other, mu):
+        """
+        Constructs a matrix M that is a combination of self and other in the following sense:
+        1) The eigenvalues (diagonal of transd) of M are the weighted geometric mean (https://en.wikipedia.org/wiki/Weighted_geometric_mean) of the eigenvalues of self and other
+        2) the left eigenvectors (rows of transu) of M are the weighted average (linear combination) of the left eigenvectors of self and other
+        In each case the weights are (1-mu) and mu. Cases:
+          - When mu = 0, self is returned.
+          - When mu = 1, other is returned.
+          - When 0 < mu < 1, M is in some sense "between" self and other.
+        The conditions above are not sufficient to define a unique matrix M.
+        This implementation requires the matrices self and other to be diagonalizable and
+        provided as a Jordan decomposition.
+        The weight mu is required to be between 0 and 1, inclusive.
+        :param other: MMMScaled
+        :param mu:
+        :return: MMMScaled based on transd and transu
+
+        """
+
+        assert -1e-8 <= mu <= 1 + 1e-8, "weight is not between 0 and 1, inclusive"
+        assert self.sMM.isdiagonal(), "self is not diagonal"
+        assert other.sMM.isdiagonal(), "other is not diagonal"
+
+        # FIXME check that both self and other have only positive eigenvalues less than or equal 1
+
+        def lincc(x, y):
+            return (1 - mu) * x + mu * y
+
+        def logcc(x, y):
+            return np.exp((1 - mu) * np.log(x) + mu * np.log(y))
+
+        lincc = np.vectorize(lincc)
+        logcc = np.vectorize(logcc)
+
+        transd = np.diag(logcc(np.diag(self.sMM.transD), np.diag(other.sMM.transD)))
+        transu = lincc(self.sMM.transU, other.sMM.transU)
+
+        return MMMScaled(smm=SpectralMM(transd, transu))

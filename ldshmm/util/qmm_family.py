@@ -58,7 +58,7 @@ class QMMFamily1(QMMFamily):
 
         :return:
         """
-
+        from ldshmm.util.mm_class import MMMScaled
         try:
             # get two spectral MMs from the MM family self.mmfam
             mmms = self.mmfam.sample(2)
@@ -66,7 +66,11 @@ class QMMFamily1(QMMFamily):
             # determinants of opposite sign, because there will always be
             # some convex combination of the bases that is singular, by continuity.
             # recalculate the endpoint mm using delta
-            mmms[1] = (1 - self.delta) * mmms[0] + self.delta * mmms[1]
+
+            mmms0 = mmms[0]
+            mmms1 = mmms[1]
+            mmms_new = mmms0.lincomb(other=mmms1, mu=self.delta)
+            mmms[1] = mmms_new
 
             if np.linalg.det(mmms[0].sMM.eigenvectors_left()) * np.linalg.det(mmms[1].sMM.eigenvectors_left()) < 0:
                 raise Exception
@@ -82,35 +86,37 @@ class QMMFamily1(QMMFamily):
             except:
                 raise Exception
 
-            # Exclude most samples where some value of the convex combination
-            # fails to give a NSMM due to singularity of the convex combination
-            # of eigenvector matrices.
 
-            # take some NSMM from the scaled class
-            taumeta = 10
-            tauquasi = 10
-            mu0endpoint = 10
-            try:
-                nsmm = qmm.eval(taumeta, tauquasi)
-            except:
-                raise Exception
+            if self.delta != 0:
+                # Exclude most samples where some value of the convex combination
+                # fails to give a NSMM due to singularity of the convex combination
+                # of eigenvector matrices.
 
-            def f(x):
-                return np.linalg.det(nsmm.eval(x).transition_matrix)
+                # take some NSMM from the scaled class
+                taumeta = 10
+                tauquasi = 10
+                mu0endpoint = 10
+                try:
+                    nsmm = qmm.eval(taumeta, tauquasi)
+                except:
+                    raise Exception
 
-            # FIXME: a smarter way to test this might be to find the minimum
-            # of the function
-            #
-            # S(x) = sgn(f(0)) * f(t)
-            #
-            # If it is negative, then discard the sample
-            xvec = list(range(0, taumeta * tauquasi * int(self.edgewidth * mu0endpoint + self.edgeshift * gamma)))
-            try:
-                yvec = list(map(f, xvec))
-            except:
-                raise Exception
-            if len([y for y in yvec if y > 0]) * len([y for y in yvec if y < 0]) > 0:
-                raise Exception
+                def f(x):
+                    return np.linalg.det(nsmm.eval(x).transition_matrix)
+
+                # FIXME: a smarter way to test this might be to find the minimum
+                # of the function
+                #
+                # S(x) = sgn(f(0)) * f(t)
+                #
+                # If it is negative, then discard the sample
+                xvec = list(range(0, taumeta * tauquasi * int(self.edgewidth * mu0endpoint + self.edgeshift * gamma)))
+                try:
+                    yvec = list(map(f, xvec))
+                except:
+                    raise Exception
+                if len([y for y in yvec if y > 0]) * len([y for y in yvec if y < 0]) > 0:
+                    raise Exception
             return qmm
 
         except Exception:
