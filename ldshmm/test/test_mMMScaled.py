@@ -63,3 +63,11 @@ class TestMMMScaled(TestCase):
 
     def test_constant(self):
         self.assertTrue(self.mmm2.constant() <= max(self.mmm0.constant(),self.mmm1.constant()))
+
+    def lincomb_MMMScaled_mu0(self):
+        new_mmm = self.mmm0.lincomb(other=self.mmm1, mu=0)
+        assert new_mmm.sMM.trans == self.mmm0.sMM.trans
+
+    def lincomb_MMMScaled_mu1(self):
+        new_mmm = self.mmm0.lincomb(other=self.mmm1, mu=0)
+        assert new_mmm.sMM.trans == self.mmm0.sMM.trans

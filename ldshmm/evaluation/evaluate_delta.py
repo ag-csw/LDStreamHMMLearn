@@ -37,8 +37,8 @@ class Delta_Evaluation():
 
         self.len_trajectory = Variable_Holder.len_trajectory
         self.num_trajectories_len_trajectory_max = Variable_Holder.num_trajectories_len_trajectory_max
-        #simulate_and_store_data(self.qmm1_0_0)
-        self.simulated_data = read_simulated_data()
+        simulate_and_store_data(self.qmm1_0_0, "qmm")
+        self.simulated_data = read_simulated_data("qmm")
 
 
     def test_run_all_tests(self):

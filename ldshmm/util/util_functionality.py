@@ -34,25 +34,24 @@ def init_error_arrays_new(heatmap_size):
     return avg_errs_bayes, avg_errs_naive_new, avg_errs_naive
 
 
-def read_simulated_data():
-    max_len_trajectory = Variable_Holder.num_trajectories_len_trajectory_max / Variable_Holder.min_num_trajectories
+def read_simulated_data(filename):
     simulated_data = {}
     for taumeta in create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size):
-        ndarr = np.loadtxt("simulated_data" + str(taumeta), delimiter=",")
-        print(taumeta, ndarr.shape)
+        ndarr = np.loadtxt("simulated_data_" + filename + str(taumeta), delimiter=",")
+        #print(taumeta, ndarr.shape)
         simulated_data[taumeta] = ndarr
     return simulated_data
 
-def simulate_and_store_data(qmm1_0_0):
+def simulate_and_store_data(qmm1_0_0, filename):
     for taumeta in create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size):
         data = []
         qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
         max_len_trajectory = Variable_Holder.num_trajectories_len_trajectory_max / Variable_Holder.min_num_trajectories
-        print_tm(qmm1_0_0_scaled)
+        #print_tm(qmm1_0_0_scaled)
         for i in range(0, int(Variable_Holder.max_num_trajectories)):
             simulation = (qmm1_0_0_scaled.simulate(int(max_len_trajectory)))
             data.append(simulation)
-        np.savetxt("simulated_data" + str(taumeta), data, delimiter=",")
+        np.savetxt("simulated_data_" +filename+  str(taumeta), data, delimiter=",")
 
 
 def print_tm(qmm1_0_0_scaled):
