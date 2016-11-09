@@ -54,7 +54,7 @@ class QMMFamily1(QMMFamily):
 
     def _sample_one(self):
         """
-        ToDo Document
+        return a single sample QMM of the QMMFamily
 
         :return:
         """
@@ -126,5 +126,5 @@ class QMMFamily1(QMMFamily):
     def sample(self, size=1):
         mmms = np.empty(size, dtype=object)  # initialize sample vector
         for i in range(0, size):
-            mmms[i] = self._sample_one()  # construct a spectral MM
+            mmms[i] = self._sample_one()  # get one sample QMM of the QMMFamily
         return mmms

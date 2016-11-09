@@ -7,12 +7,12 @@ from ldshmm.util.spectral_mm import SpectralMM
 class NonstationaryMM:
     """
     ToDo: Document HMM or MM?
-    This class is for non-stationary HMMs: mappings from integers within
+    This class is for non-stationary MMs: mappings from integers within
     a (dimensionless) temporal domain (timedomain), either [0, timeendpoint] or [0, 'infinity')
-    into the space of HMMs, where HMMs are defined conventionally with a lag of 1.
-    The sets of hidden and observable states are assumed to be constant and finite
+    into the space of MMs, where MMs are defined conventionally with a lag of 1.
+    The sets of states are assumed to be constant and finite
     throughout the temporal domain, and are identified by integer indices in
-    [0, nhidden) and [0, nobserved), resp.
+    [0, nstates -1).
     """
     def __init__(self, nstates: int, timeendpoint='infinity'):
         """
@@ -29,9 +29,9 @@ class NonstationaryMM:
 
     def eval(self, ground_truth_time: int) -> _MM:
         """
-        ToDo Document
+        return the MM corresponding to the input evaluation time.
 
-        :param ground_truth_time: int - evaluation time point < 0
+        :param ground_truth_time: int - evaluation time point >= 0
         :return:
         """
 
@@ -71,8 +71,7 @@ class NonstationaryMM:
 
     def simulate(self, N, start=None, stop=None, dt=1):
         """
-        ToDo Document HMM or MM?
-        generates a realization of the Hidden Markov Model
+        generates a realization of the Markov Model
 
         :param N: int  trajectory length in steps of the lag time
         :param start: int (default=None) - starting hidden state. If not given, will sample from the stationary
@@ -99,7 +98,8 @@ class NonstationaryMM:
 
 class NonstationaryMMClass:
     """
-    ToDo Document
+    ToDo Document (see documentation for MMClass, this should
+    be the same, except MM is replaced with NSMM (nonstationary MM).
     """
 
     def ismember(self, x) -> bool:
@@ -114,7 +114,10 @@ class NonstationaryMMClass:
 
 class ConvexCombinationNSMM(NonstationaryMM):
     """
-    ToDo Document
+    NonstationaryMM specified by two SpectralMMs and a
+    weight function mu on domain [0, timeendpoint) such that:
+    the MM for any given time t<timeendpoint (as returned by eval)
+    is the convex combination, with weight mu(t), of the two SpectralMMs.
     """
 
     def __init__(self, smm0, smm1, mu, timeendpoint='infinity'):
@@ -133,6 +136,8 @@ class ConvexCombinationNSMM(NonstationaryMM):
         self.mu = mu
 
     def eval(self, ground_truth_time: int) -> SpectralMM:
+        # FIXME: add assertion that ground_truth_time < timeendpoint
+        # if timeendpoint is not 'infinity'
         return self.sMM0.lincomb(self.sMM1, self.mu(ground_truth_time))
 
     def isclose(self, other, timepoints=None):

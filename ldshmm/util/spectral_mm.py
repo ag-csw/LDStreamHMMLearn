@@ -8,8 +8,9 @@ from pyemma.util.linalg import mdot
 
 class SpectralMM(_MM):
     """
-    This class is for spectral MMs. which are MMs specified in terms of a particular Jordan decomposition of the
-    transmission matrix.
+    This class is for spectral MMs. which are MMs specified in terms of a
+    particular Jordan decomposition of the
+    transition matrix.
     """
 
     def __init__(self, transd, transu, transv=None, trans=None):

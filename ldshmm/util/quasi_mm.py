@@ -4,7 +4,8 @@ from ldshmm.util.nonstationary_mm import NonstationaryMMClass
 
 class QuasiMM(NonstationaryMMClass):
     """
-    This class is for generic quasiMMs. which are two-parameter families of mMMs.
+    This class is for generic quasiMMs. which is mapping from two
+     float parameters into NSMM classes.
     """
     def eval(self, taumeta, tauquasi):
         """
@@ -22,7 +23,7 @@ class QuasiMM(NonstationaryMMClass):
 
     def ismember(self, x) -> bool:
         """
-        ToDo Document
+        return True if x is a member of self
 
         :param x:
         :return: bool
@@ -33,7 +34,9 @@ class QuasiMM(NonstationaryMMClass):
 
 class ConvexCombinationQuasiMM(QuasiMM):
     """
-    ToDo Document
+    quasistationary family of ConvexCombinationMMs
+
+    ToDo: get definition of quasistationary from paper
     """
 
     def __init__(self, mmms, mu, timeendpoint='infinity'):
@@ -56,7 +59,10 @@ class ConvexCombinationQuasiMM(QuasiMM):
         self.timeendpoint = timeendpoint
 
     def eval(self, taumeta=1, tauquasi=1) -> ConvexCombinationNSMM:
-        # return a non-stationary MM
+        # return a NSMM class corresponding to the specified
+        # two parameter values
+        # FIXME: there is a datatype mismatch since
+        # ConvexCombinationNSMM is not explicitly a NonstationaryMMClass
         assert taumeta >= 1, "taumeta is not greater or equal 1"
         assert tauquasi >= 1, "tauquasi is not greater or equal 1"
         # scale the MMs according to the parameter taumeta
