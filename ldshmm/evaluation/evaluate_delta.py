@@ -244,8 +244,8 @@ class Delta_Evaluation():
 
         numruns = 1
         numsims = 4
+        evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, delta=self.delta, simulate=False)
         for i in range(0, numruns):
-            evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, delta=self.delta)
             if i % numsims == 0:
                 self.qmm1_0_0 = self.qmmf1_0.sample()[0]
             simulate_and_store_data(qmm1_0_0=self.qmm1_0_0, filename="qmm")
