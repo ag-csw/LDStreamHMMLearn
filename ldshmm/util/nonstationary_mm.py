@@ -26,6 +26,7 @@ class NonstationaryMM:
         self.timeendpoint = timeendpoint
         assert nstates > 0, "The number of states is not a positive integer"
         self.nstates = nstates
+        self.cache = {}
 
     def eval(self, ground_truth_time: int) -> _MM:
         """
@@ -81,19 +82,31 @@ class NonstationaryMM:
         :param dt: int - trajectory will be saved every dt time steps. Internally, the dt'th power of P is taken to ensure a more efficient simulation
         :return: ndarray - state trajectory with length N/dt
         """
-
+        from time import process_time
         dtraj = np.zeros(int(N/dt), dtype=int)
+        if 0 in self.cache:
+            eval_return = self.cache[0]
+        else:
+            self.cache[0] = self.eval(0)
+            eval_return = self.cache[0]
 
-        dcurrent = self.eval(0).simulate(1, start, stop)
+        dcurrent = eval_return.simulate(1, start, stop)
         dtraj[0] = dcurrent
         for i in range(0, N-1):
-            dtraji = self.eval(i).simulate(2, dcurrent, stop)
+            t0 = process_time()
+            if i in self.cache:
+                eval_return = self.cache[i]
+            else:
+                self.cache[i] = self.eval(i)
+                eval_return = self.cache[i]
+
+            dtraji = eval_return.simulate(2, dcurrent, stop)
+            #print("Simulation Time - "+str(process_time()-t0))
             if dtraji.size == 1:
                 return dtraj[:i/dt]
             elif (i+1) % dt == 0:
                 dcurrent = dtraji[1]
-                dtraj[int((i+1)/dt)] = dcurrent
-
+                dtraj[int((i+1) / dt)] = dcurrent
         return dtraj
 
 class NonstationaryMMClass:
