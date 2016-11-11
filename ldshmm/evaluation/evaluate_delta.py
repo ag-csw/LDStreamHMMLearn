@@ -245,7 +245,7 @@ class Delta_Evaluation():
         scale_window_values = []
         num_traj_values = []
 
-        numruns = 8
+        numruns = 1
         numsims = 1
         evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, delta=self.delta, simulate=False)
         print("Start "+str(numruns)+" run(s)")
@@ -313,6 +313,8 @@ class Delta_Evaluation():
                 data.append(mean_avg_errs_bayeseta)
                 data.append(mean_avg_errs_bayesscalewin)
                 data.append(mean_avg_errs_bayesnumtraj)
+                #np.savetxt("Errors0-3.txt", X=data, delimiter=",")
+
 
 
         print("Done with "+str(numruns)+" runs - "+str(process_time()-t00))
@@ -406,6 +408,7 @@ class Delta_Evaluation():
         data2.append(avg_errs_bayes2)
         data2.append(avg_errs_bayes3)
 
+        #np.savetxt("Errors0-7.txt",X=data2, delimiter=",")
         # get minimum and maximum error
         # min_val = np.amin([avg_errs_naive1, avg_errs_naive2, avg_errs_naive3, avg_errs_naive4,avg_errs_naive5,  avg_errs_bayes1, avg_errs_bayes2,
         #                   avg_errs_bayes3, avg_errs_bayes4, avg_errs_bayes5])
@@ -435,6 +438,7 @@ class Delta_Evaluation():
         """
         plots.save_plot_same_colorbar("Error" + str(self.delta))
         print("Done Evaluating - "+ str(process_time()-t0))
+
         print("Average Errors Run 1-4: ")
         print(data)
         print("Average Errors Run 1-8: ")

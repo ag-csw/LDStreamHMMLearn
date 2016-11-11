@@ -3,14 +3,22 @@ from time import process_time
 from msmtools.estimation import transition_matrix as _tm
 
 from ldshmm.util.util_functionality import *
-from ldshmm.util.plottings import ComplexPlot
 from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
 
 class Evaluation_Holder_MM():
-    # ToDo Document
+    """
+   Class holding all evaluation functions used for a MMMScaled.
+   See util_evaluation.py - The evaluation functions are similar except for the underlying model.
+   """
 
     def __init__(self, mm1_0_0):
+        """
+        Info: This constructor reads simualted data from a previously created file simulated_data_mm ...
+
+        :param mm1_0_0: MMMScaled (for instance obtained by sampling the MMFamily1)
+        """
+
         self.mm1_0_0 = mm1_0_0
         self.simulated_data = read_simulated_data("mm")
 
@@ -45,11 +53,6 @@ class Evaluation_Holder_MM():
 
                 avg_times_bayes[two][one] = slope_time_bayes
                 avg_errs_bayes[two][one] = avg_err_bayes
-
-        """print("Naive Performance:", avg_times_naive)
-        print("Bayes Performance:", avg_times_bayes)
-        print("Naive Error:", avg_errs_naive)
-        print("Bayes Error:", avg_errs_bayes)"""
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values
 
@@ -103,11 +106,6 @@ class Evaluation_Holder_MM():
                 avg_times_bayes[two][one] = slope_time_bayes
                 avg_errs_bayes[two][one] = avg_err_bayes
 
-        """print("Naive Performance:", avg_times_naive)
-        print("Bayes Performance:", avg_times_bayes)
-        print("Naive Error:", avg_errs_naive)
-        print("Bayes Error:", avg_errs_bayes)"""
-
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, scale_window_values
 
     def test_taumeta_num_traj(self):
@@ -141,10 +139,6 @@ class Evaluation_Holder_MM():
                 avg_times_bayes[two][one] = slope_time_bayes
                 avg_errs_bayes[two][one] = avg_err_bayes
 
-        """print("Naive Performance:", avg_times_naive)
-        print("Bayes Performance:", avg_times_bayes)
-        print("Naive Error:", avg_errs_naive)
-        print("Bayes Error:", avg_errs_bayes)"""
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, num_traj_values
 
     def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):

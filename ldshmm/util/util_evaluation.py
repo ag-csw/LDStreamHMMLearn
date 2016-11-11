@@ -9,9 +9,17 @@ from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
 
 class Evaluation_Holder():
-    # ToDo Document
+    """
+    Class holding all evaluation functions used for a ConvexCombinationQuasiMM.
+    """
 
     def __init__(self, qmm1_0_0, delta, simulate=True):
+        """
+        :param qmm1_0_0: ConvexCombinationQuasiMM (for instance obtained by sampling the QMMFamily1)
+        :param delta: int or float
+        :param simulate: bool (default=True) - decide whether data should be simulated in the constructor
+        """
+
         self.qmm1_0_0 = qmm1_0_0
         if simulate:
             simulate_and_store_data(qmm1_0_0, "qmm")
@@ -26,7 +34,6 @@ class Evaluation_Holder():
         # all heatmaps, and the vertical axes are the same as the tests above (eta, ..., numtraj)
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
-        # specify values for taumeta and eta to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         timescaledisp_values = create_value_list(Variable_Holder.min_timescaledisp, Variable_Holder.heatmap_size)
 
@@ -68,7 +75,6 @@ class Evaluation_Holder():
         # all heatmaps, and the vertical axes are the same as the tests above (eta, ..., numtraj)
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
-        # specify values for the concentration parameter and eta to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         statconc_values = Variable_Holder.statconc_values  # create_value_list_floats(Variable_Holder.min_statconc, self.heatmap_size)
 
@@ -104,18 +110,24 @@ class Evaluation_Holder():
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, statconc_values
 
     def test_taumeta_eta(self, simulated_data=None):
+        """
+        Method to evaluate dependence of taumeta and eta.
+
+        :param simulated_data: ndarray (default=None) - simulated data for that specific evaluation. If the constructor
+        of Evaluation_Holder has the simulate parameter set to False, simulated data can be incorporated here
+        :return: tuple of (avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values)
+        """
+
         if simulated_data:
             self.simulated_data = simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
-        # specify values for taumeta and eta to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         eta_values = create_value_list(Variable_Holder.min_eta, Variable_Holder.heatmap_size)
 
         for two, eta in enumerate(eta_values):
             for one, taumeta in enumerate(taumeta_values):
 
-                # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
 
@@ -138,26 +150,27 @@ class Evaluation_Holder():
                 avg_times_bayes[two][one] = slope_time_bayes
                 avg_errs_bayes[two][one] = avg_err_bayes
 
-        """print("Naive Performance:", avg_times_naive)
-        print("Bayes Performance:", avg_times_bayes)
-        print("Naive Error:", avg_errs_naive)
-        print("Bayes Error:", avg_errs_bayes)"""
-
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values
 
     def test_taumeta_scale_window(self, simulated_data=None):
+        """
+        Method to evaluate dependence of taumeta and scale_window.
+
+        :param simulated_data: ndarray (default=None) - simulated data for that specific evaluation. If the constructor
+        of Evaluation_Holder has the simulate parameter set to False, simulated data can be incorporated here
+        :return: tuple of (avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values)
+        """
+
         if simulated_data:
             self.simulated_data = simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
-        # specify values for taumeta and eta to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         scale_window_values = create_value_list(Variable_Holder.min_scale_window, Variable_Holder.heatmap_size)
 
         for two, scale_window in enumerate(scale_window_values):
             for one, taumeta in enumerate(taumeta_values):
 
-                # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
                 self.shift = (Variable_Holder.mid_eta) * self.taumeta
@@ -178,32 +191,39 @@ class Evaluation_Holder():
                 avg_times_bayes[two][one] = slope_time_bayes
                 avg_errs_bayes[two][one] = avg_err_bayes
 
-        """print("Naive Performance:", avg_times_naive)
-        print("Bayes Performance:", avg_times_bayes)
-        print("Naive Error:", avg_errs_naive)
-        print("Bayes Error:", avg_errs_bayes)"""
-
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, scale_window_values
 
     def helper(self, len_trajectory, num_trajectories):
-        etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
-        etimenaive[0] = 0
-        err = np.zeros(self.num_estimations + 1, dtype=float)
-        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
-        errbayes = np.zeros(self.num_estimations + 1, dtype=float)
+        """
+        Helper method that is called to extract the simulation data by indexing based on current taumeta, num_trajectories
+        and len_trajectory values. If an exception is thrown within the underlying evaluation process (for instance "no lag found for...")
+        this helper is called again.
+
+        :param len_trajectory: int - length of the trajectory
+        :param num_trajectories: int - number of trajectories
+        :return: tuple of (slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes)
+        """
+
         self.data1_0_0 = []
         dataarray = np.asarray(self.simulated_data[self.taumeta])
         dataarray = dataarray[:num_trajectories]
         dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
         print(dataarray)
         try:
-            return self.performance_and_error_calculation(
-                dataarray, err, errbayes, etimebayes, etimenaive)
+            return self.performance_and_error_calculation(dataarray)
         except Exception as e:
             print("Exception thrown:",e )
             return self.helper(len_trajectory, num_trajectories)
 
     def test_taumeta_num_traj(self, simulated_data=None):
+        """
+        Method to evaluate dependence of taumeta and num_trajectories.
+
+        :param simulated_data: ndarray (default=None) - simulated data for that specific evaluation. If the constructor
+        of Evaluation_Holder has the simulate parameter set to False, simulated data can be incorporated here
+        :return: tuple of (avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values)
+        """
+
         if simulated_data:
             self.simulated_data=simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
@@ -238,13 +258,23 @@ class Evaluation_Holder():
                 avg_times_bayes[two][one] = slope_time_bayes
                 avg_errs_bayes[two][one] = avg_err_bayes
 
-        """print("Naive Performance:", avg_times_naive)
-        print("Bayes Performance:", avg_times_bayes)
-        print("Naive Error:", avg_errs_naive)
-        print("Bayes Error:", avg_errs_bayes)"""
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, num_traj_values
 
-    def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
+    def performance_and_error_calculation(self, dataarray):
+        """
+        Method to perform (num_estimations+1) timing and error calculations.
+        We return the latest log timing calculation and the average log error calculation for the naive and bayes approach.
+
+        :param dataarray: ndarray - trajectory to perform timings and calculate errors from
+        :return: tuple of (slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes)
+        """
+
+        etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
+        etimenaive[0] = 0
+        err = np.zeros(self.num_estimations + 1, dtype=float)
+        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
+        errbayes = np.zeros(self.num_estimations + 1, dtype=float)
+
         for k in range(0, self.num_estimations + 1):
             current_time = self.window_size + k * self.shift - 1
             assert (current_time < np.shape(dataarray)[1])
@@ -254,20 +284,19 @@ class Evaluation_Holder():
             for i in range(0, self.num_trajectories):
                 dataslice0.append(data0[i, :])
             if k == 0:
-                # init
+                # initialization - we found out that calling the count_matrix_coo2_mult function the first time results
+                # in lower performance than for following calls - probably due to caching in the background. To avoid
+                # this deviation, we call this function once - for starting the cache procedure.
                 estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states)
 
             t0 = process_time()
             C0 = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states)  # count matrix for whole window
             C0 += 1e-8
-            #print(C0)
             t1 = process_time()
             A0 = _tm(C0)
-            #print("A0", A0)
 
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
             err[k] = np.linalg.norm(A0 - self.qmm1_0_0_scaled.eval(k).trans)
-            #print("ErrNaive", err[k])
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
                 data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
@@ -280,7 +309,6 @@ class Evaluation_Holder():
                 C0 += 1e-8
                 etimebayes[1] = process_time() - t0
                 errbayes[0] = np.linalg.norm(_tm(C_old) - self.qmm1_0_0_scaled.eval(k).trans)
-                #print("ErrBayes", errbayes[0])
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
@@ -297,14 +325,11 @@ class Evaluation_Holder():
 
                 C1bayes = weight0 * C_old + weight1 * C_new
                 C_old = C1bayes
-                #print("C_old",C_old)
 
                 t1 = process_time()
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
                 A1bayes = _tm(C1bayes)
-                #print("A1bayes",A1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.qmm1_0_0_scaled.eval(k).trans)
-                #print("ErrBayes", errbayes[k])
 
         slope_time_naive = Utility.log_value(etimenaive[-1])
         avg_err_naive = Utility.log_value(sum(err) / len(err))
@@ -314,10 +339,25 @@ class Evaluation_Holder():
         return slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes
 
 
-
     def print_param_values(self, evaluation_name, taumeta, shift, window_size, num_estimations, len_trajectory,
                            num_trajectories, eta, scale_window, timescaledisp, statconc):
-        print("Parameter Overview for " + evaluation_name + ":")
+        """
+        Utility method to print parameter values within the evaluation procedure.
+
+        :param evaluation_name: str - name of the evaluation or parameter to evaluate
+        :param taumeta: int
+        :param shift: int
+        :param window_size: int
+        :param num_estimations: int
+        :param len_trajectory: int
+        :param num_trajectories: int
+        :param eta: int
+        :param scale_window: int
+        :param timescaledisp: int
+        :param statconc: float
+        """
+
+        """print("Parameter Overview for " + evaluation_name + ":")
         print("taumeta:\t", taumeta)
         print("eta:\t", eta)
         print("scale_window\t:", scale_window)
@@ -331,4 +371,4 @@ class Evaluation_Holder():
         print("num_trajectories*len_trajectory:\t", num_trajectories * len_trajectory)
         print("NAIVE window_size * num_estimations\t", window_size * (num_estimations + 1))
         print("BAYES window_size + num_estimations*shift\t", window_size + num_estimations * shift)
-        print("\n")
+        print("\n")"""

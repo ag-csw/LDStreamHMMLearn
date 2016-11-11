@@ -1,7 +1,5 @@
 from ldshmm.evaluation.evaluate_delta import Delta_Evaluation
-from ldshmm.evaluation.evaluate_mm import MM_Evaluation
 from time import process_time
-import numpy as np
 
 class Evaluation_QMM():
 
