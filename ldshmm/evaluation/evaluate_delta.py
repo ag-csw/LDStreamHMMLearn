@@ -16,31 +16,6 @@ class Delta_Evaluation():
         self.qmm1_0_0 = self.qmmf1_0.sample()[0]
         # --> ConvexCombinationQuasiMM
 
-        self.min_eta=Variable_Holder.min_eta
-        self.min_scale_window=Variable_Holder.min_scale_window
-        self.min_num_trajectories=Variable_Holder.min_num_trajectories
-        self.heatmap_size=Variable_Holder.heatmap_size
-        self.min_taumeta=Variable_Holder.min_taumeta
-
-        self.mid_eta = Variable_Holder.mid_eta
-        self.mid_scale_window = Variable_Holder.mid_scale_window
-        self.mid_num_trajectories = Variable_Holder.mid_num_trajectories
-        self.mid_taumeta = Variable_Holder.mid_taumeta
-
-        self.max_eta = Variable_Holder.max_eta
-        self.max_taumeta = Variable_Holder.max_taumeta
-        self.shift_max = Variable_Holder.shift_max
-        self.window_size_max = Variable_Holder.window_size_max
-        self.num_estimations_max = Variable_Holder.window_size_max
-
-        self.num_trajectories_max = Variable_Holder.max_num_trajectories
-
-        self.len_trajectory = Variable_Holder.len_trajectory
-        self.num_trajectories_len_trajectory_max = Variable_Holder.num_trajectories_len_trajectory_max
-        #simulate_and_store_data(self.qmm1_0_0, "qmm")
-        print("Done Initializing Delta_Evaluation - "+str(process_time()-t0))
-
-
     def test_run_all_tests(self):
         plots = ComplexPlot()
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
