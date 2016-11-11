@@ -35,12 +35,12 @@ class ComplexPlot():
         #plt.tight_layout(0.5)
         self.current = self.current + 1
 
-    def add_to_plot_same_colorbar (self, data_naive, data_bayes, x_labels, y_labels, y_label, minimum, maximum):
+    def add_to_plot_same_colorbar (self, data_naive, data_bayes, x_labels, y_labels, y_label, minimum, maximum, x_label="taumeta"):
         plt.subplot(self.rows, self.cols, self.current)
         self.im = plt.pcolor(data_naive, vmin=minimum, vmax=maximum, cmap="Reds")
         plt.xticks(np.arange(len(x_labels)), (str(x_label) for x_label in x_labels))
         plt.yticks(np.arange(len(x_labels)), (str(y_label) for y_label in y_labels))
-        plt.xlabel("taumeta")
+        plt.xlabel(x_label)
         plt.ylabel(y_label)
         #plt.tight_layout(0.5)
         self.current = self.current+1
@@ -49,7 +49,7 @@ class ComplexPlot():
         self.im = plt.pcolor(data_bayes, vmin=minimum, vmax=maximum, cmap="Reds")
         plt.xticks(np.arange(len(x_labels)), (str(x_label) for x_label in x_labels))
         plt.yticks(np.arange(len(y_labels)), (str(y_label) for y_label in y_labels))
-        plt.xlabel("taumeta")
+        plt.xlabel(x_label)
         plt.ylabel(y_label)
         #plt.tight_layout(0.5)
         self.current = self.current + 1

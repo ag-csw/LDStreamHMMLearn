@@ -4,7 +4,7 @@ from ldshmm.util.util_functionality import *
 
 class Delta_Evaluation():
 
-    def __init__(self, delta=0):
+    def __init__(self, delta=0, number_of_runs=8):
         t0 = process_time()
         self.num_states = 4
         self.delta = delta
@@ -14,6 +14,7 @@ class Delta_Evaluation():
         self.mmf1_0 = MMFamily1(self.num_states, timescaledisp=self.timescaledisp, statconc=self.statconc)
         self.qmmf1_0 = QMMFamily1(self.mmf1_0, delta = self.delta)
         self.qmm1_0_0 = self.qmmf1_0.sample()[0]
+        self.numruns = number_of_runs
         # --> ConvexCombinationQuasiMM
 
     def test_run_all_tests(self):
@@ -220,13 +221,12 @@ class Delta_Evaluation():
         scale_window_values = []
         num_traj_values = []
 
-        numruns = 8
         numsims = 1
         evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, delta=self.delta, simulate=False)
-        print("Start "+str(numruns)+" run(s)")
+        print("Start "+str(self.numruns)+" run(s)")
         t00 = process_time()
         data = []
-        for i in range(0, numruns):
+        for i in range(0, self.numruns):
             print("Starting Run "+str(i))
             if i % numsims == 0:
                 self.qmm1_0_0 = self.qmmf1_0.sample()[0]
@@ -292,7 +292,7 @@ class Delta_Evaluation():
 
 
 
-        print("Done with "+str(numruns)+" runs - "+str(process_time()-t00))
+        print("Done with "+str(self.numruns)+" runs - "+str(process_time()-t00))
         avg_times_naive1 = np.mean(list(avg_times_naive1_list.values()), axis=0)
         avg_times_naive2 = np.mean(list(avg_times_naive2_list.values()), axis=0)
         avg_times_naive3 = np.mean(list(avg_times_naive3_list.values()), axis=0)

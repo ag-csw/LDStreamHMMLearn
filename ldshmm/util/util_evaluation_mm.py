@@ -5,6 +5,7 @@ from msmtools.estimation import transition_matrix as _tm
 from ldshmm.util.util_functionality import *
 from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
+from ldshmm.util.mm_family import MMFamily1
 
 class Evaluation_Holder_MM():
     """
@@ -143,6 +144,143 @@ class Evaluation_Holder_MM():
                 avg_errs_bayes[two][one] = avg_err_bayes
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, num_traj_values
+
+
+    def test_timescaledisp_eta(self):
+
+        avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
+
+        # specify values for taumeta and eta to iterate over
+        timescaledisp_values = create_value_list(Variable_Holder.min_timescaledisp, Variable_Holder.heatmap_size)
+        eta_values = create_value_list(Variable_Holder.min_eta, Variable_Holder.heatmap_size)
+
+        for one, timescaledisp in enumerate(timescaledisp_values):
+            for two, eta in enumerate(eta_values):
+                # Setting taumeta and eta values and recalculate dependent variables for scaling
+                # ToDo Document The formulas used here need justification
+                self.timescaledisp = timescaledisp
+                self.mmf1_0 = MMFamily1(Variable_Holder.num_states, timescaledisp=self.timescaledisp,
+                                        statconc=Variable_Holder.mid_statconc)
+                self.mm1_0_0 = self.mmf1_0.sample()[0]
+
+                self.taumeta = Variable_Holder.mid_taumeta
+                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.shift = eta * self.taumeta
+                self.window_size = Variable_Holder.mid_scale_window * self.shift
+                self.num_trajectories = Variable_Holder.mid_num_trajectories
+
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.r = (self.window_size - self.shift) / self.window_size
+
+                self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
+                                        Variable_Holder.len_trajectory, self.num_trajectories, eta, Variable_Holder.mid_scale_window)
+
+                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.helper_timescaledisp(Variable_Holder.len_trajectory, self.num_trajectories)
+
+                avg_times_naive[two][one] = slope_time_naive
+                avg_errs_naive[two][one] = avg_err_naive
+
+                avg_times_bayes[two][one] = slope_time_bayes
+                avg_errs_bayes[two][one] = avg_err_bayes
+
+        return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, timescaledisp_values, eta_values
+
+    def helper_timescaledisp(self, len_trajectory, num_trajectories):
+        etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
+        etimenaive[0] = 0
+        err = np.zeros(self.num_estimations + 1, dtype=float)
+        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
+        errbayes = np.zeros(self.num_estimations + 1, dtype=float)
+        self.data1_0_0 = []
+        dataarray = np.asarray(self.simulated_data[self.timescaledisp])
+        dataarray = dataarray[:num_trajectories]
+        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
+        print(dataarray)
+        try:
+            return self.performance_and_error_calculation(
+                dataarray, err, errbayes, etimebayes, etimenaive)
+        except Exception as e:
+            print("Exception thrown:", e)
+            return self.helper(len_trajectory, num_trajectories)
+
+    def test_timescaledisp_scale_window(self):
+        avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
+
+        # specify values for taumeta and eta to iterate over
+        timescaledisp_values = create_value_list(Variable_Holder.min_timescaledisp, Variable_Holder.heatmap_size)
+        scale_window_values = create_value_list(Variable_Holder.min_scale_window, Variable_Holder.heatmap_size)
+
+        for one, timescaledisp in enumerate(timescaledisp_values):
+            for two, scale_window in enumerate(scale_window_values):
+                self.timescaledisp = timescaledisp
+                self.mmf1_0 = MMFamily1(Variable_Holder.num_states, timescaledisp=self.timescaledisp,
+                                        statconc=Variable_Holder.mid_statconc)
+                self.mm1_0_0 = self.mmf1_0.sample()[0]
+
+                self.taumeta = Variable_Holder.mid_taumeta
+
+                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.shift = (Variable_Holder.mid_eta) * self.taumeta
+                # ToDo Document Some of these formulas are based on essential definitions
+                # e.g. scale_window is defined to be self.shift/self.window_size
+                self.window_size = scale_window * self.shift
+                self.num_trajectories = Variable_Holder.mid_num_trajectories
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.r = (self.window_size - self.shift) / self.window_size
+
+                self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size,
+                                        self.num_estimations, Variable_Holder.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta,
+                                        scale_window)
+
+                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.helper_timescaledisp(Variable_Holder.len_trajectory, self.num_trajectories)
+
+                avg_times_naive[two][one] = slope_time_naive
+                avg_errs_naive[two][one] = avg_err_naive
+
+                avg_times_bayes[two][one] = slope_time_bayes
+                avg_errs_bayes[two][one] = avg_err_bayes
+
+        return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, timescaledisp_values, scale_window_values
+
+    def test_timescaledisp_num_traj(self):
+        avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
+
+        # specify values for taumeta and eta to iterate over
+        timescaledisp_values = create_value_list(Variable_Holder.min_timescaledisp, Variable_Holder.heatmap_size)
+        num_traj_values = create_value_list(Variable_Holder.min_num_trajectories, Variable_Holder.heatmap_size)
+
+        for one, timescaledisp in enumerate(timescaledisp_values):
+            for two, num_traj in enumerate(num_traj_values):
+                self.timescaledisp = timescaledisp
+                self.mmf1_0 = MMFamily1(Variable_Holder.num_states, timescaledisp=self.timescaledisp,
+                                        statconc=Variable_Holder.mid_statconc)
+                self.mm1_0_0 = self.mmf1_0.sample()[0]
+
+                # Setting taumeta and eta values and recalculate dependent variables for scaling
+                self.taumeta = Variable_Holder.mid_taumeta
+                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.shift = (Variable_Holder.mid_eta) * self.taumeta
+                # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
+                self.window_size = (Variable_Holder.min_scale_window) * self.shift
+                self.num_trajectories = num_traj
+                self.len_trajectory = int(Variable_Holder.num_trajectories_len_trajectory_max / self.num_trajectories)
+                self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
+                self.r = (self.window_size - self.shift) / self.window_size
+
+                self.print_param_values("NUM_TRAJ", self.taumeta, self.shift, self.window_size, self.num_estimations,
+                                        self.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta, Variable_Holder.mid_scale_window)
+
+                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.helper_timescaledisp(self.len_trajectory, self.num_trajectories)
+
+                avg_times_naive[two][one] = slope_time_naive
+                avg_errs_naive[two][one] = avg_err_naive
+
+                avg_times_bayes[two][one] = slope_time_bayes
+                avg_errs_bayes[two][one] = avg_err_bayes
+
+        return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, timescaledisp_values, num_traj_values
+
+
 
     def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
         #ToDo Document
