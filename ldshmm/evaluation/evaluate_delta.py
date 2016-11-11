@@ -245,7 +245,7 @@ class Delta_Evaluation():
         scale_window_values = []
         num_traj_values = []
 
-        numruns = 1
+        numruns = 8
         numsims = 1
         evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, delta=self.delta, simulate=False)
         print("Start "+str(numruns)+" run(s)")

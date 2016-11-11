@@ -2,17 +2,22 @@ from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
 from ldshmm.util.variable_holder import Variable_Holder
 import numpy as np
 
-def estimate_via_sliding_windows(data, num_states):
+def estimate_via_sliding_windows(data, num_states, initial=False):
     """
     Generates a count matrix from a given list of discrete trajectories
 
     :param data: list of ndarrays - trajectories
     :param num_states: int - number of states
+    :param initial: bool (Default=False) - for initial runs, we add 1e-8 to the returned count matrix to
+    avoid having row sums of 0
     :return: scipy.sparse.csr_matrix or numpy.ndarray - The countmatrix in scipy compressed sparse row
         or numpy ndarray format
     """
 
     C = count_matrix_coo2_mult(data, lag=1, sliding=False, sparse=False, nstates=num_states)
+    if initial:
+        C += 1e-8
+
     return C
 
 
