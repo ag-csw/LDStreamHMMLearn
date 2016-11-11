@@ -4,6 +4,10 @@ import math
 class Variable_Holder():
     """
     This class serves as holder class for various parameters used in evaluation scripts
+
+    ToDo Document
+    There are some justifications for setting some of these constants, and others are
+    fairly arbitrary and may be in need of investigation to find the optimum setting.
     """
 
     min_eta = 8

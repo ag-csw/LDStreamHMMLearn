@@ -8,6 +8,7 @@ from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
 
 class Evaluation_Holder_MM():
+    # ToDo Document
 
     def __init__(self, mm1_0_0):
         self.mm1_0_0 = mm1_0_0
@@ -24,6 +25,7 @@ class Evaluation_Holder_MM():
         for one, taumeta in enumerate(taumeta_values):
             for two, eta in enumerate(eta_values):
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
+                # ToDo Document The formulas used here need justification
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.shift = eta * self.taumeta
@@ -82,6 +84,8 @@ class Evaluation_Holder_MM():
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.shift = (Variable_Holder.mid_eta) * self.taumeta
+                # ToDo Document Some of these formulas are based on essential definitions
+                # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
                 self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
@@ -144,6 +148,7 @@ class Evaluation_Holder_MM():
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, num_traj_values
 
     def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
+        #ToDo Document
 
         for k in range(0, self.num_estimations + 1):
             current_time = self.window_size + k * self.shift - 1

@@ -3,17 +3,20 @@ from ldshmm.util.variable_holder import Variable_Holder
 import numpy as np
 
 def estimate_via_sliding_windows(data, num_states):
+    # ToDo Document
     C = count_matrix_coo2_mult(data, lag=1, sliding=False, sparse=False, nstates=num_states)
     return C
 
 
 def create_value_list(first_value, len_list):
+    # ToDo Document
     import math
     list = [int(math.pow(2, x) * first_value) for x in range(0, len_list)]
     return list
 
 
 def create_value_list_floats(first_value, len_list):
+    # ToDo Document
     import math
     list = [(math.pow(2, x) * first_value) for x in range(0, len_list)]
     return list
@@ -43,7 +46,8 @@ def read_simulated_data(filename):
     return simulated_data
 
 def simulate_and_store_data(qmm1_0_0, filename):
-    print("Simulatining data")
+    # ToDo Document
+    print("Simulating data")
     for taumeta in create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size):
         data = []
         qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)

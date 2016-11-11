@@ -43,12 +43,14 @@ class Utility():
 
     @staticmethod
     def get_mid_value(value, num_values):
+        #ToDo Document - this is mysterious without mentioning its use for heatmap ranges
         import math
         num_values_mid = int((num_values-1)/2)
         return int(value * math.pow(2, num_values_mid))
 
     @staticmethod
     def calc_num_estimations(len_trajectory, window_size, shift):
+        #ToDo Document
         import math
         num_estimations = math.floor((len_trajectory - window_size -1)/shift)
         if num_estimations < 0:
@@ -58,6 +60,7 @@ class Utility():
 
     @staticmethod
     def calc_num_estimations_mid(window_size_mid, heatmap_size, shift_mid):
+        #ToDo Document
         import math
         num_estimations_mid_tmp = math.ceil(window_size_mid * (math.pow(2, (heatmap_size-1)/2)-1)/shift_mid)
         factor = math.ceil(math.log2(num_estimations_mid_tmp))+1

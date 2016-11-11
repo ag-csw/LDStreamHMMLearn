@@ -9,6 +9,7 @@ from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
 
 class Evaluation_Holder():
+    # ToDo Document
 
     def __init__(self, qmm1_0_0, delta):
         self.qmm1_0_0 = qmm1_0_0
@@ -19,6 +20,9 @@ class Evaluation_Holder():
         self.statconc = Variable_Holder.mid_statconc
 
     def test_taumeta_timescaledisp(self):
+        #FIXME: change test so that timescaledisp is on the horizontal axis and eta is on the vertical axis
+        # Also, let's move this to a separate test, where we have timescaledisp on the horizontal axis for
+        # all heatmaps, and the vertical axes are the same as the tests above (eta, ..., numtraj)
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
         # specify values for taumeta and eta to iterate over
@@ -27,6 +31,7 @@ class Evaluation_Holder():
 
         for one, taumeta in enumerate(taumeta_values):
             for two, timescaledisp in enumerate(timescaledisp_values):
+                # ToDo Document
                 self.mmf1_0 = MMFamily1(Variable_Holder.num_states, timescaledisp=timescaledisp, statconc=Variable_Holder.mid_statconc)
                 self.qmmf1_0 = QMMFamily1(self.mmf1_0, delta=self.delta)
                 self.qmm1_0_0 = self.qmmf1_0.sample()[0]
@@ -57,9 +62,12 @@ class Evaluation_Holder():
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, timescaledisp_values
 
     def test_taumeta_statconc(self):
+        #FIXME: change test so that statconc is on the horizontal axis and eta is on the vertical axis
+        # Also, let's move this to a separate test, where we have statconc on the horizontal axis for
+        # all heatmaps, and the vertical axes are the same as the tests above (eta, ..., numtraj)
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
-        # specify values for taumeta and eta to iterate over
+        # specify values for the concentration parameter and eta to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         statconc_values = Variable_Holder.statconc_values  # create_value_list_floats(Variable_Holder.min_statconc, self.heatmap_size)
 
