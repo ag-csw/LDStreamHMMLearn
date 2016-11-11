@@ -5,10 +5,10 @@ from ldshmm.util.mm_family import MMFamily1
 
 class MM_Evaluation():
 
-    def __init__(self):
+    def __init__(self, number_of_runs=8):
         self.mmf1_0 = MMFamily1(Variable_Holder.num_states)
         self.mm1_0_0 = self.mmf1_0.sample()[0]
-
+        self.numruns = number_of_runs
         #simulate_and_store_data(self.mm1_0_0, "mm")
 
     def test_run_all_tests(self):
@@ -35,7 +35,7 @@ class MM_Evaluation():
         scale_window_values = []
         num_traj_values = []
 
-        for i in range (0,8):
+        for i in range (0,self.numruns):
             # calculate performances and errors for the three parameters
             avg_times_naive1, avg_errs_naive1, avg_times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta()
             avg_times_naive2, avg_errs_naive2, avg_times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window()
@@ -144,7 +144,7 @@ class MM_Evaluation():
             scale_window_values = []
             num_traj_values = []
 
-            for i in range(0, 8):
+            for i in range(0, self.numruns):
                 # calculate performances and errors for the three parameters
                 avg_times_naive1, avg_errs_naive1, avg_times_bayes1, avg_errs_bayes1, timescaledisp_values, eta_values = evaluate.test_timescaledisp_eta()
                 avg_times_naive2, avg_errs_naive2, avg_times_bayes2, avg_errs_bayes2, timescaledisp_values, scale_window_values = evaluate.test_timescaledisp_scale_window()

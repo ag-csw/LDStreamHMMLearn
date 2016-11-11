@@ -49,8 +49,7 @@ class Delta_Evaluation():
 
         evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, delta=self.delta)
 
-        numruns = 1
-        for i in range (0,numruns):
+        for i in range (0,self.numruns):
             # calculate performances and errors for the three parameters
             avg_times_naive1, avg_errs_naive1, avg_times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta()
             avg_times_naive2, avg_errs_naive2, avg_times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window()
