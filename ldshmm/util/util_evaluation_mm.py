@@ -12,14 +12,17 @@ class Evaluation_Holder_MM():
    See util_evaluation.py - The evaluation functions are similar except for the underlying model.
    """
 
-    def __init__(self, mm1_0_0):
+    def __init__(self, mm1_0_0, simulate=True):
         """
         Info: This constructor reads simualted data from a previously created file simulated_data_mm ...
 
         :param mm1_0_0: MMMScaled (for instance obtained by sampling the MMFamily1)
+        :param simulate: bool (default=True) - decide whether data should be simulated in the constructor
         """
 
         self.mm1_0_0 = mm1_0_0
+        if simulate:
+            simulate_and_store_data(mm1_0_0, "mm")
         self.simulated_data = read_simulated_data("mm")
 
     def test_taumeta_eta(self):
@@ -158,13 +161,11 @@ class Evaluation_Holder_MM():
 
             t0 = process_time()
             C0 = estimate_via_sliding_windows(data=dataslice0,
-                                              num_states=Variable_Holder.num_states)  # count matrix for whole window
-            C0 += 1e-8
+                                              num_states=Variable_Holder.num_states, initial=True)  # count matrix for whole window
             t1 = process_time()
             A0 = _tm(C0)
 
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
-            # f.write("NAIVE "+str(etimenaive[k+1])+"\n")
             err[k] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
@@ -174,7 +175,7 @@ class Evaluation_Holder_MM():
                     dataslice0.append(data0[i, :])
 
                 t0 = process_time()
-                C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states)
+                C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True)
                 etimebayes[1] = process_time() - t0
                 errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
 

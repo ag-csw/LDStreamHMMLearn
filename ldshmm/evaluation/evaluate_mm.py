@@ -1,4 +1,3 @@
-from ldshmm.util.variable_holder import Variable_Holder
 from ldshmm.util.util_functionality import *
 from ldshmm.util.plottings import ComplexPlot
 from ldshmm.util.util_evaluation_mm import Evaluation_Holder_MM
@@ -10,31 +9,10 @@ class MM_Evaluation():
         self.mmf1_0 = MMFamily1(Variable_Holder.num_states)
         self.mm1_0_0 = self.mmf1_0.sample()[0]
 
-        self.min_eta=Variable_Holder.min_eta
-        self.min_scale_window=Variable_Holder.min_scale_window
-        self.min_num_trajectories=Variable_Holder.min_num_trajectories
-        self.heatmap_size=Variable_Holder.heatmap_size
-        self.min_taumeta=Variable_Holder.min_taumeta
-
-        self.mid_eta = Variable_Holder.mid_eta
-        self.mid_scale_window = Variable_Holder.mid_scale_window
-        self.mid_num_trajectories = Variable_Holder.mid_num_trajectories
-        self.mid_taumeta = Variable_Holder.mid_taumeta
-
-        self.max_eta = Variable_Holder.max_eta
-        self.max_taumeta = Variable_Holder.max_taumeta
-        self.shift_max = Variable_Holder.shift_max
-        self.window_size_max = Variable_Holder.window_size_max
-        self.num_estimations_max = Variable_Holder.window_size_max
-
-        self.num_trajectories_max = Variable_Holder.max_num_trajectories
-
-        self.len_trajectory = Variable_Holder.len_trajectory
-        self.num_trajectories_len_trajectory_max = Variable_Holder.num_trajectories_len_trajectory_max
         #simulate_and_store_data(self.mm1_0_0, "mm")
 
     def test_run_all_tests(self):
-        evaluate = Evaluation_Holder_MM(mm1_0_0=self.mm1_0_0)
+        evaluate = Evaluation_Holder_MM(mm1_0_0=self.mm1_0_0, simulate=False)
 
         plots = ComplexPlot()
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
@@ -57,7 +35,7 @@ class MM_Evaluation():
         scale_window_values = []
         num_traj_values = []
 
-        for i in range (0,1):
+        for i in range (0,8):
             # calculate performances and errors for the three parameters
             avg_times_naive1, avg_errs_naive1, avg_times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta()
             avg_times_naive2, avg_errs_naive2, avg_times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window()
