@@ -13,13 +13,17 @@ class Evaluation_Holder_MM():
    See util_evaluation.py - The evaluation functions are similar except for the underlying model.
    """
 
-    def __init__(self, mm1_0_0, simulate=True, filename="mm"):
+    def __init__(self, mm1_0_0, simulate=True, filename="mm", init_run = False):
         """
         Info: This constructor reads simualted data from a previously created file simulated_data_mm ...
 
         :param mm1_0_0: MMMScaled (for instance obtained by sampling the MMFamily1)
         :param simulate: bool (default=True) - decide whether data should be simulated in the constructor
+        :param init_run: bool (default=True)
         """
+        if init_run:
+            # ToDo Check which data to use for init run
+            estimate_via_sliding_windows(data=[], num_states=Variable_Holder.num_states)
 
         self.mm1_0_0 = mm1_0_0
         if simulate:
@@ -61,19 +65,13 @@ class Evaluation_Holder_MM():
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values
 
     def helper(self, len_trajectory, num_trajectories):
-        etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
-        etimenaive[0] = 0
-        err = np.zeros(self.num_estimations + 1, dtype=float)
-        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
-        errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
         dataarray = np.asarray(self.simulated_data[self.taumeta])
         dataarray = dataarray[:num_trajectories]
         dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
         print(dataarray)
         try:
-            return self.performance_and_error_calculation(
-                dataarray, err, errbayes, etimebayes, etimenaive)
+            return self.performance_and_error_calculation(dataarray)
         except Exception as e:
             print("Exception thrown:", e)
             return self.helper(len_trajectory, num_trajectories)
@@ -186,19 +184,14 @@ class Evaluation_Holder_MM():
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, timescaledisp_values, eta_values
 
     def helper_timescaledisp(self, len_trajectory, num_trajectories):
-        etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
-        etimenaive[0] = 0
-        err = np.zeros(self.num_estimations + 1, dtype=float)
-        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
-        errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
         dataarray = np.asarray(self.simulated_data[self.timescaledisp])
         dataarray = dataarray[:num_trajectories]
         dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
         print(dataarray)
         try:
-            return self.performance_and_error_calculation(
-                dataarray, err, errbayes, etimebayes, etimenaive)
+            return self.performance_and_error_calculation(dataarray
+              )
         except Exception as e:
             print("Exception thrown:", e)
             return self.helper(len_trajectory, num_trajectories)
@@ -321,19 +314,13 @@ class Evaluation_Holder_MM():
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, statconc_values, eta_values
 
     def helper_statconc(self, len_trajectory, num_trajectories):
-        etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
-        etimenaive[0] = 0
-        err = np.zeros(self.num_estimations + 1, dtype=float)
-        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
-        errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         self.data1_0_0 = []
         dataarray = np.asarray(self.simulated_data[self.statconc])
         dataarray = dataarray[:num_trajectories]
         dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
         print(dataarray)
         try:
-            return self.performance_and_error_calculation(
-                dataarray, err, errbayes, etimebayes, etimenaive)
+            return self.performance_and_error_calculation(dataarray)
         except Exception as e:
             print("Exception thrown:", e)
             return self.helper(len_trajectory, num_trajectories)
@@ -417,48 +404,71 @@ class Evaluation_Holder_MM():
 
 
 
-    def performance_and_error_calculation(self, dataarray, err, errbayes, etimebayes, etimenaive):
+    def performance_and_error_calculation(self, dataarray):
         #ToDo Document
 
+        avg_time_naive, avg_err_naive = self.performance_and_error_calculation_naive(dataarray)
+        avg_time_bayes, avg_err_bayes = self.performance_and_error_calculation_bayes(dataarray)
+
+        return avg_time_naive, avg_err_naive, avg_time_bayes, avg_err_bayes
+
+
+    def performance_and_error_calculation_naive(self, dataarray):
+        etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
+        etimenaive[0] = 0
+        err = np.zeros(self.num_estimations + 1, dtype=float)
         for k in range(0, self.num_estimations + 1):
             current_time = self.window_size + k * self.shift - 1
             assert (current_time < np.shape(dataarray)[1])
+            t0 = process_time()
             data0 = dataarray[:, current_time - self.window_size + 1: (current_time + 1)]
             dataslice0 = []
 
             for i in range(0, self.num_trajectories):
                 dataslice0.append(data0[i, :])
-            if k == 0:
-                # init
-                estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states)
 
-            t0 = process_time()
             C0 = estimate_via_sliding_windows(data=dataslice0,
                                               num_states=Variable_Holder.num_states, initial=True)  # count matrix for whole window
-            t1 = process_time()
             A0 = _tm(C0)
+            t1 = process_time()
 
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
             err[k] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
+
+        avg_time_naive = Utility.log_value(etimenaive[-1])
+        avg_err_naive = Utility.log_value(sum(err) / len(err))
+
+        return avg_time_naive, avg_err_naive
+
+
+
+    def performance_and_error_calculation_bayes(self, dataarray):
+        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
+        errbayes = np.zeros(self.num_estimations + 1, dtype=float)
+
+        for k in range(0, self.num_estimations + 1):
+            current_time = self.window_size + k * self.shift - 1
+            assert (current_time < np.shape(dataarray)[1])
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
+                t0 = process_time()
                 data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
                 dataslice0 = []
                 for i in range(0, self.num_trajectories):
                     dataslice0.append(data0[i, :])
 
-                t0 = process_time()
                 C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True)
+                A0 = _tm(C_old)
                 etimebayes[1] = process_time() - t0
-                errbayes[0] = np.linalg.norm(_tm(C_old) - self.mm1_0_0_scaled.trans)
+                errbayes[0] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
+                t0 = process_time()
                 data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (current_time + 1)]
                 dataslice1new = []
                 for i in range(0, self.num_trajectories):
                     dataslice1new.append(data1new[i, :])
-                t0 = process_time()
                 C_new = estimate_via_sliding_windows(data=dataslice1new,
                                                      num_states=Variable_Holder.num_states)  # count matrix for just new transitions
 
@@ -468,16 +478,16 @@ class Evaluation_Holder_MM():
                 C1bayes = weight0 * C_old + weight1 * C_new
                 C_old = C1bayes
 
+                A1bayes = _tm(C1bayes)
                 t1 = process_time()
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
-                A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
-        avg_time_naive = Utility.log_value(etimenaive[-1])
-        avg_err_naive = Utility.log_value(sum(err) / len(err))
+
         avg_time_bayes = Utility.log_value(etimebayes[-1])
         avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
+        return avg_time_bayes, avg_err_bayes
 
-        return avg_time_naive, avg_err_naive, avg_time_bayes, avg_err_bayes
+
 
     def print_param_values(self, evaluation_name, taumeta, shift, window_size, num_estimations, len_trajectory,
                            num_trajectories, eta, scale_window):
