@@ -75,11 +75,21 @@ def read_simulated_data(filename):
     """
 
     simulated_data = {}
-    for taumeta in create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size):
-        ndarr = np.loadtxt("simulated_data_" + filename + str(taumeta), delimiter=",")
-        simulated_data[taumeta] = ndarr
-    return simulated_data
-
+    if filename =="mm" or filename == "qmm":
+        for taumeta in create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size):
+            ndarr = np.loadtxt("simulated_data_" + filename + str(taumeta), delimiter=",")
+            simulated_data[taumeta] = ndarr
+        return simulated_data
+    elif filename=="tdisp":
+        for timescaledisp in create_value_list(Variable_Holder.min_timescaledisp, Variable_Holder.heatmap_size):
+            ndarr = np.loadtxt("simulated_data_tdisp"+ str(timescaledisp), delimiter=",")
+            simulated_data[timescaledisp] = ndarr
+        return simulated_data
+    else:
+        for statconc in Variable_Holder.statconc_values:
+            ndarr = np.loadtxt("simulated_data_statconc"+ str(statconc), delimiter=",")
+            simulated_data[statconc] = ndarr
+        return simulated_data
 
 def simulate_and_store_data(qmm1_0_0, filename):
     """
@@ -90,15 +100,62 @@ def simulate_and_store_data(qmm1_0_0, filename):
     """
 
     print("Simulating data")
-    for taumeta in create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size):
+    if filename == "mm":
+        for taumeta in create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size):
+            data = []
+            qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
+            max_len_trajectory = Variable_Holder.num_trajectories_len_trajectory_max / Variable_Holder.min_num_trajectories
+            for i in range(0, int(Variable_Holder.max_num_trajectories)):
+                simulation = (qmm1_0_0_scaled.simulate(int(max_len_trajectory)))
+                data.append(simulation)
+            print("Done with Taumeta " + str(taumeta))
+            np.savetxt("simulated_data_" +filename+  str(taumeta), data, delimiter=",")
+
+    elif filename =="tdisp":
+        simulate_and_store_data_timescaledisp()
+    else:
+        simulate_and_store_data_statconc()
+
+def simulate_and_store_data_timescaledisp():
+    """
+    Method to simulate trajectory data and from for different timescaledisp values and store it into a file
+
+    :param filename: filename to store the trajectory data to
+    """
+
+    for timescaledisp in create_value_list(Variable_Holder.min_timescaledisp, Variable_Holder.heatmap_size):
+        from ldshmm.util.mm_family import MMFamily1
+        mmf1 = MMFamily1(nstates=Variable_Holder.num_states, timescaledisp=timescaledisp)
+        mmf1_0_0 = mmf1.sample()[0]
+        print("Simulating data")
         data = []
-        qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
+        qmm1_0_0_scaled = mmf1_0_0.eval(Variable_Holder.mid_taumeta)
         max_len_trajectory = Variable_Holder.num_trajectories_len_trajectory_max / Variable_Holder.min_num_trajectories
         for i in range(0, int(Variable_Holder.max_num_trajectories)):
-            simulation = (qmm1_0_0_scaled.simulate(int(max_len_trajectory)))
-            data.append(simulation)
-        print("Done with Taumeta " + str(taumeta))
-        np.savetxt("simulated_data_" +filename+  str(taumeta), data, delimiter=",")
+             simulation = (qmm1_0_0_scaled.simulate(int(max_len_trajectory)))
+             data.append(simulation)
+        print("Done with Timescaledisp " + str(timescaledisp))
+        np.savetxt("simulated_data_tdisp" + str(timescaledisp), data, delimiter=",")
+
+def simulate_and_store_data_statconc():
+    """
+    Method to simulate trajectory data and from for different statconc values and store it into a file
+
+    :param filename: filename to store the trajectory data to
+    """
+
+    for statconc in Variable_Holder.statconc_values:
+        from ldshmm.util.mm_family import MMFamily1
+        mmf1 = MMFamily1(nstates=Variable_Holder.num_states, statconc=statconc)
+        mmf1_0_0 = mmf1.sample()[0]
+        data = []
+        qmm1_0_0_scaled = mmf1_0_0.eval(Variable_Holder.mid_taumeta)
+        max_len_trajectory = Variable_Holder.num_trajectories_len_trajectory_max / Variable_Holder.min_num_trajectories
+        for i in range(0, int(Variable_Holder.max_num_trajectories)):
+             simulation = (qmm1_0_0_scaled.simulate(int(max_len_trajectory)))
+             data.append(simulation)
+        print("Done with statconc " + str(statconc))
+        np.savetxt("simulated_data_statconc" + str(statconc), data, delimiter=",")
 
 def print_tm(qmm1_0_0_scaled):
     """
