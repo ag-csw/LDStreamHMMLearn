@@ -1,6 +1,6 @@
 from ldshmm.util.util_functionality import *
 from ldshmm.util.plottings import ComplexPlot
-from ldshmm.util.util_evaluation_mm import Evaluation_Holder_MM
+from ldshmm.util.util_evaluation_mm_old import Evaluation_Holder_MM
 from ldshmm.util.mm_family import MMFamily1
 
 class MM_Evaluation():
