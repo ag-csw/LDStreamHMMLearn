@@ -5,6 +5,7 @@ from ldshmm.util.util_functionality import *
 class Delta_Evaluation():
 
     def __init__(self, delta=0):
+        t0 = process_time()
         self.num_states = 4
         self.delta = delta
 
@@ -37,6 +38,7 @@ class Delta_Evaluation():
         self.len_trajectory = Variable_Holder.len_trajectory
         self.num_trajectories_len_trajectory_max = Variable_Holder.num_trajectories_len_trajectory_max
         #simulate_and_store_data(self.qmm1_0_0, "qmm")
+        print("Done Initializing Delta_Evaluation - "+str(process_time()-t0))
 
 
     def test_run_all_tests(self):
@@ -213,6 +215,7 @@ class Delta_Evaluation():
         plots.save_plot_same_colorbar("Error"+str(self.delta))
 
     def evaluation_qmm(self):
+        t0 = process_time()
         plots = ComplexPlot()
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
 
@@ -242,10 +245,14 @@ class Delta_Evaluation():
         scale_window_values = []
         num_traj_values = []
 
-        numruns = 1
-        numsims = 4
+        numruns = 8
+        numsims = 1
+        evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, delta=self.delta, simulate=False)
+        print("Start "+str(numruns)+" run(s)")
+        t00 = process_time()
+        data = []
         for i in range(0, numruns):
-            evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, delta=self.delta)
+            print("Starting Run "+str(i))
             if i % numsims == 0:
                 self.qmm1_0_0 = self.qmmf1_0.sample()[0]
             simulate_and_store_data(qmm1_0_0=self.qmm1_0_0, filename="qmm")
@@ -289,6 +296,26 @@ class Delta_Evaluation():
             # avg_errs_bayes4_list[i] = (avg_errs_bayes4)
             # avg_errs_bayes5_list[i] = (avg_errs_bayes5)
 
+            if i == 3:
+
+                mean_avg_errs_naiveeta = np.mean(list(avg_errs_naive1_list.values()), axis=0)
+                mean_avg_errs_naivescalewin = np.mean(list(avg_errs_naive2_list.values()), axis=0)
+                mean_avg_errs_naivenumtraj = np.mean(list(avg_errs_naive3_list.values()), axis=0)
+
+                mean_avg_errs_bayeseta = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
+                mean_avg_errs_bayesscalewin = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
+                mean_avg_errs_bayesnumtraj = np.mean(list(avg_errs_bayes3_list.values()), axis=0)
+
+
+                data.append(mean_avg_errs_naiveeta)
+                data.append(mean_avg_errs_naivescalewin)
+                data.append(mean_avg_errs_naivenumtraj)
+                data.append(mean_avg_errs_bayeseta)
+                data.append(mean_avg_errs_bayesscalewin)
+                data.append(mean_avg_errs_bayesnumtraj)
+
+
+        print("Done with "+str(numruns)+" runs - "+str(process_time()-t00))
         avg_times_naive1 = np.mean(list(avg_times_naive1_list.values()), axis=0)
         avg_times_naive2 = np.mean(list(avg_times_naive2_list.values()), axis=0)
         avg_times_naive3 = np.mean(list(avg_times_naive3_list.values()), axis=0)
@@ -300,6 +327,7 @@ class Delta_Evaluation():
         avg_times_bayes3 = np.mean(list(avg_times_bayes3_list.values()), axis=0)
         # avg_times_bayes4 = np.mean(list(avg_times_bayes4_list.values()), axis=0)
         # avg_times_bayes5 = np.mean(list(avg_times_bayes5_list.values()), axis=0)
+
 
 
         print("NORMAL ETA PERF", list(avg_times_naive1_list.values()), "MEAN ARRAY", avg_times_naive1)
@@ -368,6 +396,16 @@ class Delta_Evaluation():
         # print("NORMAL", list(avg_errs_bayes4_list.values()), "MEAN ARRAY", avg_errs_bayes4)
         # print("NORMAL", list(avg_errs_bayes5_list.values()), "MEAN ARRAY", avg_errs_bayes5)
 
+
+        data2 = []
+
+        data2.append(avg_errs_naive1)
+        data2.append(avg_errs_naive2)
+        data2.append(avg_errs_naive3)
+        data2.append(avg_errs_bayes1)
+        data2.append(avg_errs_bayes2)
+        data2.append(avg_errs_bayes3)
+
         # get minimum and maximum error
         # min_val = np.amin([avg_errs_naive1, avg_errs_naive2, avg_errs_naive3, avg_errs_naive4,avg_errs_naive5,  avg_errs_bayes1, avg_errs_bayes2,
         #                   avg_errs_bayes3, avg_errs_bayes4, avg_errs_bayes5])
@@ -396,8 +434,12 @@ class Delta_Evaluation():
                                         maximum=max_val)
         """
         plots.save_plot_same_colorbar("Error" + str(self.delta))
+        print("Done Evaluating - "+ str(process_time()-t0))
+        print("Average Errors Run 1-4: ")
+        print(data)
+        print("Average Errors Run 1-8: ")
+        print(data2)
 
-
-delta_eval0 = Delta_Evaluation(delta=0)
+#delta_eval0 = Delta_Evaluation(delta=0)
 #delta_eval0.test_run_all_tests()
 

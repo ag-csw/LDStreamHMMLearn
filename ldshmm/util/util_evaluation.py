@@ -11,10 +11,11 @@ from ldshmm.util.variable_holder import Variable_Holder
 class Evaluation_Holder():
     # ToDo Document
 
-    def __init__(self, qmm1_0_0, delta):
+    def __init__(self, qmm1_0_0, delta, simulate=True):
         self.qmm1_0_0 = qmm1_0_0
-        simulate_and_store_data(qmm1_0_0, "qmm")
-        self.simulated_data = read_simulated_data("qmm")
+        if simulate:
+            simulate_and_store_data(qmm1_0_0, "qmm")
+            self.simulated_data = read_simulated_data("qmm")
         self.delta = delta
         self.timescaledisp = Variable_Holder.min_timescaledisp
         self.statconc = Variable_Holder.mid_statconc
@@ -111,8 +112,9 @@ class Evaluation_Holder():
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         eta_values = create_value_list(Variable_Holder.min_eta, Variable_Holder.heatmap_size)
 
-        for one, taumeta in enumerate(taumeta_values):
-            for two, eta in enumerate(eta_values):
+        for two, eta in enumerate(eta_values):
+            for one, taumeta in enumerate(taumeta_values):
+
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
@@ -152,8 +154,9 @@ class Evaluation_Holder():
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         scale_window_values = create_value_list(Variable_Holder.min_scale_window, Variable_Holder.heatmap_size)
 
-        for one, taumeta in enumerate(taumeta_values):
-            for two, scale_window in enumerate(scale_window_values):
+        for two, scale_window in enumerate(scale_window_values):
+            for one, taumeta in enumerate(taumeta_values):
+
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
@@ -208,9 +211,9 @@ class Evaluation_Holder():
         # specify values for taumeta and eta to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         num_traj_values = create_value_list(Variable_Holder.min_num_trajectories, Variable_Holder.heatmap_size)
+        for two, num_traj in enumerate(num_traj_values):
+            for one, taumeta in enumerate(taumeta_values):
 
-        for one, taumeta in enumerate(taumeta_values):
-            for two, num_traj in enumerate(num_traj_values):
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
