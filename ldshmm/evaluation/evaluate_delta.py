@@ -1,11 +1,13 @@
 from ldshmm.util.plottings import ComplexPlot
-from ldshmm.util.util_evaluation import *
+from ldshmm.util.util_evaluation_bayes_only import Evaluation_Holder as Evaluation_Holder_Bayes_Only
+from ldshmm.util.util_evaluation import Evaluation_Holder
 from ldshmm.util.util_functionality import *
+from ldshmm.util.mm_family import MMFamily1
+from ldshmm.util.qmm_family import QMMFamily1
 
 class Delta_Evaluation():
 
     def __init__(self, delta=0, number_of_runs=8):
-        t0 = process_time()
         self.num_states = 4
         self.delta = delta
 
@@ -190,7 +192,6 @@ class Delta_Evaluation():
         plots.save_plot_same_colorbar("Error"+str(self.delta))
 
     def evaluation_qmm(self):
-        t0 = process_time()
         plots = ComplexPlot()
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
 
@@ -223,7 +224,6 @@ class Delta_Evaluation():
         numsims = 1
         evaluate = Evaluation_Holder(qmm1_0_0=self.qmm1_0_0, delta=self.delta, simulate=False)
         print("Start "+str(self.numruns)+" run(s)")
-        t00 = process_time()
         data = []
         for i in range(0, self.numruns):
             print("Starting Run "+str(i))
@@ -291,7 +291,6 @@ class Delta_Evaluation():
 
 
 
-        print("Done with "+str(self.numruns)+" runs - "+str(process_time()-t00))
         avg_times_naive1 = np.mean(list(avg_times_naive1_list.values()), axis=0)
         avg_times_naive2 = np.mean(list(avg_times_naive2_list.values()), axis=0)
         avg_times_naive3 = np.mean(list(avg_times_naive3_list.values()), axis=0)
@@ -411,12 +410,110 @@ class Delta_Evaluation():
                                         maximum=max_val)
         """
         plots.save_plot_same_colorbar("Error" + str(self.delta))
-        print("Done Evaluating - "+ str(process_time()-t0))
 
         print("Average Errors Run 1-4: ")
         print(data)
         print("Average Errors Run 1-8: ")
         print(data2)
+
+    def test_run_all_tests_bayes_only(self):
+        evaluate = Evaluation_Holder_Bayes_Only(qmm1_0_0=self.qmm1_0_0, delta=self.delta, simulate=False)
+
+        avg_errs_bayes1_list = {}
+        avg_errs_bayes2_list = {}
+        avg_errs_bayes3_list = {}
+
+        bayes_err_data2 = []
+        bayes_err_data4 = []
+
+        numsims = 1
+        for i in range(0, self.numruns):
+            print("Starting Run " + str(i))
+            if i % numsims == 0:
+                self.qmm1_0_0 = self.qmmf1_0.sample()[0]
+            simulate_and_store_data(qmm1_0_0=self.qmm1_0_0, filename="qmm")
+            self.simulated_data = read_simulated_data("qmm")
+
+            # calculate performances and errors for the three parameters
+            avg_errs_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta(qmm1_0_0 = self.qmm1_0_0, simulated_data=self.simulated_data)
+            avg_errs_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window(qmm1_0_0 = self.qmm1_0_0,
+                simulated_data=self.simulated_data)
+            avg_errs_bayes3, taumeta_values, num_traj_values = evaluate.test_taumeta_num_traj(qmm1_0_0 = self.qmm1_0_0,
+                simulated_data=self.simulated_data)
+
+            avg_errs_bayes1_list[i] = (avg_errs_bayes1)
+            avg_errs_bayes2_list[i] = (avg_errs_bayes2)
+            avg_errs_bayes3_list[i] = (avg_errs_bayes3)
+
+            if i == 1:
+                mean_avg_errs_bayeseta = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
+                mean_avg_errs_bayesscalewin = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
+                mean_avg_errs_bayesnumtraj = np.mean(list(avg_errs_bayes3_list.values()), axis=0)
+
+                bayes_err_data2.append(mean_avg_errs_bayeseta)
+                bayes_err_data2.append(mean_avg_errs_bayesscalewin)
+                bayes_err_data2.append(mean_avg_errs_bayesnumtraj)
+
+            if i == 3:
+                mean_avg_errs_bayeseta = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
+                mean_avg_errs_bayesscalewin = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
+                mean_avg_errs_bayesnumtraj = np.mean(list(avg_errs_bayes3_list.values()), axis=0)
+
+                bayes_err_data4.append(mean_avg_errs_bayeseta)
+                bayes_err_data4.append(mean_avg_errs_bayesscalewin)
+                bayes_err_data4.append(mean_avg_errs_bayesnumtraj)
+
+        avg_times_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta_performance_only(qmm1_0_0 = self.qmm1_0_0, simulated_data=self.simulated_data)
+        avg_times_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window_performance_only(qmm1_0_0 = self.qmm1_0_0, simulated_data=self.simulated_data)
+        avg_times_bayes3, taumeta_values, num_traj_values = evaluate.test_taumeta_num_traj_performance_only(qmm1_0_0 = self.qmm1_0_0, simulated_data=self.simulated_data)
+
+        ###########################################################
+        plots = ComplexPlot()
+        plots.new_plot("Bayes Performance vs. Error", rows=3)
+
+        avg_errs_bayes1 = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
+        avg_errs_bayes2 = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
+        avg_errs_bayes3 = np.mean(list(avg_errs_bayes3_list.values()), axis=0)
+
+        data8 = []
+        data8.append(avg_errs_bayes1)
+        data8.append(avg_errs_bayes2)
+        data8.append(avg_errs_bayes3)
+
+        data8 = []
+        data8.append(avg_errs_bayes1)
+        data8.append(avg_errs_bayes2)
+        data8.append(avg_errs_bayes3)
+
+        print("BAYES ETA ERR", list(avg_errs_bayes1_list.values()), "MEAN ARRAY", avg_errs_bayes1)
+        print("BAYES SCALEWIN ERR", list(avg_errs_bayes2_list.values()), "MEAN ARRAY", avg_errs_bayes2)
+        print("BAYES NUMTRAJ ERR", list(avg_errs_bayes3_list.values()), "MEAN ARRAY", avg_errs_bayes3)
+
+        # get minimum and maximum error
+        min_val = np.amin(
+            [avg_errs_bayes1, avg_errs_bayes2, avg_errs_bayes3, avg_times_bayes1, avg_times_bayes2, avg_times_bayes3])
+        max_val = np.amax(
+            [avg_errs_bayes1, avg_errs_bayes2, avg_errs_bayes3, avg_times_bayes1, avg_times_bayes2, avg_times_bayes3])
+
+        # input data into one plot
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_bayes1, data_bayes=avg_errs_bayes1,
+                                        x_labels=taumeta_values,
+                                        y_labels=eta_values, y_label="eta", minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_bayes2, data_bayes=avg_errs_bayes2,
+                                        x_labels=taumeta_values,
+                                        y_labels=scale_window_values, y_label="scwin", minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_bayes3, data_bayes=avg_errs_bayes3,
+                                        x_labels=taumeta_values,
+                                        y_labels=num_traj_values, y_label="ntraj", minimum=min_val, maximum=max_val)
+
+        plots.save_plot_same_colorbar("Bayes_Perf_Error_MM")
+
+        print("Average Errors Run 1-2: ")
+        print(bayes_err_data2)
+        print("Average Errors Run 1-4: ")
+        print(bayes_err_data4)
+        print("Average Errors Run 1-8: ")
+        print(data8)
 
 #delta_eval0 = Delta_Evaluation(delta=0)
 #delta_eval0.test_run_all_tests()

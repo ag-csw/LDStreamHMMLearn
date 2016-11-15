@@ -1,6 +1,7 @@
 from ldshmm.util.util_functionality import *
 from ldshmm.util.plottings import ComplexPlot
 from ldshmm.util.util_evaluation_mm_old import Evaluation_Holder_MM
+from ldshmm.util.util_evaluation_mm_bayes_only import Evaluation_Holder_MM as Evaluation_Holder_MM_Bayes_Only
 from ldshmm.util.mm_family import MMFamily1
 
 class MM_Evaluation():
@@ -118,6 +119,100 @@ class MM_Evaluation():
 
 
         plots.save_plot_same_colorbar("Error")
+
+    def test_run_all_tests_bayes_only(self):
+        evaluate = Evaluation_Holder_MM_Bayes_Only(mm1_0_0=self.mm1_0_0, simulate=False)
+
+        avg_errs_bayes1_list = {}
+        avg_errs_bayes2_list = {}
+        avg_errs_bayes3_list = {}
+
+        bayes_err_data2 = []
+        bayes_err_data4 = []
+
+
+        numsims=1
+        for i in range(0, self.numruns):
+            print("Starting Run " + str(i))
+            if i % numsims == 0:
+                self.mm1_0_0 = self.mmf1_0.sample()[0]
+            simulate_and_store_data(qmm1_0_0=self.mm1_0_0, filename="mm")
+            self.simulated_data = read_simulated_data("mm")
+
+            # calculate performances and errors for the three parameters
+            avg_errs_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta(mm1_0_0=self.mm1_0_0, simulated_data=self.simulated_data)
+            avg_errs_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
+            avg_errs_bayes3, taumeta_values, num_traj_values = evaluate.test_taumeta_num_traj(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
+
+            avg_errs_bayes1_list[i] = (avg_errs_bayes1)
+            avg_errs_bayes2_list[i] = (avg_errs_bayes2)
+            avg_errs_bayes3_list[i] = (avg_errs_bayes3)
+
+            if i == 1:
+                mean_avg_errs_bayeseta = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
+                mean_avg_errs_bayesscalewin = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
+                mean_avg_errs_bayesnumtraj = np.mean(list(avg_errs_bayes3_list.values()), axis=0)
+
+                bayes_err_data2.append(mean_avg_errs_bayeseta)
+                bayes_err_data2.append(mean_avg_errs_bayesscalewin)
+                bayes_err_data2.append(mean_avg_errs_bayesnumtraj)
+
+            if i == 3:
+                mean_avg_errs_bayeseta = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
+                mean_avg_errs_bayesscalewin = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
+                mean_avg_errs_bayesnumtraj = np.mean(list(avg_errs_bayes3_list.values()), axis=0)
+
+                bayes_err_data4.append(mean_avg_errs_bayeseta)
+                bayes_err_data4.append(mean_avg_errs_bayesscalewin)
+                bayes_err_data4.append(mean_avg_errs_bayesnumtraj)
+
+        avg_times_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta_performance_only(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
+        avg_times_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window_performance_only(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
+        avg_times_bayes3, taumeta_values, num_traj_values = evaluate.test_taumeta_num_traj_performance_only(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
+
+
+        ###########################################################
+        plots = ComplexPlot()
+        plots.new_plot("Bayes Performance vs. Error", rows=3)
+
+        avg_errs_bayes1 = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
+        avg_errs_bayes2 = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
+        avg_errs_bayes3 = np.mean(list(avg_errs_bayes3_list.values()), axis=0)
+
+        data8=[]
+        data8.append(avg_errs_bayes1)
+        data8.append(avg_errs_bayes2)
+        data8.append(avg_errs_bayes3)
+
+        data8 = []
+        data8.append(avg_errs_bayes1)
+        data8.append(avg_errs_bayes2)
+        data8.append(avg_errs_bayes3)
+
+        print("BAYES ETA ERR", list(avg_errs_bayes1_list.values()), "MEAN ARRAY", avg_errs_bayes1)
+        print("BAYES SCALEWIN ERR", list(avg_errs_bayes2_list.values()), "MEAN ARRAY", avg_errs_bayes2)
+        print("BAYES NUMTRAJ ERR", list(avg_errs_bayes3_list.values()), "MEAN ARRAY", avg_errs_bayes3)
+
+        # get minimum and maximum error
+        min_val = np.amin([avg_errs_bayes1, avg_errs_bayes2, avg_errs_bayes3, avg_times_bayes1, avg_times_bayes2, avg_times_bayes3])
+        max_val = np.amax([avg_errs_bayes1, avg_errs_bayes2, avg_errs_bayes3, avg_times_bayes1, avg_times_bayes2, avg_times_bayes3])
+
+        # input data into one plot
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_bayes1, data_bayes=avg_errs_bayes1, x_labels=taumeta_values,
+                                        y_labels=eta_values, y_label="eta", minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_bayes2, data_bayes=avg_errs_bayes2, x_labels=taumeta_values,
+                                        y_labels=scale_window_values, y_label="scwin", minimum=min_val, maximum=max_val)
+        plots.add_to_plot_same_colorbar(data_naive=avg_times_bayes3, data_bayes=avg_errs_bayes3, x_labels=taumeta_values,
+                                        y_labels=num_traj_values, y_label="ntraj", minimum=min_val, maximum=max_val)
+
+        plots.save_plot_same_colorbar("Bayes_Perf_Error_MM")
+
+        print("Average Errors Run 1-2: ")
+        print(bayes_err_data2)
+        print("Average Errors Run 1-4: ")
+        print(bayes_err_data4)
+        print("Average Errors Run 1-8: ")
+        print(data8)
 
 
     def test_run_all_tests_timescaledisp(self):

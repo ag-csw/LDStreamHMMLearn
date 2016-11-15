@@ -100,7 +100,7 @@ def simulate_and_store_data(qmm1_0_0, filename):
     """
 
     print("Simulating data")
-    if filename == "mm":
+    if filename == "mm" or filename== "qmm":
         for taumeta in create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size):
             data = []
             qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
