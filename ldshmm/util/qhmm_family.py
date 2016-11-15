@@ -104,6 +104,7 @@ class QHMMFamily1(QHMMFamily):
                     raise Exception
 
             except Exception:
+                # FIXME avoid recursion
                 qhmm = self.sample()[0]
 
             smp[i] = qhmm

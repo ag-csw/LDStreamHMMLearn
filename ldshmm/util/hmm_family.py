@@ -155,6 +155,7 @@ class HMMFamily1(HMMFamily):
         if np.abs(np.linalg.det(basis)) > 1e-4:
             return basis
         else:
+            # FIXME avoid recursion
             return self.sample_basis() # discard sample if not linearly independent
 
     def sample_transition_matrix(self):
@@ -171,6 +172,7 @@ class HMMFamily1(HMMFamily):
         if np.all(trans >= 0) and np.all(trans <= 1):
             return transd, transu, transv, trans
         else:
+            # FIXME avoid recursion
             return self.sample_transition_matrix() # discard sample if trans has elements that are not probabilities
 
     def sample(self, size=1):

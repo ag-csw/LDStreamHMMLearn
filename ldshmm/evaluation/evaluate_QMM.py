@@ -5,9 +5,9 @@ class Evaluation_QMM():
 
     def run_qmm(self):
         t1 = process_time()
-        qmm_eval = Delta_Evaluation(delta=1/8, number_of_runs=1 )
+        qmm_eval = Delta_Evaluation(delta=1/8, number_of_runs=8 )
         qmm_eval.evaluation_qmm()
         print(process_time() - t1)
 
-compare = Evaluation_QMM()
-compare.run_qmm()
+evaluate_qmm = Evaluation_QMM()
+evaluate_qmm.run_qmm()

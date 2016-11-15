@@ -121,6 +121,7 @@ class QMMFamily1(QMMFamily):
 
         except Exception:
             #return None
+            # FIXME avoid recursion
             return self._sample_one()
 
     def sample(self, size=1):
