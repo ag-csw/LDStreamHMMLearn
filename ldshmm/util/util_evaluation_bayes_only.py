@@ -218,7 +218,6 @@ class Evaluation_Holder():
         dataarray = np.asarray(self.simulated_data[self.taumeta])
         dataarray = dataarray[:num_trajectories]
         dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
-        print(dataarray)
         try:
             return self.error_bayes(dataarray)
         except Exception as e:
@@ -608,7 +607,7 @@ class Evaluation_Holder():
         :param statconc: float
         """
 
-        """print("Parameter Overview for " + evaluation_name + ":")
+        print("Parameter Overview for " + evaluation_name + ":")
         print("taumeta:\t", taumeta)
         print("eta:\t", eta)
         print("scale_window\t:", scale_window)
@@ -622,6 +621,6 @@ class Evaluation_Holder():
         print("num_trajectories*len_trajectory:\t", num_trajectories * len_trajectory)
         print("NAIVE window_size * num_estimations\t", window_size * (num_estimations + 1))
         print("BAYES window_size + num_estimations*shift\t", window_size + num_estimations * shift)
-        print("\n")"""
+        print("\n")
 
 
