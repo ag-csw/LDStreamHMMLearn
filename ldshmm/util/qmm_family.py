@@ -59,70 +59,61 @@ class QMMFamily1(QMMFamily):
         :return:
         """
         from ldshmm.util.mm_class import MMMScaled
-        try:
-            # get two spectral MMs from the MM family self.mmfam
-            mmms = self.mmfam.sample(2)
-            # discard the sample if the basis vectors of the two MMs have
-            # determinants of opposite sign, because there will always be
-            # some convex combination of the bases that is singular, by continuity.
-            # recalculate the endpoint mm using delta
-
-            mmms0 = mmms[0]
-            mmms1 = mmms[1]
-            mmms_new = mmms0.lincomb(other=mmms1, mu=self.delta)
-            mmms[1] = mmms_new
-
-            if np.linalg.det(mmms[0].sMM.eigenvectors_left()) * np.linalg.det(mmms[1].sMM.eigenvectors_left()) < 0:
-                raise Exception
-            gamma = self.gammadist.rvs(1)
-
-            # construct the base (taumeta = tauquasi = 1) weight function from the template
-            def mu(t):
-                return self.mu0((t - self.edgeshift * gamma) / self.edgewidth)
-
-            # construct the convex combination quasi=stationary MM
+        while True:
             try:
-               qmm = ConvexCombinationQuasiMM(mmms, mu)
-            except:
-                raise Exception
+                # get two spectral MMs from the MM family self.mmfam
+                mmms = self.mmfam.sample(2)
+                # discard the sample if the basis vectors of the two MMs have
+                # determinants of opposite sign, because there will always be
+                # some convex combination of the bases that is singular, by continuity.
+                # recalculate the endpoint mm using delta
 
+                mmms0 = mmms[0]
+                mmms1 = mmms[1]
+                mmms_new = mmms0.lincomb(other=mmms1, mu=self.delta)
+                mmms[1] = mmms_new
 
-            if self.delta != 0:
-                # Exclude most samples where some value of the convex combination
-                # fails to give a NSMM due to singularity of the convex combination
-                # of eigenvector matrices.
+                if np.linalg.det(mmms[0].sMM.eigenvectors_left()) * np.linalg.det(mmms[1].sMM.eigenvectors_left()) < 0:
+                    raise Exception
+                gamma = self.gammadist.rvs(1)
 
-                # take some NSMM from the scaled class
-                taumeta = 10
-                tauquasi = 10
-                mu0endpoint = 10
-                try:
+                # construct the base (taumeta = tauquasi = 1) weight function from the template
+                def mu(t):
+                    return self.mu0((t - self.edgeshift * gamma) / self.edgewidth)
+
+                # construct the convex combination quasi=stationary MM
+                qmm = ConvexCombinationQuasiMM(mmms, mu)
+
+                if self.delta != 0:
+                    # Exclude most samples where some value of the convex combination
+                    # fails to give a NSMM due to singularity of the convex combination
+                    # of eigenvector matrices.
+
+                    # take some NSMM from the scaled class
+                    taumeta = 10
+                    tauquasi = 10
+                    mu0endpoint = 10
                     nsmm = qmm.eval(taumeta, tauquasi)
-                except:
-                    raise Exception
 
-                def f(x):
-                    return np.linalg.det(nsmm.eval(x).transition_matrix)
+                    def f(x):
+                        return np.linalg.det(nsmm.eval(x).transition_matrix)
 
-                # FIXME: a smarter way to test this might be to find the minimum
-                # of the function
-                #
-                # S(x) = sgn(f(0)) * f(t)
-                #
-                # If it is negative, then discard the sample
-                xvec = list(range(0, taumeta * tauquasi * int(self.edgewidth * mu0endpoint + self.edgeshift * gamma)))
-                try:
+                    # FIXME: a smarter way to test this might be to find the minimum
+                    # of the function
+                    #
+                    # S(x) = sgn(f(0)) * f(t)
+                    #
+                    # If it is negative, then discard the sample
+                    xvec = list(range(0, taumeta * tauquasi * int(self.edgewidth * mu0endpoint + self.edgeshift * gamma)))
                     yvec = list(map(f, xvec))
-                except:
-                    raise Exception
-                if len([y for y in yvec if y > 0]) * len([y for y in yvec if y < 0]) > 0:
-                    raise Exception
-            return qmm
 
-        except Exception:
-            #return None
-            # FIXME avoid recursion
-            return self._sample_one()
+                    if len([y for y in yvec if y > 0]) * len([y for y in yvec if y < 0]) > 0:
+                        raise Exception
+
+                return qmm
+
+            except Exception:
+                continue
 
     def sample(self, size=1):
         mmms = np.empty(size, dtype=object)  # initialize sample vector

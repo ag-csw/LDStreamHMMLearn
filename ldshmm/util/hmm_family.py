@@ -148,15 +148,13 @@ class HMMFamily1(HMMFamily):
         :return: ndarray of row eigenvectors
         """
 
-        basis = np.empty((self.nstates, self.nstates)) # initialize the left eigenvector matrix
-        stat = self.sample_stationary()
-        basis[0, :] = stat # stationary distribution is the left eigenvector with eigenvalue one
-        basis[1:, :] = self.basis_rv.rvs(self.nstates - 1) - stat # other left eigenvectors have sum = 0
-        if np.abs(np.linalg.det(basis)) > 1e-4:
-            return basis
-        else:
-            # FIXME avoid recursion
-            return self.sample_basis() # discard sample if not linearly independent
+        while True:
+            basis = np.empty((self.nstates, self.nstates)) # initialize the left eigenvector matrix
+            stat = self.sample_stationary()
+            basis[0, :] = stat # stationary distribution is the left eigenvector with eigenvalue one
+            basis[1:, :] = self.basis_rv.rvs(self.nstates - 1) - stat # other left eigenvectors have sum = 0
+            if np.abs(np.linalg.det(basis)) > 1e-4:
+                return basis
 
     def sample_transition_matrix(self):
         """
@@ -165,15 +163,13 @@ class HMMFamily1(HMMFamily):
         :return: transd - diagonal array, transu - left eigenvector matrix, transv - inverse matrix of transu, trans - dot product transd * transu * transv
         """
 
-        transd = np.diag(self.sample_eigenvalues())
-        transu = self.sample_basis()
-        transv = np.linalg.inv(transu)
-        trans = np.dot(transv, np.dot(transd, transu))
-        if np.all(trans >= 0) and np.all(trans <= 1):
-            return transd, transu, transv, trans
-        else:
-            # FIXME avoid recursion
-            return self.sample_transition_matrix() # discard sample if trans has elements that are not probabilities
+        while True:
+            transd = np.diag(self.sample_eigenvalues())
+            transu = self.sample_basis()
+            transv = np.linalg.inv(transu)
+            trans = np.dot(transv, np.dot(transd, transu))
+            if np.all(trans >= 0) and np.all(trans <= 1):
+                return transd, transu, transv, trans
 
     def sample(self, size=1):
         shmms = np.empty(size, dtype=object) # initialize sample vector
