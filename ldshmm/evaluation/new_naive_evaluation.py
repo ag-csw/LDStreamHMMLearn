@@ -105,11 +105,11 @@ class New_Naive_Test(TestCase):
                 self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
                                         self.len_trajectory, self.num_trajectories, eta, self.mid_scale_window)
 
-                avg_err_naive, avg_err_naive_new, avg_err_bayes = self.test_eta_helper()
+                log_avg_err_naive, log_avg_err_naive_new, log_avg_err_bayes = self.test_eta_helper()
 
-                avg_errs_naive[two][one] = avg_err_naive
-                avg_errs_naive_new[two][one] = avg_err_naive_new
-                avg_errs_bayes[two][one] = avg_err_bayes
+                avg_errs_naive[two][one] = log_avg_err_naive
+                avg_errs_naive_new[two][one] = log_avg_err_naive_new
+                avg_errs_bayes[two][one] = log_avg_err_bayes
 
 
         """print("Naive Performance:", avg_times_naive)
@@ -202,11 +202,11 @@ class New_Naive_Test(TestCase):
                 t1 = process_time()
                 A1bayes = _tm(C1bayes)
                 errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
-        avg_err_naive = Utility.log_value(sum(err_naive) / len(err_naive))
-        avg_err_naive_new = Utility.log_value(sum(err_naive_new) / len(err_naive_new))
-        avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
+        log_avg_err_naive = Utility.log_value(sum(err_naive) / len(err_naive))
+        log_avg_err_naive_new = Utility.log_value(sum(err_naive_new) / len(err_naive_new))
+        log_avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
 
-        return avg_err_naive, avg_err_naive_new, avg_err_bayes
+        return log_avg_err_naive, log_avg_err_naive_new, log_avg_err_bayes
 
 
     def print_param_values(self, evaluation_name, taumeta, shift, window_size, num_estimations, len_trajectory,

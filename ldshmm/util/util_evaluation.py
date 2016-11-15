@@ -59,13 +59,13 @@ class Evaluation_Holder():
                                         Variable_Holder.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta,
                                         Variable_Holder.mid_scale_window, timescaledisp, Variable_Holder.mid_statconc)
 
-                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
+                slope_time_naive, log_avg_err_naive, slope_time_bayes, log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
 
                 avg_times_naive[two][one] = slope_time_naive
-                avg_errs_naive[two][one] = avg_err_naive
+                avg_errs_naive[two][one] = log_avg_err_naive
 
                 avg_times_bayes[two][one] = slope_time_bayes
-                avg_errs_bayes[two][one] = avg_err_bayes
+                avg_errs_bayes[two][one] = log_avg_err_bayes
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, timescaledisp_values
 
@@ -99,13 +99,13 @@ class Evaluation_Holder():
                                         Variable_Holder.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta,
                                         Variable_Holder.mid_scale_window, Variable_Holder.mid_timescaledisp, statconc)
 
-                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
+                slope_time_naive, log_avg_err_naive, slope_time_bayes, log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
 
                 avg_times_naive[two][one] = slope_time_naive
-                avg_errs_naive[two][one] = avg_err_naive
+                avg_errs_naive[two][one] = log_avg_err_naive
 
                 avg_times_bayes[two][one] = slope_time_bayes
-                avg_errs_bayes[two][one] = avg_err_bayes
+                avg_errs_bayes[two][one] = log_avg_err_bayes
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, statconc_values
 
@@ -142,13 +142,13 @@ class Evaluation_Holder():
                                         Variable_Holder.len_trajectory, self.num_trajectories, eta, Variable_Holder.mid_scale_window,
                                         self.timescaledisp, self.statconc)
 
-                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
+                slope_time_naive, log_avg_err_naive, slope_time_bayes, log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
 
                 avg_times_naive[two][one] = slope_time_naive
-                avg_errs_naive[two][one] = avg_err_naive
+                avg_errs_naive[two][one] = log_avg_err_naive
 
                 avg_times_bayes[two][one] = slope_time_bayes
-                avg_errs_bayes[two][one] = avg_err_bayes
+                avg_errs_bayes[two][one] = log_avg_err_bayes
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values
 
@@ -183,13 +183,13 @@ class Evaluation_Holder():
                                         Variable_Holder.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta, scale_window,
                                         self.timescaledisp, self.statconc)
 
-                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
+                slope_time_naive, log_avg_err_naive, slope_time_bayes, log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
 
                 avg_times_naive[two][one] = slope_time_naive
-                avg_errs_naive[two][one] = avg_err_naive
+                avg_errs_naive[two][one] = log_avg_err_naive
 
                 avg_times_bayes[two][one] = slope_time_bayes
-                avg_errs_bayes[two][one] = avg_err_bayes
+                avg_errs_bayes[two][one] = log_avg_err_bayes
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, scale_window_values
 
@@ -201,7 +201,7 @@ class Evaluation_Holder():
 
         :param len_trajectory: int - length of the trajectory
         :param num_trajectories: int - number of trajectories
-        :return: tuple of (slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes)
+        :return: tuple of (slope_time_naive, log_avg_err_naive, slope_time_bayes, log_avg_err_bayes)
         """
 
         self.data1_0_0 = []
@@ -250,13 +250,13 @@ class Evaluation_Holder():
                                         self.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta, Variable_Holder.mid_scale_window,
                                         self.timescaledisp, self.statconc)
 
-                slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes = self.helper(self.len_trajectory, self.num_trajectories)
+                slope_time_naive, log_avg_err_naive, slope_time_bayes, log_avg_err_bayes = self.helper(self.len_trajectory, self.num_trajectories)
 
                 avg_times_naive[two][one] = slope_time_naive
-                avg_errs_naive[two][one] = avg_err_naive
+                avg_errs_naive[two][one] = log_avg_err_naive
 
                 avg_times_bayes[two][one] = slope_time_bayes
-                avg_errs_bayes[two][one] = avg_err_bayes
+                avg_errs_bayes[two][one] = log_avg_err_bayes
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, num_traj_values
 
@@ -266,7 +266,7 @@ class Evaluation_Holder():
         We return the latest log timing calculation and the average log error calculation for the naive and bayes approach.
 
         :param dataarray: ndarray - trajectory to perform timings and calculate errors from
-        :return: tuple of (slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes)
+        :return: tuple of (slope_time_naive, log_avg_err_naive, slope_time_bayes, log_avg_err_bayes)
         """
 
         try:
@@ -331,11 +331,11 @@ class Evaluation_Holder():
                     errbayes[k] = np.linalg.norm(A1bayes - self.qmm1_0_0_scaled.eval(k).trans)
 
             slope_time_naive = Utility.log_value(etimenaive[-1])
-            avg_err_naive = Utility.log_value(sum(err) / len(err))
+            log_avg_err_naive = Utility.log_value(sum(err) / len(err))
             slope_time_bayes = Utility.log_value(etimebayes[-1])
-            avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
+            log_avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
 
-            return slope_time_naive, avg_err_naive, slope_time_bayes, avg_err_bayes
+            return slope_time_naive, log_avg_err_naive, slope_time_bayes, log_avg_err_bayes
         except:
             print("Exception occured")
 
