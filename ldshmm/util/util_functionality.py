@@ -106,7 +106,7 @@ def simulate_and_store_data(qmm1_0_0, filename):
             data = []
             qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
             for i in range(0, int(Variable_Holder.max_num_trajectories)):
-                simulation = int(qmm1_0_0_scaled.simulate(Variable_Holder.len_trajectory_max))
+                simulation = (qmm1_0_0_scaled.simulate(Variable_Holder.len_trajectory_max))
                 data.append(simulation)
             dict[taumeta] = data
             print("Done with Taumeta " + str(taumeta))
