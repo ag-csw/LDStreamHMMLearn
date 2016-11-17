@@ -99,17 +99,19 @@ def simulate_and_store_data(qmm1_0_0, filename):
     :param filename: filename to store the trajectory data to
     """
 
+    dict = {}
     print("Simulating data")
     if filename == "mm" or filename== "qmm":
         for taumeta in create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size):
             data = []
             qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
-            max_len_trajectory = Variable_Holder.num_trajectories_len_trajectory_max / Variable_Holder.min_num_trajectories
             for i in range(0, int(Variable_Holder.max_num_trajectories)):
-                simulation = (qmm1_0_0_scaled.simulate(int(max_len_trajectory)))
+                simulation = int(qmm1_0_0_scaled.simulate(Variable_Holder.len_trajectory_max))
                 data.append(simulation)
+            dict[taumeta] = data
             print("Done with Taumeta " + str(taumeta))
             np.savetxt("simulated_data_" +filename+  str(taumeta), data, delimiter=",")
+        return dict
 
     elif filename =="tdisp":
         simulate_and_store_data_timescaledisp()

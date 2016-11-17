@@ -200,7 +200,8 @@ class Evaluation_Holder():
                 # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
                 self.window_size = (Variable_Holder.min_scale_window) * self.shift
                 self.num_trajectories = num_traj
-                self.len_trajectory = int(Variable_Holder.num_trajectories_len_trajectory_max / self.num_trajectories)
+                self.len_trajectory = int(
+                    Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
@@ -333,7 +334,8 @@ class Evaluation_Holder():
                 # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
                 self.window_size = (Variable_Holder.min_scale_window) * self.shift
                 self.num_trajectories = num_traj
-                self.len_trajectory = int(Variable_Holder.num_trajectories_len_trajectory_max / self.num_trajectories)
+                self.len_trajectory = int(
+                    Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 

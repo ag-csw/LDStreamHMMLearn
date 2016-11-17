@@ -24,7 +24,6 @@ class Evaluation_Holder_MM():
         if init_run:
             # ToDo Check which data to use for init run
             estimate_via_sliding_windows(data=[], num_states=Variable_Holder.num_states)
-
         self.mm1_0_0 = mm1_0_0
         if simulate:
             simulate_and_store_data(mm1_0_0, filename)
@@ -50,15 +49,15 @@ class Evaluation_Holder_MM():
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.shift = eta * self.taumeta
                 self.window_size = Variable_Holder.mid_scale_window * self.shift
-                self.num_trajectories = Variable_Holder.mid_num_trajectories
+                self.num_trajectories = Variable_Holder.min_num_trajectories
 
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        Variable_Holder.len_trajectory, self.num_trajectories, eta, Variable_Holder.mid_scale_window)
+                                        Variable_Holder.len_trajectory_max, self.num_trajectories, eta, Variable_Holder.mid_scale_window)
 
-                log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory_max, self.num_trajectories)
 
                 avg_errs_bayes[two][one] = log_avg_err_bayes
 
@@ -87,15 +86,15 @@ class Evaluation_Holder_MM():
                 self.window_size = Variable_Holder.mid_scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
 
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size,
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size,
                                                                     self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        Variable_Holder.len_trajectory, self.num_trajectories, eta,
+                                        Variable_Holder.len_trajectory_max, self.num_trajectories, eta,
                                         Variable_Holder.mid_scale_window)
 
-                log_total_time_bayes = self.helper_performance_only(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_total_time_bayes = self.helper_performance_only(Variable_Holder.len_trajectory_max, self.num_trajectories)
 
                 avg_times_bayes[two][one] = log_total_time_bayes
 
@@ -149,16 +148,16 @@ class Evaluation_Holder_MM():
                 # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size,
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size,
                                                                     self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size,
-                                        self.num_estimations, Variable_Holder.len_trajectory, self.num_trajectories,
+                                        self.num_estimations, Variable_Holder.len_trajectory_max, self.num_trajectories,
                                         Variable_Holder.mid_eta,
                                         scale_window)
 
-                log_total_time_bayes = self.helper_performance_only(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_total_time_bayes = self.helper_performance_only(Variable_Holder.len_trajectory_max, self.num_trajectories)
 
                 avg_times_bayes[two][one] = log_total_time_bayes
 
@@ -185,7 +184,9 @@ class Evaluation_Holder_MM():
                 # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
                 self.window_size = (Variable_Holder.min_scale_window) * self.shift
                 self.num_trajectories = num_traj
-                self.len_trajectory = int(Variable_Holder.num_trajectories_len_trajectory_max / self.num_trajectories)
+                self.len_trajectory = int(
+                    Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
+
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
@@ -220,15 +221,15 @@ class Evaluation_Holder_MM():
                 # ToDo Document Some of these formulas are based on essential definitions
                 # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
-                self.num_trajectories = Variable_Holder.mid_num_trajectories
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.num_trajectories = Variable_Holder.min_num_trajectories
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size,
-                                        self.num_estimations, Variable_Holder.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta,
+                                        self.num_estimations, Variable_Holder.len_trajectory_max, self.num_trajectories, Variable_Holder.mid_eta,
                                         scale_window)
 
-                log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory_max, self.num_trajectories)
 
                 avg_errs_bayes[two][one] = log_avg_err_bayes
 
@@ -254,7 +255,9 @@ class Evaluation_Holder_MM():
                 # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
                 self.window_size = (Variable_Holder.min_scale_window) * self.shift
                 self.num_trajectories = num_traj
-                self.len_trajectory = int(Variable_Holder.num_trajectories_len_trajectory_max / self.num_trajectories)
+                self.len_trajectory = int(
+                    Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
+
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
@@ -291,13 +294,13 @@ class Evaluation_Holder_MM():
                 self.window_size = Variable_Holder.mid_scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
 
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        Variable_Holder.len_trajectory, self.num_trajectories, eta, Variable_Holder.mid_scale_window)
+                                        Variable_Holder.len_trajectory_max, self.num_trajectories, eta, Variable_Holder.mid_scale_window)
 
-                log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.helper_timescaledisp(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.helper_timescaledisp(Variable_Holder.len_trajectory_max, self.num_trajectories)
 
                 avg_times_naive[two][one] = log_total_time_naive
                 avg_errs_naive[two][one] = log_avg_err_naive
@@ -342,14 +345,14 @@ class Evaluation_Holder_MM():
                 # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size,
-                                        self.num_estimations, Variable_Holder.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta,
+                                        self.num_estimations, Variable_Holder.len_trajectory_max, self.num_trajectories, Variable_Holder.mid_eta,
                                         scale_window)
 
-                log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.helper_timescaledisp(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.helper_timescaledisp(Variable_Holder.len_trajectory_max, self.num_trajectories)
 
                 avg_times_naive[two][one] = log_total_time_naive
                 avg_errs_naive[two][one] = log_avg_err_naive
@@ -380,7 +383,8 @@ class Evaluation_Holder_MM():
                 # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
                 self.window_size = (Variable_Holder.min_scale_window) * self.shift
                 self.num_trajectories = num_traj
-                self.len_trajectory = int(Variable_Holder.num_trajectories_len_trajectory_max / self.num_trajectories)
+                self.len_trajectory = int(
+                    Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
@@ -421,13 +425,13 @@ class Evaluation_Holder_MM():
                 self.window_size = Variable_Holder.mid_scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
 
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        Variable_Holder.len_trajectory, self.num_trajectories, eta, Variable_Holder.mid_scale_window)
+                                        Variable_Holder.len_trajectory_max, self.num_trajectories, eta, Variable_Holder.mid_scale_window)
 
-                log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.helper_statconc(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.helper_statconc(Variable_Holder.len_trajectory_max, self.num_trajectories)
 
                 avg_times_naive[two][one] = log_total_time_naive
                 avg_errs_naive[two][one] = log_avg_err_naive
@@ -471,14 +475,14 @@ class Evaluation_Holder_MM():
                 # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size,
-                                        self.num_estimations, Variable_Holder.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta,
+                                        self.num_estimations, Variable_Holder.len_trajectory_max, self.num_trajectories, Variable_Holder.mid_eta,
                                         scale_window)
 
-                log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.helper_statconc(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.helper_statconc(Variable_Holder.len_trajectory_max, self.num_trajectories)
 
                 avg_times_naive[two][one] = log_total_time_naive
                 avg_errs_naive[two][one] = log_avg_err_naive
@@ -509,7 +513,8 @@ class Evaluation_Holder_MM():
                 # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
                 self.window_size = (Variable_Holder.min_scale_window) * self.shift
                 self.num_trajectories = num_traj
-                self.len_trajectory = int(Variable_Holder.num_trajectories_len_trajectory_max / self.num_trajectories)
+                self.len_trajectory = int(
+                    Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 

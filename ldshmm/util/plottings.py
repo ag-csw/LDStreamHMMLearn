@@ -14,6 +14,16 @@ class ComplexPlot():
         self.cols = cols
 
 
+    def add_data_to_plot(self, data, x_labels, y_labels, y_label, minimum, maximum, x_label="taumeta"):
+        plt.subplot(self.rows, self.cols, self.current)
+        self.im = plt.pcolor(data, vmin=minimum, vmax=maximum, cmap="Reds")
+        plt.xticks(np.arange(len(x_labels)), (str(x_label) for x_label in x_labels))
+        plt.yticks(np.arange(len(x_labels)), (str(y_label) for y_label in y_labels))
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        self.current = self.current + 1
+
+
     def add_to_plot_separate_colorbar(self, data_naive, data_bayes, x_labels, y_labels, y_label):
         plt.subplot(self.rows,self.cols,self.current)
         plt.pcolor(data_naive, cmap="Reds")
@@ -156,7 +166,7 @@ class ProbPlot():
         plt.tight_layout(0.5)
 
     def save_plot(self, heading):
-        plt.savefig(heading + ".png")
+        plt.savefig(heading + ".pdf")
 
 
 class PointPlot():

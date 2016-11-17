@@ -84,6 +84,10 @@ class NonstationaryMM:
         """
         from time import process_time
         dtraj = np.zeros(int(N/dt), dtype=int)
+
+        # to speedup the call to the self.eval() function, we cache intermediate results we already calculated in a dict
+        # --> memoization is happening where we access that self.cache object.
+
         if 0 in self.cache:
             eval_return = self.cache[0]
         else:

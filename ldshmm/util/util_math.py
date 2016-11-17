@@ -52,7 +52,7 @@ class Utility():
     def calc_num_estimations(len_trajectory, window_size, shift):
         #ToDo Document
         import math
-        num_estimations = math.floor((len_trajectory - window_size -1)/shift)
+        num_estimations = math.floor((len_trajectory - window_size)/shift)
         if num_estimations < 0:
             raise Exception
         else:

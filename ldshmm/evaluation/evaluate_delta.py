@@ -416,7 +416,7 @@ class Delta_Evaluation():
         print("Average Errors Run 1-8: ")
         print(data2)
 
-    def test_run_all_tests_bayes_only(self):
+    def test_run_all_tests_bayes_only(self, plot_name=None):
         evaluate = Evaluation_Holder_Bayes_Only(qmm1_0_0=self.qmm1_0_0, delta=self.delta, simulate=False)
 
         avg_errs_bayes1_list = {}
@@ -431,8 +431,10 @@ class Delta_Evaluation():
             print("Starting Run " + str(i))
             if i % numsims == 0:
                 self.qmm1_0_0 = self.qmmf1_0.sample()[0]
-            simulate_and_store_data(qmm1_0_0=self.qmm1_0_0, filename="qmm")
+            simdict = simulate_and_store_data(qmm1_0_0=self.qmm1_0_0, filename="qmm")
             self.simulated_data = read_simulated_data("qmm")
+            print("###################")
+            print(simdict, self.simulated_data)
 
             # calculate performances and errors for the three parameters
             avg_errs_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta(qmm1_0_0 = self.qmm1_0_0, simulated_data=self.simulated_data)
@@ -469,7 +471,7 @@ class Delta_Evaluation():
 
         ###########################################################
         plots = ComplexPlot()
-        plots.new_plot("Bayes Performance vs. Error", rows=3)
+        plots.new_plot("Dependence of Bayes Error on Parameters", rows=3, cols=1)
 
         avg_errs_bayes1 = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
         avg_errs_bayes2 = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
@@ -491,28 +493,31 @@ class Delta_Evaluation():
 
         # get minimum and maximum error
         min_val = np.amin(
-            [avg_errs_bayes1, avg_errs_bayes2, avg_errs_bayes3, avg_times_bayes1, avg_times_bayes2, avg_times_bayes3])
+            [avg_errs_bayes1, avg_errs_bayes2, avg_errs_bayes3])
         max_val = np.amax(
-            [avg_errs_bayes1, avg_errs_bayes2, avg_errs_bayes3, avg_times_bayes1, avg_times_bayes2, avg_times_bayes3])
+            [avg_errs_bayes1, avg_errs_bayes2, avg_errs_bayes3])
 
         # input data into one plot
-        plots.add_to_plot_same_colorbar(data_naive=avg_times_bayes1, data_bayes=avg_errs_bayes1,
+        plots.add_data_to_plot(data=avg_errs_bayes1,
                                         x_labels=taumeta_values,
                                         y_labels=eta_values, y_label="eta", minimum=min_val, maximum=max_val)
-        plots.add_to_plot_same_colorbar(data_naive=avg_times_bayes2, data_bayes=avg_errs_bayes2,
+        plots.add_data_to_plot(data=avg_errs_bayes2,
                                         x_labels=taumeta_values,
                                         y_labels=scale_window_values, y_label="scwin", minimum=min_val, maximum=max_val)
-        plots.add_to_plot_same_colorbar(data_naive=avg_times_bayes3, data_bayes=avg_errs_bayes3,
+        plots.add_data_to_plot(data=avg_errs_bayes3,
                                         x_labels=taumeta_values,
                                         y_labels=num_traj_values, y_label="ntraj", minimum=min_val, maximum=max_val)
 
-        plots.save_plot_same_colorbar("Bayes_Perf_Error_MM")
+        if plot_name:
+            plots.save_plot_same_colorbar("Dependence_Bayes_Error_QMM_delta="+str(plot_name))
+        else:
+            plots.save_plot_same_colorbar("Dependence_Bayes_Error_MM_delta")
 
         print("Average Errors Run 1-2: ")
         print(bayes_err_data2)
         print("Average Errors Run 1-4: ")
         print(bayes_err_data4)
-        print("Average Errors Run 1-8: ")
+        print("Average Errors Run 1-"+str(self.numruns)+": ")
         print(data8)
 
 #delta_eval0 = Delta_Evaluation(delta=0)
