@@ -119,7 +119,7 @@ class SpectralMM(_MM):
 
         return np.allclose(self.transition_matrix, other.transition_matrix)
 
-    def simulate(self, N, start=None, stop=None, dt=1):
+    def simulate(self, N, start=None, stop=None, dt=1, M=1):
         """
         ToDo Document HMM or MM?
         generates a realization of the Hidden Markov Model
@@ -135,7 +135,7 @@ class SpectralMM(_MM):
 
         import msmtools.generation as msmgen
         # sample hidden trajectory
-        dtraj = msmgen.generate_traj(self.transition_matrix, N, start=start, stop=stop, dt=dt)
+        dtraj = msmgen.generate_trajs(self.transition_matrix, M, N, start=start, stop=stop, dt=dt)
         return dtraj
 
 

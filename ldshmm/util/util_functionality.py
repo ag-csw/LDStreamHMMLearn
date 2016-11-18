@@ -2,7 +2,7 @@ from msmtools.estimation.sparse.count_matrix import count_matrix_coo2_mult
 from ldshmm.util.variable_holder import Variable_Holder
 import numpy as np
 
-def estimate_via_sliding_windows(data, num_states, initial=False):
+def estimate_via_sliding_windows(data, num_states, initial=False, lag=1):
     """
     Generates a count matrix from a given list of discrete trajectories
 
@@ -14,7 +14,7 @@ def estimate_via_sliding_windows(data, num_states, initial=False):
         or numpy ndarray format
     """
 
-    C = count_matrix_coo2_mult(data, lag=1, sliding=False, sparse=False, nstates=num_states)
+    C = count_matrix_coo2_mult(data, lag=lag, sliding=False, sparse=False, nstates=num_states)
     if initial:
         C += 1e-8
 
@@ -90,6 +90,24 @@ def read_simulated_data(filename):
             ndarr = np.loadtxt("simulated_data_statconc"+ str(statconc), delimiter=",")
             simulated_data[statconc] = ndarr
         return simulated_data
+
+
+
+def simulate_and_store(qmm1_0_0, num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max):
+    """
+    Method to simulate trajectory data and from a given ConvexCombinationQuasiMM qmm1_0_0 and store it into a file
+
+    :param qmm1_0_0: ConvexCombinationQuasiMM (for instance obtained by sampling the QMMFamily1)
+    :param filename: filename to store the trajectory data to
+    """
+
+    print("Simulating data")
+    dict = {}
+    qmm1_0_0_scaled = qmm1_0_0.eval(Variable_Holder.max_taumeta)
+    simulation = (qmm1_0_0_scaled.simulate(N=len_trajectory, M=num_trajs_simulated))
+    dict[Variable_Holder.max_taumeta] = simulation
+    return dict
+
 
 def simulate_and_store_data(qmm1_0_0, filename):
     """

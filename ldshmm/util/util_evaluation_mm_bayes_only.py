@@ -31,7 +31,7 @@ class Evaluation_Holder_MM():
 
     """
     ######
-    ### Bayes Error Calculation Methods /Taumeta)
+    ### Bayes Error Calculation Methods (Taumeta)
     #####
     """
 
@@ -66,13 +66,13 @@ class Evaluation_Holder_MM():
                 self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
                                         len_trajectory, self.num_trajectories, eta, scale_window)
 
-                log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory_max, self.num_trajectories)
+                log_avg_err_bayes = self.helper(len_trajectory, self.num_trajectories)
 
                 avg_errs_bayes[two][one] = log_avg_err_bayes
 
         return avg_errs_bayes, taumeta_values, eta_values
 
-    def test_taumeta_scale_window(self, mm1_0_0, simulated_data=None):
+    def test_taumeta_scale_window(self, mm1_0_0=None, simulated_data=None):
         if mm1_0_0:
             self.mm1_0_0 = mm1_0_0
         if simulated_data:

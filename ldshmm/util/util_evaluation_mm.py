@@ -9,9 +9,9 @@ from ldshmm.util.mm_family import MMFamily1
 
 class Evaluation_Holder_MM():
     """
-   Class holding all evaluation functions used for a MMMScaled.
-   See util_evaluation.py - The evaluation functions are similar except for the underlying model.
-   """
+    Class holding all evaluation functions used for a MMMScaled.
+    See util_evaluation.py - The evaluation functions are similar except for the underlying model.
+    """
 
     def __init__(self, mm1_0_0, simulate=True, filename="mm", init_run = False):
         """
@@ -29,6 +29,12 @@ class Evaluation_Holder_MM():
         if simulate:
             simulate_and_store_data(mm1_0_0, filename)
         self.simulated_data = read_simulated_data(filename)
+
+    """
+    ######
+    ### Naive and Bayes Performance and Error Calculation Methods (Taumeta)
+    #####
+    """
 
     def test_taumeta_eta(self):
 
@@ -63,18 +69,6 @@ class Evaluation_Holder_MM():
                 avg_errs_bayes[two][one] = log_avg_err_bayes
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, eta_values
-
-    def helper(self, len_trajectory, num_trajectories):
-        self.data1_0_0 = []
-        dataarray = np.asarray(self.simulated_data[self.taumeta])
-        dataarray = dataarray[:num_trajectories]
-        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
-        print(dataarray)
-        try:
-            return self.performance_and_error_calculation(dataarray)
-        except Exception as e:
-            print("Exception thrown:", e)
-            return self.helper(len_trajectory, num_trajectories)
 
     def test_taumeta_scale_window(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
@@ -145,6 +139,23 @@ class Evaluation_Holder_MM():
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, num_traj_values
 
+    def helper(self, len_trajectory, num_trajectories):
+        self.data1_0_0 = []
+        dataarray = np.asarray(self.simulated_data[self.taumeta])
+        dataarray = dataarray[:num_trajectories]
+        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
+        print(dataarray)
+        try:
+            return self.performance_and_error_calculation(dataarray)
+        except Exception as e:
+            print("Exception thrown:", e)
+            return self.helper(len_trajectory, num_trajectories)
+
+    """
+    ######
+    ### Naive and Bayes Performance and Error Calculation Methods (Timescaledisp)
+    #####
+    """
 
     def test_timescaledisp_eta(self):
 
@@ -184,19 +195,6 @@ class Evaluation_Holder_MM():
                 avg_errs_bayes[two][one] = log_avg_err_bayes
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, timescaledisp_values, eta_values
-
-    def helper_timescaledisp(self, len_trajectory, num_trajectories):
-        self.data1_0_0 = []
-        dataarray = np.asarray(self.simulated_data[self.timescaledisp])
-        dataarray = dataarray[:num_trajectories]
-        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
-        print(dataarray)
-        try:
-            return self.performance_and_error_calculation(dataarray
-              )
-        except Exception as e:
-            print("Exception thrown:", e)
-            return self.helper(len_trajectory, num_trajectories)
 
     def test_timescaledisp_scale_window(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
@@ -277,6 +275,24 @@ class Evaluation_Holder_MM():
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, timescaledisp_values, num_traj_values
 
+    def helper_timescaledisp(self, len_trajectory, num_trajectories):
+        self.data1_0_0 = []
+        dataarray = np.asarray(self.simulated_data[self.timescaledisp])
+        dataarray = dataarray[:num_trajectories]
+        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
+        print(dataarray)
+        try:
+            return self.performance_and_error_calculation(dataarray
+                                                          )
+        except Exception as e:
+            print("Exception thrown:", e)
+            return self.helper(len_trajectory, num_trajectories)
+
+    """
+    ######
+    ### Naive and Bayes Performance and Error Calculation Methods (Statconc)
+    #####
+    """
 
     def test_statconc_eta(self):
 
@@ -316,18 +332,6 @@ class Evaluation_Holder_MM():
                 avg_errs_bayes[two][one] = log_avg_err_bayes
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, statconc_values, eta_values
-
-    def helper_statconc(self, len_trajectory, num_trajectories):
-        self.data1_0_0 = []
-        dataarray = np.asarray(self.simulated_data[self.statconc])
-        dataarray = dataarray[:num_trajectories]
-        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
-        print(dataarray)
-        try:
-            return self.performance_and_error_calculation(dataarray)
-        except Exception as e:
-            print("Exception thrown:", e)
-            return self.helper(len_trajectory, num_trajectories)
 
     def test_statconc_scale_window(self):
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
@@ -408,18 +412,45 @@ class Evaluation_Holder_MM():
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, statconc_values, num_traj_values
 
+    def helper_statconc(self, len_trajectory, num_trajectories):
+        self.data1_0_0 = []
+        dataarray = np.asarray(self.simulated_data[self.statconc])
+        dataarray = dataarray[:num_trajectories]
+        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
+        print(dataarray)
+        try:
+            return self.performance_and_error_calculation(dataarray)
+        except Exception as e:
+            print("Exception thrown:", e)
+            return self.helper(len_trajectory, num_trajectories)
 
+    """
+    ######
+    ### Performance and Error Utility Calculation Methods
+    ######
+    """
 
     def performance_and_error_calculation(self, dataarray):
-        #ToDo Document
+        """
+        calculation of both performance and error for naive and bayes
+
+        :param dataarray:
+        :return:
+        """
 
         log_total_time_naive, log_avg_err_naive = self.performance_and_error_calculation_naive(dataarray)
         log_total_time_bayes, log_avg_err_bayes = self.performance_and_error_calculation_bayes(dataarray)
 
         return log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes
 
-
     def performance_and_error_calculation_naive(self, dataarray):
+        """
+        performance and error calculation for naive only
+
+        :param dataarray:
+        :return:
+        """
+
         etimenaive = np.zeros(self.num_estimations + 2, dtype=float)
         etimenaive[0] = 0
         err = np.zeros(self.num_estimations + 1, dtype=float)
@@ -446,9 +477,14 @@ class Evaluation_Holder_MM():
 
         return log_total_time_naive, log_avg_err_naive
 
-
-
     def performance_and_error_calculation_bayes(self, dataarray):
+        """
+        performance and error calculation for bayes only
+
+        :param dataarray:
+        :return:
+        """
+
         etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
 
