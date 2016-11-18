@@ -50,7 +50,7 @@ class Evaluation_Holder_MM():
             for two, eta in enumerate(eta_values):
                 # ToDo Document The formulas used here need justification
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.spectral_mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.shift = eta * self.taumeta
                 scale_window = Variable_Holder.mid_scale_window
                 len_trajectory = Variable_Holder.len_trajectory_max
@@ -87,7 +87,7 @@ class Evaluation_Holder_MM():
             for two, scale_window in enumerate(scale_window_values):
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.spectral_mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 eta = Variable_Holder.mid_eta
                 len_trajectory = Variable_Holder.len_trajectory_max
                 self.shift = eta * self.taumeta
@@ -124,7 +124,7 @@ class Evaluation_Holder_MM():
         for one, taumeta in enumerate(taumeta_values):
             for two, num_traj in enumerate(num_traj_values):
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.spectral_mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 eta = Variable_Holder.mid_eta
                 scale_window = Variable_Holder.mid_scale_window
                 self.shift = eta * self.taumeta
@@ -180,7 +180,7 @@ class Evaluation_Holder_MM():
             for two, eta in enumerate(eta_values):
                 # ToDo Document The formulas used here need justification
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.spectral_mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.shift = eta * self.taumeta
                 scale_window = Variable_Holder.mid_scale_window
                 len_trajectory = Variable_Holder.len_trajectory_max
@@ -217,7 +217,7 @@ class Evaluation_Holder_MM():
             for two, scale_window in enumerate(scale_window_values):
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.spectral_mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 eta = Variable_Holder.mid_eta
                 len_trajectory = Variable_Holder.len_trajectory_max
                 self.shift = eta * self.taumeta
@@ -254,7 +254,7 @@ class Evaluation_Holder_MM():
         for one, taumeta in enumerate(taumeta_values):
             for two, num_traj in enumerate(num_traj_values):
                 self.taumeta = taumeta
-                self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+                self.spectral_mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 eta = Variable_Holder.mid_eta
                 scale_window = Variable_Holder.mid_scale_window
                 self.shift = eta * self.taumeta
@@ -350,7 +350,7 @@ class Evaluation_Holder_MM():
 
                 C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True)
                 A0 = _tm(C_old)
-                errbayes[0] = np.linalg.norm(A0 - self.mm1_0_0_scaled.trans)
+                errbayes[0] = np.linalg.norm(A0 - self.spectral_mm1_0_0_scaled.trans)
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
@@ -368,7 +368,7 @@ class Evaluation_Holder_MM():
                 C_old = C1bayes
 
                 A1bayes = _tm(C1bayes)
-                errbayes[k] = np.linalg.norm(A1bayes - self.mm1_0_0_scaled.trans)
+                errbayes[k] = np.linalg.norm(A1bayes - self.spectral_mm1_0_0_scaled.trans)
 
         log_avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
         return log_avg_err_bayes
