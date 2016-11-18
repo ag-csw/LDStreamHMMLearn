@@ -93,7 +93,7 @@ def read_simulated_data(filename):
 
 
 
-def simulate_and_store(qmm1_0_0, num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max):
+def simulate_and_store(qmm1_0_0, num_trajs_simulated=Variable_Holder.num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max):
     """
     Method to simulate trajectory data and from a given ConvexCombinationQuasiMM qmm1_0_0 and store it into a file
 
@@ -102,11 +102,9 @@ def simulate_and_store(qmm1_0_0, num_trajs_simulated, len_trajectory = Variable_
     """
 
     print("Simulating data")
-    dict = {}
     qmm1_0_0_scaled = qmm1_0_0.eval(Variable_Holder.max_taumeta)
     simulation = (qmm1_0_0_scaled.simulate(N=len_trajectory, M=num_trajs_simulated))
-    dict[Variable_Holder.max_taumeta] = simulation
-    return dict
+    return simulation
 
 
 def simulate_and_store_data(qmm1_0_0, filename):
@@ -188,3 +186,9 @@ def print_tm(qmm1_0_0_scaled):
     max_len_trajectory = int(Variable_Holder.num_trajectories_len_trajectory_max / Variable_Holder.min_num_trajectories)
     for i in range(0, max_len_trajectory):
         print(qmm1_0_0_scaled.eval(ground_truth_time=i).trans)
+
+def test (data):
+    array = np.asarray(data)
+    shape = np.shape(data)[0]
+    splitted_ndarrays = np.split(array.flatten(), shape)
+    return splitted_ndarrays

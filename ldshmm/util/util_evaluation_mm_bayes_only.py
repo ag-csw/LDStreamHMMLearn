@@ -55,7 +55,7 @@ class Evaluation_Holder_MM():
                 scale_window = Variable_Holder.mid_scale_window
                 len_trajectory = Variable_Holder.len_trajectory_max
                 self.window_size = scale_window * self.shift
-                self.num_trajectories = Variable_Holder.mid_num_trajectories
+                self.num_trajectories = len(simulated_data)
 
                 self.num_estimations = Utility.calc_num_estimations(len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
@@ -94,7 +94,7 @@ class Evaluation_Holder_MM():
                 # ToDo Document Some of these formulas are based on essential definitions
                 # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
-                self.num_trajectories = Variable_Holder.mid_num_trajectories
+                self.num_trajectories = len(simulated_data)
                 self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max,
                                                                     self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
@@ -148,15 +148,9 @@ class Evaluation_Holder_MM():
 
     def helper(self, len_trajectory, num_trajectories):
         self.data1_0_0 = []
-        dataarray = np.asarray(self.simulated_data[self.taumeta])
-        dataarray = dataarray[:num_trajectories]
-        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
-        print(dataarray)
-        try:
-            return self.error_bayes(dataarray)
-        except Exception as e:
-            print("Exception thrown:", e)
-            return self.helper(len_trajectory, num_trajectories)
+        dataarray = np.asarray(self.simulated_data)
+        #print(dataarray)
+        return self.error_bayes(dataarray)
 
     """
     ######
@@ -336,6 +330,7 @@ class Evaluation_Holder_MM():
         return log_total_time_bayes
 
     def error_bayes(self, dataarray):
+        lag = int(Variable_Holder.max_taumeta/self.taumeta)
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
 
         for k in range(0, self.num_estimations + 1):
@@ -348,7 +343,7 @@ class Evaluation_Holder_MM():
                 for i in range(0, self.num_trajectories):
                     dataslice0.append(data0[i, :])
 
-                C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True)
+                C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True, lag=lag)
                 A0 = _tm(C_old)
                 errbayes[0] = np.linalg.norm(A0 - self.spectral_mm1_0_0_scaled.trans)
 
@@ -359,7 +354,7 @@ class Evaluation_Holder_MM():
                 for i in range(0, self.num_trajectories):
                     dataslice1new.append(data1new[i, :])
                 C_new = estimate_via_sliding_windows(data=dataslice1new,
-                                                     num_states=Variable_Holder.num_states)  # count matrix for just new transitions
+                                                     num_states=Variable_Holder.num_states, lag=lag)  # count matrix for just new transitions
 
                 weight0 = self.r
                 weight1 = 1.0

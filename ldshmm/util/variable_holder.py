@@ -19,6 +19,7 @@ class Variable_Holder():
     min_timescale_min = 1 # ToDo Document
 
     num_states = 4 # number of observed statesmid in the Markov Model
+    numsims = 2
 
 
     min_timescaledisp = 2 # ToDo Document
@@ -47,6 +48,8 @@ class Variable_Holder():
 
     max_num_trajectories = min_num_trajectories * heatmap_factor # maximum number of trajectories in num_traj heatmap
     #num_trajectories_len_trajectory_max = min_num_trajectories * len_trajectory_max
+
+    num_trajs_simulated = int(numsims * max_num_trajectories)
 
     num_transitions_max = int((mid_scale_window + num_estimations_min) * shift_max) # maximum number of transitions needed
     num_trajectories_num_transitions_max = min_num_trajectories * num_transitions_max # constant number of transitions processed in each estimation
