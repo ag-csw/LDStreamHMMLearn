@@ -37,28 +37,28 @@ class Evaluation_Holder_MM():
 
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
-        # specify values for taumeta and eta to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         eta_values = create_value_list(Variable_Holder.min_eta, Variable_Holder.heatmap_size)
 
         for one, taumeta in enumerate(taumeta_values):
             for two, eta in enumerate(eta_values):
-                # Setting taumeta and eta values and recalculate dependent variables for scaling
                 # ToDo Document The formulas used here need justification
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.shift = eta * self.taumeta
-                # TODO make an intermediate variable for the constant value of scale_window that is used
-                self.window_size = Variable_Holder.mid_scale_window * self.shift
+                scale_window = Variable_Holder.mid_scale_window
+                len_trajectory = Variable_Holder.len_trajectory_max
+                self.window_size = scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
 
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size, self.shift)
+                self.num_estimations = Utility.calc_num_estimations(len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
                 # TODO Print out only intermediate variables that are used, not Variable_Holder fields that may or may not be correct
                 # TODO calculate the actual trajectory length that is processed from
-                # self.len_traj = self.window_size + self.num_estimations*self.shift + 1
+                actual_len_traj_processed = self.window_size + self.num_estimations*self.shift + 1
+                print("Actual processed trajectory length:", actual_len_traj_processed)
                 self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        Variable_Holder.len_trajectory_max, self.num_trajectories, eta, Variable_Holder.mid_scale_window)
+                                        len_trajectory, self.num_trajectories, eta, scale_window)
 
                 log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory_max, self.num_trajectories)
 
@@ -75,30 +75,29 @@ class Evaluation_Holder_MM():
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(
             Variable_Holder.heatmap_size)
 
-        # specify values for taumeta and eta to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         eta_values = create_value_list(Variable_Holder.min_eta, Variable_Holder.heatmap_size)
 
         for one, taumeta in enumerate(taumeta_values):
             for two, eta in enumerate(eta_values):
-                # Setting taumeta and eta values and recalculate dependent variables for scaling
                 # ToDo Document The formulas used here need justification
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
                 self.shift = eta * self.taumeta
-                # TODO make an intermediate variable for the constant value of scale_window that is used
-                self.window_size = Variable_Holder.mid_scale_window * self.shift
+                scale_window = Variable_Holder.mid_scale_window
+                len_trajectory = Variable_Holder.len_trajectory_max
+                self.window_size = scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
 
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size,
+                self.num_estimations = Utility.calc_num_estimations(len_trajectory, self.window_size,
                                                                     self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        Variable_Holder.len_trajectory_max, self.num_trajectories, eta,
-                                        Variable_Holder.mid_scale_window)
+                                        len_trajectory, self.num_trajectories, eta,
+                                        scale_window)
 
-                log_total_time_bayes = self.helper_performance_only(Variable_Holder.len_trajectory_max, self.num_trajectories)
+                log_total_time_bayes = self.helper_performance_only(len_trajectory, self.num_trajectories)
 
                 avg_times_bayes[two][one] = log_total_time_bayes
 
@@ -138,7 +137,6 @@ class Evaluation_Holder_MM():
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(
             Variable_Holder.heatmap_size)
 
-        # specify values for taumeta and eta to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         scale_window_values = create_value_list(Variable_Holder.min_scale_window, Variable_Holder.heatmap_size)
 
@@ -147,8 +145,9 @@ class Evaluation_Holder_MM():
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
-                # TODO make intermediate variable for the constant value of eta that is used
-                self.shift = (Variable_Holder.mid_eta) * self.taumeta
+                eta = Variable_Holder.mid_eta
+                len_trajectory = Variable_Holder.len_trajectory_max
+                self.shift = eta * self.taumeta
                 # ToDo Document Some of these formulas are based on essential definitions
                 # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
@@ -158,11 +157,11 @@ class Evaluation_Holder_MM():
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size,
-                                        self.num_estimations, Variable_Holder.len_trajectory_max, self.num_trajectories,
-                                        Variable_Holder.mid_eta,
+                                        self.num_estimations,len_trajectory, self.num_trajectories,
+                                        eta,
                                         scale_window)
 
-                log_total_time_bayes = self.helper_performance_only(Variable_Holder.len_trajectory_max, self.num_trajectories)
+                log_total_time_bayes = self.helper_performance_only(len_trajectory, self.num_trajectories)
 
                 avg_times_bayes[two][one] = log_total_time_bayes
 
@@ -176,18 +175,17 @@ class Evaluation_Holder_MM():
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(
             Variable_Holder.heatmap_size)
 
-        # specify values for taumeta and num_traj to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         num_traj_values = create_value_list(Variable_Holder.min_num_trajectories, Variable_Holder.heatmap_size)
 
         for one, taumeta in enumerate(taumeta_values):
             for two, num_traj in enumerate(num_traj_values):
-                # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
-                # TODO make intermediate variables for the constant values of eta and scale_window that are used
-                self.shift = (Variable_Holder.mid_eta) * self.taumeta
-                self.window_size = (Variable_Holder.mid_scale_window) * self.shift
+                eta = Variable_Holder.mid_eta
+                scale_window = Variable_Holder.mid_scale_window
+                self.shift = eta * self.taumeta
+                self.window_size = scale_window * self.shift
                 self.num_trajectories = num_traj
                 self.len_trajectory = int(
                     Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
@@ -196,8 +194,8 @@ class Evaluation_Holder_MM():
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("NUM_TRAJ", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        self.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta,
-                                        Variable_Holder.mid_scale_window)
+                                        self.len_trajectory, self.num_trajectories, eta,
+                                        scale_window)
 
                 log_total_time_bayes = self.helper_performance_only(self.len_trajectory, self.num_trajectories)
 
@@ -213,7 +211,6 @@ class Evaluation_Holder_MM():
             self.simulated_data=simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
-        # specify values for taumeta and eta to iterate over
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
         scale_window_values = create_value_list(Variable_Holder.min_scale_window, Variable_Holder.heatmap_size)
 
@@ -222,8 +219,9 @@ class Evaluation_Holder_MM():
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
-                # TODO make an intermediate variable for the constant value of eta that is used
-                self.shift = (Variable_Holder.mid_eta) * self.taumeta
+                eta = Variable_Holder.mid_eta
+                len_trajectory = Variable_Holder.len_trajectory_max
+                self.shift = eta * self.taumeta
                 # ToDo Document Some of these formulas are based on essential definitions
                 # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
@@ -232,10 +230,10 @@ class Evaluation_Holder_MM():
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size,
-                                        self.num_estimations, Variable_Holder.len_trajectory_max, self.num_trajectories, Variable_Holder.mid_eta,
+                                        self.num_estimations, len_trajectory, self.num_trajectories, eta,
                                         scale_window)
 
-                log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory_max, self.num_trajectories)
+                log_avg_err_bayes = self.helper(len_trajectory, self.num_trajectories)
 
                 avg_errs_bayes[two][one] = log_avg_err_bayes
 
@@ -257,10 +255,11 @@ class Evaluation_Holder_MM():
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
-                self.shift = (Variable_Holder.mid_eta) * self.taumeta
-                self.window_size = (Variable_Holder.mid_scale_window) * self.shift
+                eta = Variable_Holder.mid_eta
+                scale_window = Variable_Holder.mid_scale_window
+                self.shift = eta * self.taumeta
+                self.window_size = scale_window * self.shift
                 self.num_trajectories = num_traj
-                # TODO make an intermediate variable for the constant value of eta and scale_window that is used
                 self.len_trajectory = int(
                     Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
 
@@ -268,7 +267,7 @@ class Evaluation_Holder_MM():
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("NUM_TRAJ", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        self.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta, Variable_Holder.mid_scale_window)
+                                        self.len_trajectory, self.num_trajectories, eta, scale_window)
 
                 log_avg_err_bayes = self.helper(self.len_trajectory, self.num_trajectories)
 
