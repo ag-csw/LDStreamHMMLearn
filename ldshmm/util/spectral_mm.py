@@ -171,3 +171,15 @@ class SpectralMM(_MM):
         else:
 
             return False
+
+
+    def implied_timescale(self, lag):
+        import math
+        ev = np.diag(self.transD)[1:]
+        impliedtimescale = []
+        for i in range(1, self.nstates):
+            impliedtimescale[i-1] = -lag / math.log(ev[i])
+        return impliedtimescale
+
+    def stationary_distribution(self):
+        return self.transU[0]
