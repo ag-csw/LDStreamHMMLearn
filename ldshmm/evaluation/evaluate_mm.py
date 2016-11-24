@@ -458,3 +458,7 @@ class MM_Evaluation():
                                             y_labels=num_traj_values, y_label="ntraj", minimum=min_val, maximum=max_val, x_label="statconc")
 
             plots.save_plot_same_colorbar("Error_statconc")
+
+    def test_mid_values(self):
+        evaluate = Evaluation_Holder_MM_Bayes_Only(mm1_0_0=self.mm1_0_0)
+        evaluate.test_mid_values(mm1_0_0=self.mm1_0_0)

@@ -29,6 +29,38 @@ class Evaluation_Holder_MM():
             simulate_and_store_data(mm1_0_0, filename)
         self.simulated_data = read_simulated_data(filename)
 
+    def test_mid_values(self, mm1_0_0=None, simulated_data=None):
+        if mm1_0_0:
+            self.mm1_0_0 = mm1_0_0
+        if simulated_data:
+            self.simulated_data = simulated_data
+
+        # ToDo Document The formulas used here need justification
+        self.taumeta = Variable_Holder.mid_taumeta
+        eta = Variable_Holder.mid_eta
+        self.qmm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
+        self.shift = eta * self.taumeta
+        scale_window = Variable_Holder.mid_scale_window
+        self.window_size = scale_window * self.shift
+        self.num_trajectories = Variable_Holder.mid_num_trajectories
+        len_trajectory = Variable_Holder.len_trajectory_max
+        self.num_estimations = Utility.calc_num_estimations(len_trajectory, self.window_size,
+                                                            self.shift)
+        self.r = (self.window_size - self.shift) / self.window_size
+
+        self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
+                                len_trajectory, self.num_trajectories, eta,
+                                Variable_Holder.mid_scale_window)
+
+        dataarray = np.asarray(self.simulated_data)
+        errors_bayes = self.error_bayes(dataarray)
+
+        dataarray2 = np.asarray(self.simulated_data)
+        times_bayes = self.performance_bayes(dataarray2)
+
+        return times_bayes, errors_bayes
+
+
     """
     ######
     ### Bayes Error Calculation Methods (Taumeta)
@@ -147,10 +179,8 @@ class Evaluation_Holder_MM():
         return avg_errs_bayes, taumeta_values, num_traj_values
 
     def helper(self, len_trajectory, num_trajectories):
-        self.data1_0_0 = []
         dataarray = np.asarray(self.simulated_data)
-        #print(dataarray)
-        return self.error_bayes(dataarray)
+        return self.log_avg_error_bayes(dataarray)
 
     """
     ######
@@ -179,7 +209,7 @@ class Evaluation_Holder_MM():
                 scale_window = Variable_Holder.mid_scale_window
                 len_trajectory = Variable_Holder.len_trajectory_max
                 self.window_size = scale_window * self.shift
-                self.num_trajectories = Variable_Holder.mid_num_trajectories
+                self.num_trajectories =  len(simulated_data)
 
                 self.num_estimations = Utility.calc_num_estimations(len_trajectory, self.window_size,
                                                                     self.shift)
@@ -218,7 +248,7 @@ class Evaluation_Holder_MM():
                 # ToDo Document Some of these formulas are based on essential definitions
                 # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
-                self.num_trajectories = Variable_Holder.mid_num_trajectories
+                self.num_trajectories =  len(simulated_data)
                 self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory_max, self.window_size,
                                                                     self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
@@ -271,16 +301,8 @@ class Evaluation_Holder_MM():
         return avg_times_bayes, taumeta_values, num_traj_values
 
     def helper_performance_only(self, len_trajectory, num_trajectories):
-        self.data1_0_0 = []
-        dataarray = np.asarray(self.simulated_data[self.taumeta])
-        dataarray = dataarray[:num_trajectories]
-        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
-        print(dataarray)
-        try:
-            return self.performance_bayes(dataarray)
-        except Exception as e:
-            print("Exception thrown:", e)
-            return self.helper_performance_only(len_trajectory, num_trajectories)
+        dataarray = np.asarray(self.simulated_data)
+        return self.log_avg_performance_bayes(dataarray)
 
     """
     ######
@@ -288,7 +310,7 @@ class Evaluation_Holder_MM():
     ######
     """
 
-    def performance_bayes(self, dataarray):
+    def log_avg_performance_bayes(self, dataarray):
         etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
 
         for k in range(0, self.num_estimations + 1):
@@ -329,7 +351,47 @@ class Evaluation_Holder_MM():
         log_total_time_bayes = Utility.log_value(etimebayes[-1])
         return log_total_time_bayes
 
-    def error_bayes(self, dataarray):
+    def performance_bayes(self, dataarray):
+        etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
+
+        for k in range(0, self.num_estimations + 1):
+            current_time = self.window_size + k * self.shift - 1
+            assert (current_time < np.shape(dataarray)[1])
+            if k == 0:
+                ##### Bayes approach: Calculate C0 separately
+                t0 = process_time()
+                data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
+                dataslice0 = []
+                for i in range(0, self.num_trajectories):
+                    dataslice0.append(data0[i, :])
+
+                C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True)
+                A0 = _tm(C_old)
+                etimebayes[1] = process_time() - t0
+
+            if k >= 1:
+                ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
+                t0 = process_time()
+                data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (current_time + 1)]
+                dataslice1new = []
+                for i in range(0, self.num_trajectories):
+                    dataslice1new.append(data1new[i, :])
+                C_new = estimate_via_sliding_windows(data=dataslice1new,
+                                                     num_states=Variable_Holder.num_states)  # count matrix for just new transitions
+
+                weight0 = self.r
+                weight1 = 1.0
+
+                C1bayes = weight0 * C_old + weight1 * C_new
+                C_old = C1bayes
+
+                A1bayes = _tm(C1bayes)
+                t1 = process_time()
+                etimebayes[k + 1] = t1 - t0 + etimebayes[k]
+
+        return etimebayes
+
+    def log_avg_error_bayes(self, dataarray):
         lag = int(Variable_Holder.max_taumeta/self.taumeta)
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
 
@@ -368,6 +430,44 @@ class Evaluation_Holder_MM():
         log_avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
         return log_avg_err_bayes
 
+
+    def error_bayes(self, dataarray):
+        lag = int(Variable_Holder.max_taumeta/self.taumeta)
+        errbayes = np.zeros(self.num_estimations + 1, dtype=float)
+
+        for k in range(0, self.num_estimations + 1):
+            current_time = self.window_size + k * self.shift - 1
+            assert (current_time < np.shape(dataarray)[1])
+            if k == 0:
+                ##### Bayes approach: Calculate C0 separately
+                data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
+                dataslice0 = []
+                for i in range(0, self.num_trajectories):
+                    dataslice0.append(data0[i, :])
+
+                C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True, lag=lag)
+                A0 = _tm(C_old)
+                errbayes[0] = np.linalg.norm(A0 - self.spectral_mm1_0_0_scaled.trans)
+
+            if k >= 1:
+                ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
+                data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (current_time + 1)]
+                dataslice1new = []
+                for i in range(0, self.num_trajectories):
+                    dataslice1new.append(data1new[i, :])
+                C_new = estimate_via_sliding_windows(data=dataslice1new,
+                                                     num_states=Variable_Holder.num_states, lag=lag)  # count matrix for just new transitions
+
+                weight0 = self.r
+                weight1 = 1.0
+
+                C1bayes = weight0 * C_old + weight1 * C_new
+                C_old = C1bayes
+
+                A1bayes = _tm(C1bayes)
+                errbayes[k] = np.linalg.norm(A1bayes - self.spectral_mm1_0_0_scaled.trans)
+
+        return errbayes
 
 
     def print_param_values(self, evaluation_name, taumeta, shift, window_size, num_estimations, len_trajectory,

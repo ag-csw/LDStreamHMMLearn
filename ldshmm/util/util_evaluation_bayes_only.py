@@ -28,6 +28,7 @@ class Evaluation_Holder():
         self.timescaledisp = Variable_Holder.min_timescaledisp
         self.statconc = Variable_Holder.mid_statconc
 
+
     def test_taumeta_timescaledisp(self):
         #FIXME: change test so that timescaledisp is on the horizontal axis and eta is on the vertical axis
         # Also, let's move this to a separate test, where we have timescaledisp on the horizontal axis for
@@ -109,6 +110,13 @@ class Evaluation_Holder():
 
         return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, taumeta_values, statconc_values
 
+
+    """
+    ######
+    ### Bayes Error Calculation Methods (Taumeta)
+    #####
+    """
+
     def test_taumeta_eta(self, qmm1_0_0=None, simulated_data=None):
         if qmm1_0_0:
             self.qmm1_0_0 = qmm1_0_0
@@ -129,18 +137,20 @@ class Evaluation_Holder():
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
                 self.shift = eta * self.taumeta
-                self.window_size = Variable_Holder.mid_scale_window * self.shift
-                self.num_trajectories = Variable_Holder.mid_num_trajectories
+                scale_window = Variable_Holder.mid_scale_window
+                len_trajectory = Variable_Holder.len_trajectory_max
+                self.window_size = scale_window * self.shift
+                self.num_trajectories = len(simulated_data)
 
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size,
+                self.num_estimations = Utility.calc_num_estimations(len_trajectory, self.window_size,
                                                                     self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        Variable_Holder.len_trajectory, self.num_trajectories, eta,
-                                        Variable_Holder.mid_scale_window)
+                                        len_trajectory, self.num_trajectories, eta,
+                                        scale_window)
 
-                log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_avg_err_bayes = self.helper(len_trajectory, self.num_trajectories)
 
                 avg_errs_bayes[two][one] = log_avg_err_bayes
 
@@ -162,19 +172,21 @@ class Evaluation_Holder():
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
-                self.shift = (Variable_Holder.mid_eta) * self.taumeta
+                eta = Variable_Holder.mid_eta
+                self.shift = eta * self.taumeta
                 # ToDo Document Some of these formulas are based on essential definitions
                 # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
-                self.num_trajectories = Variable_Holder.mid_num_trajectories
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size, self.shift)
+                self.num_trajectories = len(simulated_data)
+                len_trajectory = Variable_Holder.len_trajectory_max
+                self.num_estimations = Utility.calc_num_estimations(len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size,
-                                        self.num_estimations, Variable_Holder.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta,
+                                        self.num_estimations, len_trajectory, self.num_trajectories, eta,
                                         scale_window)
 
-                log_avg_err_bayes = self.helper(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_avg_err_bayes = self.helper(len_trajectory, self.num_trajectories)
 
                 avg_errs_bayes[two][one] = log_avg_err_bayes
 
@@ -196,9 +208,11 @@ class Evaluation_Holder():
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
-                self.shift = (Variable_Holder.mid_eta) * self.taumeta
+                eta = Variable_Holder.mid_eta
+                self.shift = eta * self.taumeta
                 # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
-                self.window_size = (Variable_Holder.min_scale_window) * self.shift
+                scale_window = Variable_Holder.min_scale_window
+                self.window_size = scale_window * self.shift
                 self.num_trajectories = num_traj
                 self.len_trajectory = int(
                     Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
@@ -206,7 +220,7 @@ class Evaluation_Holder():
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("NUM_TRAJ", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        self.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta, Variable_Holder.mid_scale_window)
+                                        self.len_trajectory, self.num_trajectories, eta, scale_window)
 
                 log_avg_err_bayes = self.helper(self.len_trajectory, self.num_trajectories)
 
@@ -215,15 +229,14 @@ class Evaluation_Holder():
         return avg_errs_bayes, taumeta_values, num_traj_values
 
     def helper(self, len_trajectory, num_trajectories):
-        self.data1_0_0 = []
         dataarray = np.asarray(self.simulated_data[self.taumeta])
-        dataarray = dataarray[:num_trajectories]
-        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
-        try:
-            return self.error_bayes(dataarray)
-        except Exception as e:
-            print("Exception thrown:", e)
-            return self.helper(len_trajectory, num_trajectories)
+        return self.error_bayes(dataarray)
+
+    """
+    ######
+    ### Bayes Performance Calculation Methods (Taumeta)
+    ######
+    """
 
     def test_taumeta_eta_performance_only(self, qmm1_0_0=None, simulated_data=None):
         if qmm1_0_0:
@@ -245,35 +258,25 @@ class Evaluation_Holder():
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
                 self.shift = eta * self.taumeta
-                self.window_size = Variable_Holder.mid_scale_window * self.shift
+                scale_window = Variable_Holder.mid_scale_window
+                self.window_size = scale_window * self.shift
                 self.num_trajectories = Variable_Holder.mid_num_trajectories
+                len_trajectory = Variable_Holder.len_trajectory_max
 
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size,
+                self.num_estimations = Utility.calc_num_estimations(len_trajectory, self.window_size,
                                                                     self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        Variable_Holder.len_trajectory, self.num_trajectories, eta,
-                                        Variable_Holder.mid_scale_window)
+                                        len_trajectory, self.num_trajectories, eta,
+                                        scale_window)
 
-                log_total_time_bayes = self.helper_performance_only(Variable_Holder.len_trajectory,
+                log_total_time_bayes = self.helper_performance_only(len_trajectory,
                                                                     self.num_trajectories)
 
                 avg_times_bayes[two][one] = log_total_time_bayes
 
         return avg_times_bayes, taumeta_values, eta_values
-
-    def helper_performance_only(self, len_trajectory, num_trajectories):
-        self.data1_0_0 = []
-        dataarray = np.asarray(self.simulated_data[self.taumeta])
-        dataarray = dataarray[:num_trajectories]
-        dataarray = np.asarray([ndarr[:len_trajectory] for ndarr in dataarray])
-        print(dataarray)
-        try:
-            return self.performance_bayes(dataarray)
-        except Exception as e:
-            print("Exception thrown:", e)
-            return self.helper_performance_only(len_trajectory, num_trajectories)
 
     def test_taumeta_scale_window_performance_only(self, qmm1_0_0=None, simulated_data=None):
         if qmm1_0_0:
@@ -293,21 +296,23 @@ class Evaluation_Holder():
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
-                self.shift = (Variable_Holder.mid_eta) * self.taumeta
+                eta = Variable_Holder.mid_eta
+                self.shift = eta * self.taumeta
                 # ToDo Document Some of these formulas are based on essential definitions
                 # e.g. scale_window is defined to be self.shift/self.window_size
                 self.window_size = scale_window * self.shift
-                self.num_trajectories = Variable_Holder.mid_num_trajectories
-                self.num_estimations = Utility.calc_num_estimations(Variable_Holder.len_trajectory, self.window_size,
+                self.num_trajectories = len(simulated_data)
+                len_trajectory = Variable_Holder.len_trajectory_max
+                self.num_estimations = Utility.calc_num_estimations(len_trajectory, self.window_size,
                                                                     self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("scale_window", self.taumeta, self.shift, self.window_size,
-                                        self.num_estimations, Variable_Holder.len_trajectory, self.num_trajectories,
-                                        Variable_Holder.mid_eta,
+                                        self.num_estimations, len_trajectory, self.num_trajectories,
+                                        eta,
                                         scale_window)
 
-                log_total_time_bayes = self.helper_performance_only(Variable_Holder.len_trajectory, self.num_trajectories)
+                log_total_time_bayes = self.helper_performance_only(len_trajectory, self.num_trajectories)
 
                 avg_times_bayes[two][one] = log_total_time_bayes
 
@@ -330,9 +335,11 @@ class Evaluation_Holder():
                 # Setting taumeta and eta values and recalculate dependent variables for scaling
                 self.taumeta = taumeta
                 self.qmm1_0_0_scaled = self.qmm1_0_0.eval(self.taumeta)
-                self.shift = (Variable_Holder.mid_eta) * self.taumeta
+                eta = Variable_Holder.mid_eta
+                self.shift = eta * self.taumeta
                 # here we take the MINIMUM value of scale_window instead of the MIDDLE value on purpose
-                self.window_size = (Variable_Holder.min_scale_window) * self.shift
+                scale_window = Variable_Holder.mid_scale_window
+                self.window_size = scale_window * self.shift
                 self.num_trajectories = num_traj
                 self.len_trajectory = int(
                     Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
@@ -340,14 +347,24 @@ class Evaluation_Holder():
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 self.print_param_values("NUM_TRAJ", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        self.len_trajectory, self.num_trajectories, Variable_Holder.mid_eta,
-                                        Variable_Holder.mid_scale_window)
+                                        self.len_trajectory, self.num_trajectories, eta,
+                                        scale_window)
 
                 log_total_time_bayes = self.helper_performance_only(self.len_trajectory, self.num_trajectories)
 
                 avg_times_bayes[two][one] = log_total_time_bayes
 
         return avg_times_bayes, taumeta_values, num_traj_values
+
+    def helper_performance_only(self, len_trajectory, num_trajectories):
+        dataarray = np.asarray(self.simulated_data[self.taumeta])
+        return self.performance_bayes(dataarray)
+
+    """
+    ######
+    ### Bayes Performance Calculation Methods (Taumeta)
+    ######
+    """
 
     def performance_and_error_calculation_old(self, dataarray):
         """
