@@ -66,3 +66,9 @@ class Utility():
         factor = math.ceil(math.log2(num_estimations_mid_tmp))+1
         num_estimations_mid = math.pow(2,factor)
         return num_estimations_mid
+
+    @staticmethod
+    def calc_deciles(values):
+        import numpy as np
+        deciles = np.percentile(values, np.arange(0, 100, 10))
+        return deciles

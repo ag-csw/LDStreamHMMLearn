@@ -2,6 +2,7 @@ from ldshmm.util.util_functionality import *
 from ldshmm.util.plottings import ComplexPlot
 from ldshmm.util.util_evaluation_mm_old import Evaluation_Holder_MM
 from ldshmm.util.util_evaluation_mm_bayes_only import Evaluation_Holder_MM as Evaluation_Holder_MM_Bayes_Only
+from ldshmm.util.util_evaluation_mm_naive_only import Evaluation_Holder_MM as Evaluation_Holder_MM_Naive_Only
 from ldshmm.util.mm_family import MMFamily1
 
 class MM_Evaluation():
@@ -459,6 +460,70 @@ class MM_Evaluation():
 
             plots.save_plot_same_colorbar("Error_statconc")
 
-    def test_mid_values(self):
-        evaluate = Evaluation_Holder_MM_Bayes_Only(mm1_0_0=self.mm1_0_0)
-        evaluate.test_mid_values(mm1_0_0=self.mm1_0_0)
+    def test_mid_values_bayes(self):
+        from ldshmm.util.util_math import Utility
+        evaluate = Evaluation_Holder_MM_Bayes_Only(mm1_0_0=self.mm1_0_0, simulate=False)
+        avg_errors = []
+        for i in range(0, self.numruns):
+            self.mm1_0_0 = self.mmf1_0.sample()[0]
+            self.simulated_data = simulate_and_store(qmm1_0_0=self.mm1_0_0)
+
+            errors = evaluate.test_mid_values(mm1_0_0=self.mm1_0_0, simulated_data=self.simulated_data)
+            avg_errors.append(errors)
+
+        avg_errors_nd = np.asarray(avg_errors)
+        print(avg_errors)
+
+
+        decile_values = np.zeros(shape=(10, len(avg_errors_nd[0])))
+        for i in range(0, len(avg_errors_nd[0])):
+            num_estimation_error_i = avg_errors_nd[:,i]
+            print(num_estimation_error_i)
+            deciles = Utility.calc_deciles(num_estimation_error_i)
+            print(deciles)
+            for j,decile in enumerate(deciles):
+                decile_values[j,i] = decile
+
+        from ldshmm.util.plottings import LinePlot
+        plot = LinePlot()
+        plot.new_plot(heading="Distribution of Transition Matrix Error Along Trajectory (Bayes)", cols=1, rows=1, y_label="Deciles", x_label="Timepoints")
+
+        for decile in decile_values:
+            plot.add_line_to_plot(line_data=decile)
+        legend_strings = [str(x)+" % Decile" for x in np.arange(0, 100, 10)]
+        plot.add_legend(x_labels=legend_strings)
+        plot.save_plot("decile_bayes")
+
+    def test_mid_values_naive(self):
+        from ldshmm.util.util_math import Utility
+        evaluate = Evaluation_Holder_MM_Naive_Only(mm1_0_0=self.mm1_0_0, simulate=False)
+        avg_errors = []
+        for i in range(0, self.numruns):
+            self.mm1_0_0 = self.mmf1_0.sample()[0]
+            self.simulated_data = simulate_and_store(qmm1_0_0=self.mm1_0_0)
+
+            errors = evaluate.test_mid_values(mm1_0_0=self.mm1_0_0, simulated_data=self.simulated_data)
+            avg_errors.append(errors)
+
+        avg_errors_nd = np.asarray(avg_errors)
+        print(avg_errors)
+
+
+        decile_values = np.zeros(shape=(10, len(avg_errors_nd[0])))
+        for i in range(0, len(avg_errors_nd[0])):
+            num_estimation_error_i = avg_errors_nd[:,i]
+            print(num_estimation_error_i)
+            deciles = Utility.calc_deciles(num_estimation_error_i)
+            print(deciles)
+            for j,decile in enumerate(deciles):
+                decile_values[j,i] = decile
+
+        from ldshmm.util.plottings import LinePlot
+        plot = LinePlot()
+        plot.new_plot(heading="Distribution of Transition Matrix Error Along Trajectory (Naive)", cols=1, rows=1, y_label="Deciles", x_label="Timepoints")
+
+        for decile in decile_values:
+            plot.add_line_to_plot(line_data=decile)
+        legend_strings = [str(x)+" % Decile" for x in np.arange(0, 100, 10)]
+        plot.add_legend(x_labels=legend_strings)
+        plot.save_plot("decile_naive")

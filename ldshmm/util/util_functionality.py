@@ -93,7 +93,7 @@ def read_simulated_data(filename):
 
 
 
-def simulate_and_store(qmm1_0_0, num_trajs_simulated=Variable_Holder.num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max):
+def simulate_and_store(qmm1_0_0, num_trajs_simulated=Variable_Holder.num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max, taumeta = Variable_Holder.max_taumeta):
     """
     Method to simulate trajectory data and from a given ConvexCombinationQuasiMM qmm1_0_0 and store it into a file
 
@@ -102,8 +102,8 @@ def simulate_and_store(qmm1_0_0, num_trajs_simulated=Variable_Holder.num_trajs_s
     """
 
     print("Simulating data")
-    qmm1_0_0_scaled = qmm1_0_0.eval(Variable_Holder.max_taumeta)
-    simulation = (qmm1_0_0_scaled.simulate(N=len_trajectory, M=num_trajs_simulated))
+    qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
+    simulation = qmm1_0_0_scaled.simulate(N=len_trajectory, M=num_trajs_simulated)
     return simulation
 
 

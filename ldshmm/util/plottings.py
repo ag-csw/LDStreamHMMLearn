@@ -108,13 +108,25 @@ class ComplexPlot():
 
 class LinePlot():
 
-    cols = 2
     current = 1
 
-    def new_plot(self, heading, rows):
+    def new_plot(self, heading, rows, cols=2, y_label=None, x_label=None):
         plt.figure()
         plt.suptitle(heading)
+        if y_label:
+            plt.ylabel(y_label)
+        if x_label:
+            plt.xlabel(x_label)
         self.rows=rows
+        self.cols=cols
+
+
+    def add_line_to_plot(self, line_data):
+        plt.plot(range(0, len(line_data)), line_data)
+
+    def add_legend(self, x_labels):
+        plt.legend([str(x) for x in x_labels], loc='upper center', ncol=5,
+                   fancybox=True, fontsize=6)
 
     def add_to_plot(self, data_naive, data_bayes, x_labels, y_label, evaluated_param_name):
         plt.subplot(self.rows, self.cols, self.current)
@@ -148,7 +160,7 @@ class LinePlot():
         self.current = self.current + 1
 
     def save_plot(self, heading):
-        plt.savefig(heading + ".png")
+        plt.savefig(heading + ".pdf")
 
 class ProbPlot():
     cols = 2
