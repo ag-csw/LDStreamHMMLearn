@@ -131,7 +131,6 @@ class MM_Evaluation():
         bayes_err_data2 = []
         bayes_err_data4 = []
 
-        simulated_data_ndarray = None
         for i in range(0, self.numruns):
             print("Starting Run " + str(i))
             j = i % Variable_Holder.numsims
@@ -139,18 +138,23 @@ class MM_Evaluation():
                 self.mm1_0_0 = self.mmf1_0.sample()[0]
                 self.simulated_data = simulate_and_store(qmm1_0_0=self.mm1_0_0)
 
-
-            # calculate performances and errors for the three parameters
-            num_trajs = np.shape(simulated_data_ndarray)[0]
-            simulated_data_slice = np.split(simulated_data_ndarray[j].flatten(), num_trajs )
-
-            avg_errs_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta(mm1_0_0=self.mm1_0_0, simulated_data=simulated_data_slice)
-            avg_errs_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window(mm1_0_0=self.mm1_0_0,simulated_data=simulated_data_slice)
-            #avg_errs_bayes3, taumeta_values, num_traj_values = evaluate.test_taumeta_num_traj(mm1_0_0=self.mm1_0_0,simulated_data=simulated_data_slice)
-
-            avg_errs_bayes1_list[i] = (avg_errs_bayes1)
-            avg_errs_bayes2_list[i] = (avg_errs_bayes2)
+            num_trajs = Variable_Holder.mid_num_trajectories
+            reshaped_trajs = reshape_trajs(self.simulated_data, num_trajs)
+            average_complete_trajs_eta = []
+            average_complete_trajs_scale_window = []
+            for sub_traj in reshaped_trajs:
+                # calculate performances and errors for the three parameters
+                avg_errs_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta(mm1_0_0=self.mm1_0_0, simulated_data=sub_traj)
+                avg_errs_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window(mm1_0_0=self.mm1_0_0,simulated_data=sub_traj)
+                #avg_errs_bayes3, taumeta_values, num_traj_values = evaluate.test_taumeta_num_traj(mm1_0_0=self.mm1_0_0,simulated_data=simulated_data_slice)
+                average_complete_trajs_eta.append(avg_errs_bayes1)
+                average_complete_trajs_scale_window.append(avg_errs_bayes2)
+            avg_err_eta = np.mean(average_complete_trajs_eta, axis=0)
+            avg_err_scale_window = np.mean(average_complete_trajs_scale_window, axis=0)
+            avg_errs_bayes1_list[i] = avg_err_eta
+            avg_errs_bayes2_list[i] = avg_err_scale_window
             #avg_errs_bayes3_list[i] = (avg_errs_bayes3)
+
 
             if i == (self.numruns/4)-1:
                 mean_avg_errs_bayeseta = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
@@ -466,7 +470,7 @@ class MM_Evaluation():
         avg_errors = []
         for i in range(0, self.numruns):
             self.mm1_0_0 = self.mmf1_0.sample()[0]
-            self.simulated_data = simulate_and_store(qmm1_0_0=self.mm1_0_0)
+            self.simulated_data = simulate_and_store(qmm1_0_0=self.mm1_0_0, taumeta=Variable_Holder.mid_taumeta)
 
             errors = evaluate.test_mid_values(mm1_0_0=self.mm1_0_0, simulated_data=self.simulated_data)
             avg_errors.append(errors)
@@ -500,7 +504,7 @@ class MM_Evaluation():
         avg_errors = []
         for i in range(0, self.numruns):
             self.mm1_0_0 = self.mmf1_0.sample()[0]
-            self.simulated_data = simulate_and_store(qmm1_0_0=self.mm1_0_0)
+            self.simulated_data = simulate_and_store(qmm1_0_0=self.mm1_0_0, taumeta=Variable_Holder.mid_taumeta)
 
             errors = evaluate.test_mid_values(mm1_0_0=self.mm1_0_0, simulated_data=self.simulated_data)
             avg_errors.append(errors)

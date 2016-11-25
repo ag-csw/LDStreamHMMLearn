@@ -104,7 +104,8 @@ def simulate_and_store(qmm1_0_0, num_trajs_simulated=Variable_Holder.num_trajs_s
     print("Simulating data")
     qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
     simulation = qmm1_0_0_scaled.simulate(N=len_trajectory, M=num_trajs_simulated)
-    return simulation
+    simulation_ndarray = np.asarray(simulation)
+    return simulation_ndarray
 
 
 def simulate_and_store_data(qmm1_0_0, filename):
