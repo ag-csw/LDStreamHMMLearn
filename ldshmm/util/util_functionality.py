@@ -187,8 +187,19 @@ def print_tm(qmm1_0_0_scaled):
     for i in range(0, max_len_trajectory):
         print(qmm1_0_0_scaled.eval(ground_truth_time=i).trans)
 
-def test (data):
-    array = np.asarray(data)
-    shape = np.shape(data)[0]
-    splitted_ndarrays = np.split(array.flatten(), shape)
-    return splitted_ndarrays
+
+def convert_2d_to_list_of_rows(array2d):
+    num_rows = len(array2d)
+    array1d = array2d.flatten()
+    list_of_rows = np.split(array1d, num_rows)
+    return list_of_rows
+
+def get_sub_ndarray (ndarray2d, size_sub_ndarray):
+    sub_ndarray = ndarray2d[:size_sub_ndarray]
+    return sub_ndarray
+
+def reshape_trajs(trajs_2d, num_trajs_for_reshape):
+    num_trajectories, len_trajectory = trajs_2d.shape
+    num_slices = int(num_trajectories / num_trajs_for_reshape)
+    trajs_3d = trajs_2d.reshape((num_slices, num_trajs_for_reshape, len_trajectory))
+    return trajs_3d
