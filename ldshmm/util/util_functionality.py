@@ -93,24 +93,27 @@ def read_simulated_data(filename):
 
 
 
-def simulate_and_store(qmm1_0_0, num_trajs_simulated=Variable_Holder.num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max, taumeta = Variable_Holder.max_taumeta):
+def simulate_and_store(model, num_trajs_simulated=Variable_Holder.num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max, taumeta = Variable_Holder.max_taumeta):
     """
-    Method to simulate trajectory data and from a given ConvexCombinationQuasiMM qmm1_0_0 and store it into a file
+    Method to simulate trajectory data and from a given model
 
-    :param qmm1_0_0: ConvexCombinationQuasiMM (for instance obtained by sampling the QMMFamily1)
-    :param filename: filename to store the trajectory data to
+    :param model: SpectralMM or ConvexCombinationQuasiMM (obtained from sampling the corresponding family)
+    :param num_trajs_simulated: int - number of trajectories to simulate
+    :param len_trajectory: int - the length of each of the trajectories
+    :param taumeta: int - the (maximum) taumeta value to scale the model to.
+
     """
 
     print("Simulating data")
-    qmm1_0_0_scaled = qmm1_0_0.eval(taumeta)
-    simulation = qmm1_0_0_scaled.simulate(N=len_trajectory, M=num_trajs_simulated)
+    scaled_model = model.eval(taumeta)
+    simulation = scaled_model.simulate(N=len_trajectory, M=num_trajs_simulated)
     simulation_ndarray = np.asarray(simulation)
     return simulation_ndarray
 
 
 def simulate_and_store_data(qmm1_0_0, filename):
     """
-    Method to simulate trajectory data and from a given ConvexCombinationQuasiMM qmm1_0_0 and store it into a file
+    Method to simulate thttps://github.com/ag-csw/LDStreamHMMLearn/blob/master/ldshmm/evaluation/evaluate_mm.pyrajectory data and from a given ConvexCombinationQuasiMM qmm1_0_0 and store it into a file
 
     :param qmm1_0_0: ConvexCombinationQuasiMM (for instance obtained by sampling the QMMFamily1)
     :param filename: filename to store the trajectory data to
@@ -190,12 +193,26 @@ def print_tm(qmm1_0_0_scaled):
 
 
 def convert_2d_to_list_of_rows(array2d):
+    """
+    Method to convert a 2d array into a list of rows (1d arrays) (which is neccessary for most pyemma functions)
+
+    :param array2d: 2d-array
+    :return: list of 1d-array which are the rows of the 2d-array
+    """
+
     num_rows = len(array2d)
     array1d = array2d.flatten()
     list_of_rows = np.split(array1d, num_rows)
     return list_of_rows
 
 def get_sub_ndarray (ndarray2d, size_sub_ndarray):
+    """
+    Method to extract a sub array from a 2d array of a given size
+
+    :param ndarray2d:
+    :param size_sub_ndarray:
+    :return:
+    """
     sub_ndarray = ndarray2d[:size_sub_ndarray]
     return sub_ndarray
 

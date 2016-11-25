@@ -28,14 +28,14 @@ class Evaluation_Holder_MM():
         if simulate:
             self.simulated_data = simulate_and_store(mm1_0_0)
 
-    def test_mid_values(self, mm1_0_0=None, simulated_data=None, eta=Variable_Holder.mid_eta, scale_window = Variable_Holder.mid_scale_window):
+    def test_mid_values(self, mm1_0_0=None, simulated_data=None, eta=Variable_Holder.mid_eta, scale_window = Variable_Holder.mid_scale_window, taumeta = Variable_Holder.mid_taumeta):
         if mm1_0_0:
             self.mm1_0_0 = mm1_0_0
         if simulated_data:
             self.simulated_data = simulated_data
 
         # ToDo Document The formulas used here need justification
-        self.taumeta = Variable_Holder.mid_taumeta
+        self.taumeta = taumeta
         self.spectral_mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
         self.shift = eta * self.taumeta
         self.window_size = scale_window * self.shift
@@ -64,7 +64,7 @@ class Evaluation_Holder_MM():
     def test_taumeta_eta(self, mm1_0_0=None, simulated_data=None):
         if mm1_0_0:
             self.mm1_0_0 = mm1_0_0
-        if simulated_data:
+        if simulated_data is not None:
             self.simulated_data=simulated_data
 
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
@@ -101,7 +101,7 @@ class Evaluation_Holder_MM():
     def test_taumeta_scale_window(self, mm1_0_0=None, simulated_data=None):
         if mm1_0_0:
             self.mm1_0_0 = mm1_0_0
-        if simulated_data:
+        if simulated_data is not None:
             self.simulated_data = simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(
             Variable_Holder.heatmap_size)
@@ -139,7 +139,7 @@ class Evaluation_Holder_MM():
     def test_taumeta_num_traj(self, mm1_0_0=None, simulated_data=None):
         if mm1_0_0:
             self.mm1_0_0 = mm1_0_0
-        if simulated_data:
+        if simulated_data is not None:
             self.simulated_data = simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(
             Variable_Holder.heatmap_size)
@@ -173,8 +173,7 @@ class Evaluation_Holder_MM():
         return avg_errs_bayes, taumeta_values, num_traj_values
 
     def helper(self, len_trajectory, num_trajectories):
-        dataarray = np.asarray(self.simulated_data)
-        return self.log_avg_error_bayes(dataarray)
+        return self.log_avg_error_bayes(self.simulated_data)
 
     """
     ######
@@ -395,9 +394,7 @@ class Evaluation_Holder_MM():
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
                 data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
-                dataslice0 = []
-                for i in range(0, self.num_trajectories):
-                    dataslice0.append(data0[i, :])
+                dataslice0 = convert_2d_to_list_of_rows(data0)
 
                 C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True, lag=lag)
                 A0 = _tm(C_old)
@@ -406,9 +403,7 @@ class Evaluation_Holder_MM():
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
                 data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (current_time + 1)]
-                dataslice1new = []
-                for i in range(0, self.num_trajectories):
-                    dataslice1new.append(data1new[i, :])
+                dataslice1new = convert_2d_to_list_of_rows(data1new)
                 C_new = estimate_via_sliding_windows(data=dataslice1new,
                                                      num_states=Variable_Holder.num_states, lag=lag)  # count matrix for just new transitions
 

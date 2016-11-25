@@ -28,14 +28,14 @@ class Evaluation_Holder_MM():
         if simulate:
             self.simulated_data = simulate_and_store(mm1_0_0)
 
-    def test_mid_values(self, mm1_0_0=None, simulated_data=None, eta=Variable_Holder.mid_eta, scale_window = Variable_Holder.mid_scale_window):
+    def test_mid_values(self, mm1_0_0=None, simulated_data=None, eta=Variable_Holder.mid_eta, scale_window = Variable_Holder.mid_scale_window, taumeta = Variable_Holder.mid_taumeta):
         if mm1_0_0:
             self.mm1_0_0 = mm1_0_0
         if simulated_data:
             self.simulated_data = simulated_data
 
         # ToDo Document The formulas used here need justification
-        self.taumeta = Variable_Holder.mid_taumeta
+        self.taumeta = taumeta
         self.spectral_mm1_0_0_scaled = self.mm1_0_0.eval(self.taumeta)
         self.shift = eta * self.taumeta
         self.window_size = scale_window * self.shift

@@ -133,10 +133,9 @@ class MM_Evaluation():
 
         for i in range(0, self.numruns):
             print("Starting Run " + str(i))
-            j = i % Variable_Holder.numsims
-            if j == 0:
-                self.mm1_0_0 = self.mmf1_0.sample()[0]
-                self.simulated_data = simulate_and_store(qmm1_0_0=self.mm1_0_0)
+
+            self.mm1_0_0 = self.mmf1_0.sample()[0]
+            self.simulated_data = simulate_and_store(model=self.mm1_0_0)
 
             num_trajs = Variable_Holder.mid_num_trajectories
             reshaped_trajs = reshape_trajs(self.simulated_data, num_trajs)
