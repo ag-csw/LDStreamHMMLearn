@@ -63,3 +63,31 @@ class Test_QMM_MM(TestCase):
         print(normalized_count_matrix)
         print(mm_spectral.trans)
         assert np.allclose(a=normalized_count_matrix, b=mm_spectral.trans, rtol=1e-1, atol=1e-1)
+
+
+    def test_convert_2d_to_list_of_1d(self):
+        num_rows = 20
+        array2d = np.reshape(np.arange(0,100),(num_rows, -1))
+        print(type(array2d), array2d)
+
+        array1d = array2d.flatten()
+
+        list_of_1d = np.split(array1d, num_rows)
+
+        print(type(list_of_1d), list_of_1d)
+
+        assert len(array2d) == len(list_of_1d)
+        assert len(array2d[0]) == len(list_of_1d[0])
+
+    def test_sub_ndarray(self):
+        num_rows = 20
+        array2d = np.reshape(np.arange(0, 100), (num_rows, -1))
+        print(array2d)
+
+        sub_ndarray_size = 10
+        sub_array2d = array2d[:sub_ndarray_size]
+        print(sub_array2d)
+
+        assert len(array2d[0]) == len(sub_array2d[0])
+        for row in range(0, len(sub_array2d)):
+            assert (array2d[row] == sub_array2d[row]).all()
