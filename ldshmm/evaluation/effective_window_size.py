@@ -134,11 +134,11 @@ class Effective_Window_Size_Test(TestCase):
     def error_estimation_formula(self, ne, w, shift):
         r = (w - self.shift) / w
 
-        sum_tmp = w * math.pow(r, 2*ne) 
+        sum_tmp = math.pow(r, 2*ne)/w 
         for i in range(0, ne):
-            sum_tmp+= math.pow(r, 2*i)*self.shift
+            sum_tmp+= math.pow(r, 2*i)*self.shift/mat.pow(w, 2)
 
-        return 1/ math.sqrt(sum_tmp)
+        return math.sqrt(sum_tmp)*math.sqrt(w) 
 
     def error_estimation_formula_bayes_ns(self, ne, w, shift):
         r = (w - self.shift) / w
