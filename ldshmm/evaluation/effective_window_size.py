@@ -149,13 +149,14 @@ class Effective_Window_Size_Test(TestCase):
                 cm+= math.pow(r, k)*(j+k*self.shift)/w
         for j in range(0, w):
             cm+= math.pow(r, ne)*(j+ne*self.shift)/w
+        cm2 = math.pow(cm,2)
         
-        sum_tmp = 0 
+        sum_tmp = -cm2 
         for k in range(0, ne):
             for j in range(0, self.shift):
-                sum_tmp+= (cm - math.pow(r, k)*math.pow((j+k*self.shift),2)/2)/w
+                sum_tmp+= math.pow(r, k)* math.pow((j+k*self.shift),2)/2/w
         for j in range(0, w):
-            sum_temp+= (cm - math.pow(r, ne)*math.pow((j+ne*self.shift),2)/2)/w
+            sum_temp+= math.pow(r, ne)*math.pow((j+ne*self.shift),2)/2/w
 
         return math.sqrt(sum_tmp)    
     
@@ -165,9 +166,10 @@ class Effective_Window_Size_Test(TestCase):
         cm = 0 
         for j in range(0, w):
             cm+= (j+ne*self.shift)/w
+        cm2 = math.pow(cm,2)
         
-        sum_tmp = 0 
+        sum_tmp = -cm2 
         for j in range(0, w):
-            sum_temp+= (cm - math.pow((j+ne*self.shift),2)/2)/w
+            sum_temp+= math.pow((j+ne*self.shift),2)/2/w
 
         return math.sqrt(sum_tmp)        
