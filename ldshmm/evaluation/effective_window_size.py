@@ -134,8 +134,40 @@ class Effective_Window_Size_Test(TestCase):
     def error_estimation_formula(self, ne, w, shift):
         r = (w - self.shift) / w
 
-        sum_tmp = 0
-        for i in range(0, ne-1):
-            sum_tmp+= math.pow(r, i)*math.sqrt(i+1)
+        sum_tmp = w * math.pow(r, 2*ne) 
+        for i in range(0, ne):
+            sum_tmp+= math.pow(r, 2*i)*self.shift
 
-        return (math.pow(r, ne) * math.sqrt(w + ne * shift) + math.sqrt(shift) * (1 - r) * sum_tmp) / math.sqrt(w)
+        return 1/ math.sqrt(sum_tmp)
+
+    def error_estimation_formula_bayes_ns(self, ne, w, shift):
+        r = (w - self.shift) / w
+
+        cm = 0 
+        for k in range(0, ne):
+            for j in range(0, self.shift):
+                cm+= math.pow(r, k)*(j+k*self.shift)/w
+        for j in range(0, w):
+            cm+= math.pow(r, ne)*(j+ne*self.shift)/w
+        
+        sum_tmp = 0 
+        for k in range(0, ne):
+            for j in range(0, self.shift):
+                sum_tmp+= (cm - math.pow(r, k)*math.pow((j+k*self.shift),2)/2)/w
+        for j in range(0, w):
+            sum_temp+= (cm - math.pow(r, ne)*math.pow((j+ne*self.shift),2)/2)/w
+
+        return math.sqrt(sum_tmp)    
+    
+    def error_estimation_formula_naive_ns(self, ne, w, shift):
+        r = (w - self.shift) / w
+
+        cm = 0 
+        for j in range(0, w):
+            cm+= (j+ne*self.shift)/w
+        
+        sum_tmp = 0 
+        for j in range(0, w):
+            sum_temp+= (cm - math.pow((j+ne*self.shift),2)/2)/w
+
+        return math.sqrt(sum_tmp)        
