@@ -156,7 +156,7 @@ class Effective_Window_Size_Test(TestCase):
             for j in range(0, self.shift):
                 sum_tmp+= math.pow(r, k)* math.pow((j+k*self.shift),2)/2/w
         for j in range(0, w):
-            sum_temp+= math.pow(r, ne)*math.pow((j+ne*self.shift),2)/2/w
+            sum_tmp+= math.pow(r, ne)*math.pow((j+ne*self.shift),2)/2/w
 
         return math.sqrt(sum_tmp)    
     
