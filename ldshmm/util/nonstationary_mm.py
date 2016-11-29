@@ -70,7 +70,7 @@ class NonstationaryMM:
                 pprop = self.eval(i).propagate(pprop, 1).real
             return pprop
 
-    def simulate(self, N, start=None, stop=None, dt=1):
+    def simulate(self, N, start=None, stop=None, dt=1, M=1):
         """
         generates a realization of the Markov Model
 
@@ -83,7 +83,7 @@ class NonstationaryMM:
         :return: ndarray - state trajectory with length N/dt
         """
         from time import process_time
-        dtraj = np.zeros(int(N/dt), dtype=int)
+        dtraj = np.zeros((int(N/dt), M), dtype=int)
 
         # to speedup the call to the self.eval() function, we cache intermediate results we already calculated in a dict
         # --> memoization is happening where we access that self.cache object.
@@ -94,22 +94,20 @@ class NonstationaryMM:
             self.cache[0] = self.eval(0)
             eval_return = self.cache[0]
 
-        dcurrent = eval_return.simulate(1, start, stop)
-        dtraj[0] = dcurrent
+        dcurrent = eval_return.simulate(N=1, start=start, stop=stop, M=M, dt=dt)
+        dtraj[0, :] = dcurrent
         for i in range(0, N-1):
-            t0 = process_time()
             if i in self.cache:
                 eval_return = self.cache[i]
             else:
                 self.cache[i] = self.eval(i)
                 eval_return = self.cache[i]
 
-            dtraji = eval_return.simulate(2, dcurrent, stop)
-            #print("Simulation Time - "+str(process_time()-t0))
+            dtraji = eval_return.simulate(N=2, start=dcurrent, stop=stop, M=M, dt=dt)
             if dtraji.size == 1:
                 return dtraj[:i/dt]
             elif (i+1) % dt == 0:
-                dcurrent = dtraji[1]
+                dcurrent = dtraji[1, :]
                 dtraj[int((i+1) / dt)] = dcurrent
         return dtraj
 

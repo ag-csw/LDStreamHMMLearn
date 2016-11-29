@@ -66,11 +66,6 @@ class MM_Evaluation():
                 bayes_err_data4.append(mean_avg_errs_bayesscalewin)
                 #bayes_err_data4.append(mean_avg_errs_bayesnumtraj)
 
-        """avg_times_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta_performance_only(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
-        avg_times_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window_performance_only(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
-        avg_times_bayes3, taumeta_values, num_traj_values = evaluate.test_taumeta_num_traj_performance_only(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
-        """
-
         ###########################################################
         plots = ComplexPlot()
         plots.new_plot("Dependence of Bayes Error on Parameters", rows=2, cols=1)
