@@ -12,6 +12,7 @@ class Evaluation_Holder_MM():
    Class holding all evaluation functions used for a MMMScaled.
    See util_evaluation.py - The evaluation functions are similar except for the underlying model.
    """
+    #TODO Check if this file can be permanently removed since the functionality is covered in util_evaluation_holder already.
 
     def __init__(self, mm1_0_0, simulate=True, filename="mm", init_run = False):
         """
@@ -29,9 +30,9 @@ class Evaluation_Holder_MM():
             self.simulated_data = simulate_and_store(mm1_0_0)
 
     def test_mid_values(self, mm1_0_0=None, simulated_data=None, eta=Variable_Holder.mid_eta, scale_window = Variable_Holder.mid_scale_window, taumeta = Variable_Holder.mid_taumeta):
-        if mm1_0_0:
+        if mm1_0_0 is not None:
             self.mm1_0_0 = mm1_0_0
-        if simulated_data:
+        if simulated_data is not None:
             self.simulated_data = simulated_data
 
         # ToDo Document The formulas used here need justification
@@ -159,7 +160,7 @@ class Evaluation_Holder_MM():
                 len_trajectory = int(
                     Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
 
-                self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
+                self.num_estimations = Utility.calc_num_estimations(len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
                 actual_len_traj_processed = self.window_size + self.num_estimations * self.shift + 1
                 print("Actual processed trajectory length:", actual_len_traj_processed)

@@ -7,4 +7,5 @@ class Approach_Test(TestCase):
         self.evaluate = MM_Evaluation()
 
     def test_run_all_tests(self):
+        # TODO write evaluation method for naive AND bayes
         self.evaluate.test_run_all_tests()

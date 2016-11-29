@@ -13,6 +13,8 @@ class Evaluation_Holder_MM():
    See util_evaluation.py - The evaluation functions are similar except for the underlying model.
    """
 
+    # TODO Check if this file can be permanently removed since the functionality is covered in util_evaluation_holder already.
+
     def __init__(self, mm1_0_0, simulate=True, filename="mm", init_run = False):
         """
         Info: This constructor reads simualted data from a previously created file simulated_data_mm ...
@@ -62,9 +64,9 @@ class Evaluation_Holder_MM():
     """
 
     def test_taumeta_eta(self, mm1_0_0=None, simulated_data=None):
-        if mm1_0_0:
+        if mm1_0_0 is not None:
             self.mm1_0_0 = mm1_0_0
-        if simulated_data:
+        if simulated_data is not None:
             self.simulated_data=simulated_data
 
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
@@ -99,9 +101,9 @@ class Evaluation_Holder_MM():
         return avg_errs_naive, taumeta_values, eta_values
 
     def test_taumeta_scale_window(self, mm1_0_0=None, simulated_data=None):
-        if mm1_0_0:
+        if mm1_0_0 is not None:
             self.mm1_0_0 = mm1_0_0
-        if simulated_data:
+        if simulated_data is not None:
             self.simulated_data = simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(
             Variable_Holder.heatmap_size)
@@ -284,9 +286,9 @@ class Evaluation_Holder_MM():
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory, self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
-                self.print_param_values("NUM_TRAJ", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        len_trajectory, self.num_trajectories, eta,
-                                        scale_window)
+                #self.print_param_values("NUM_TRAJ", self.taumeta, self.shift, self.window_size, self.num_estimations,
+                #                        len_trajectory, self.num_trajectories, eta,
+                #                        scale_window)
 
                 log_total_time_naive = self.helper_performance_only(len_trajectory, self.num_trajectories)
 
@@ -375,7 +377,7 @@ class Evaluation_Holder_MM():
                 estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True, lag=lag)
 
             C0 = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states,
-                                              initial=True)  # count matrix for whole window
+                                              initial=True, lag=lag)  # count matrix for whole window
             A0 = _tm(C0)
             err[k] = np.linalg.norm(A0 - self.spectral_mm1_0_0_scaled.trans)
 

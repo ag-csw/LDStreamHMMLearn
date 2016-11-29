@@ -13,6 +13,8 @@ class Evaluation_Holder():
     Class holding all evaluation functions used for a ConvexCombinationQuasiMM.
     """
 
+    #TODO adapt Evaluate_Delta to avoid duplicate codes
+
     def __init__(self, qmm1_0_0, delta, simulate=True):
         """
         :param qmm1_0_0: ConvexCombinationQuasiMM (for instance obtained by sampling the QMMFamily1)

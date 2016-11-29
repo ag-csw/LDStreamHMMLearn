@@ -1,6 +1,5 @@
 from ldshmm.util.plottings import ComplexPlot
 from ldshmm.util.util_evaluation_bayes_only import Evaluation_Holder as Evaluation_Holder_Bayes_Only
-from ldshmm.util.util_evaluation import Evaluation_Holder
 from ldshmm.util.util_functionality import *
 from ldshmm.util.mm_family import MMFamily1
 from ldshmm.util.qmm_family import QMMFamily1
@@ -20,6 +19,7 @@ class Delta_Evaluation():
         # --> ConvexCombinationQuasiMM
 
     def test_run_all_tests(self):
+        #TODO adapt Evaluate_Delta script to avoid duplicate codes.
         plots = ComplexPlot()
         plots.new_plot("Naive Performance vs. Bayes Performance", rows=3)
 
