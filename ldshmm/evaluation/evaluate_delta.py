@@ -134,7 +134,7 @@ class Delta_Evaluation():
         if plot_name:
             plots.save_plot_same_colorbar("Dependence_Bayes_Error_QMM_delta_NEW=" + str(plot_name))
         else:
-            plots.save_plot_same_colorbar("Dependence_Bayes_Error_MM_delta")
+            plots.save_plot_same_colorbar("Dependence_Bayes_Error_QMM_delta")
 
         print("Average Errors Run 1-" + str(int(self.numruns / 4)) + ": ")
         print(bayes_err_data2)
