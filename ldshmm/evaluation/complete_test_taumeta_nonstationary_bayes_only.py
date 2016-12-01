@@ -7,7 +7,4 @@ class Approach_Test(TestCase):
         self.evaluate = Delta_Evaluation(delta=1/2,number_of_runs=1)
 
     def test_run_all_tests(self):
-        self.evaluate.test_run_all_tests_bayes_only(plot_name="0.5")
-        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
         self.evaluate.test_run_all_tests_bayes_only_NEW(plot_name="0.5")
