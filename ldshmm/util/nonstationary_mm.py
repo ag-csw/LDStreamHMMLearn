@@ -70,20 +70,18 @@ class NonstationaryMM:
                 pprop = self.eval(i).propagate(pprop, 1).real
             return pprop
 
-    def simulate(self, N, start=None, stop=None, dt=1, M=1):
+    def simulate(self, N, start=None, M=1):
         """
         generates a realization of the Markov Model
 
         :param N: int  trajectory length in steps of the lag time
         :param start: int (default=None) - starting hidden state. If not given, will sample from the stationary
           distribution of the hidden transition matrix
-        :param stop: int or int-array-like (default=None) - stopping hidden set. If given, the trajectory will be stopped before
-          N steps once a hidden state of the stop set is reached
         :param dt: int - trajectory will be saved every dt time steps. Internally, the dt'th power of P is taken to ensure a more efficient simulation
         :return: ndarray - state trajectory with length N/dt
         """
-        from time import process_time
-        dtraj = np.zeros((int(N/dt), M), dtype=int)
+
+        dtraj = np.zeros((M,N), dtype=int)
 
         # to speedup the call to the self.eval() function, we cache intermediate results we already calculated in a dict
         # --> memoization is happening where we access that self.cache object.
@@ -94,8 +92,8 @@ class NonstationaryMM:
             self.cache[0] = self.eval(0)
             eval_return = self.cache[0]
 
-        dcurrent = eval_return.simulate(N=1, start=start, stop=stop, M=M, dt=dt)
-        dtraj[0, :] = dcurrent
+        dcurrent = eval_return.simulate(N=1, start=start, M=M, dt=1)
+        dtraj[0, :] = dcurrent [0, :]
         for i in range(0, N-1):
             if i in self.cache:
                 eval_return = self.cache[i]
@@ -103,12 +101,9 @@ class NonstationaryMM:
                 self.cache[i] = self.eval(i)
                 eval_return = self.cache[i]
 
-            dtraji = eval_return.simulate(N=2, start=dcurrent, stop=stop, M=M, dt=dt)
-            if dtraji.size == 1:
-                return dtraj[:i/dt]
-            elif (i+1) % dt == 0:
-                dcurrent = dtraji[1, :]
-                dtraj[int((i+1) / dt)] = dcurrent
+            dtraji = eval_return.simulate(N=2, start=dcurrent, M=M, dt=1)
+            dcurrent = dtraji[:,1]
+            dtraj[i+1, :] = dcurrent
         return dtraj
 
 class NonstationaryMMClass:
