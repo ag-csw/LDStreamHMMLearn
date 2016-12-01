@@ -134,7 +134,7 @@ class Evaluation_Holder():
             if self.log_values:
                 time_bayes, error_bayes = self.calc_log_avg_values(time_bayes,error_bayes)
 
-                ltime_naive, error_naive= self.calc_log_avg_values(time_naive, error_naive)
+                time_naive, error_naive= self.calc_log_avg_values(time_naive, error_naive)
 
             return time_naive, error_naive,time_bayes, error_bayes
 

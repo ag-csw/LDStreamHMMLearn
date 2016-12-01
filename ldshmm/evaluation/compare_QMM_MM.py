@@ -8,12 +8,13 @@ class Comparison_of_QMM_MM():
     def run_qmm(self):
         t1 = process_time()
         np.random.seed(1011)
-        qmm_eval = Delta_Evaluation(delta=0)
+        qmm_eval = Delta_Evaluation(delta=0, number_of_runs=1)
         qmm_eval.test_run_all_tests_bayes_only_NEW()
+        qmm_eval.test_run_all_tests()
 
         np.random.seed(1011)
-        mm_eval = MM_Evaluation()
-        mm_eval.test_run_all_tests_bayes_only_NEW()
+        mm_eval = MM_Evaluation(number_of_runs=1)
+        mm_eval.test_run_all_tests()
         print(process_time() - t1)
 
 compare = Comparison_of_QMM_MM()
