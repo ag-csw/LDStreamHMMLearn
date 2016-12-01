@@ -1,13 +1,13 @@
 from time import process_time
 
 from msmtools.estimation import transition_matrix as _tm
-
+import math
 from ldshmm.util.util_functionality import *
 from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
 from ldshmm.util.spectral_mm import SpectralMM
 
-class Evaluation_Holder_MM():
+class Evaluation_Holder():
     """
     Class holding all evaluation functions used for a MMMScaled.
     See util_evaluation.py - The evaluation functions are similar except for the underlying model.
@@ -16,11 +16,11 @@ class Evaluation_Holder_MM():
     def error_function (m1, model):
         return np.linalg.norm(m1-model.trans)
 
-    def __init__(self, mm1_0_0, variable_config, error_function = error_function, evaluate_method="both", simulate=True, filename="mm", init_run = False, log_values = True):
+    def __init__(self, model, variable_config, error_function = error_function, evaluate_method="both", simulate=True, filename="mm", init_run = False, log_values = True):
         """
         Info: This constructor reads simualted data from a previously created file simulated_data_mm ...
 
-        :param mm1_0_0: MMMScaled (for instance obtained by sampling the MMFamily1)
+        :param model: MMMScaled (for instance obtained by sampling the MMFamily1)
         :param variable_holder: Variable_Holder objects that holds all configurations
         :param simulate: bool (default=True) - decide whether data should be simulated in the constructor
         :param init_run: bool (default=True)
@@ -29,9 +29,9 @@ class Evaluation_Holder_MM():
             # ToDo Check which data to use for init run
             estimate_via_sliding_windows(data=[], num_states=Variable_Holder.num_states)
 
-        self.model = mm1_0_0
+        self.model = model
         if simulate:
-            self.simulated_data = simulate_and_store(mm1_0_0, filename)
+            self.simulated_data = simulate_and_store(model, filename)
         self.variable_config = variable_config
         self.error_function = error_function
         self.evaluate_method = evaluate_method
@@ -166,7 +166,16 @@ class Evaluation_Holder_MM():
             A0 = _tm(C0)
             t1 = process_time()
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
-            err[k] = self.error_function(A0, self.model_scaled)
+            if type(self.model_scaled) == SpectralMM:
+                # stationary
+                err[k] = self.error_function(m1=A0, model=self.model_scaled)
+            else:
+                # non-stationary
+                # print(A0)
+                # print(self.model_scaled.eval(k).trans)
+                dk = int((self.window_size - 1) / 2)
+                estimation_time = current_time - dk
+                err[k] = self.error_function(m1=A0, model=self.model_scaled.eval(estimation_time))
 
         return etimenaive, err
 
@@ -177,7 +186,7 @@ class Evaluation_Holder_MM():
         :param dataarray:
         :return:
         """
-        import math
+
         lag = int(Variable_Holder.max_taumeta / self.taumeta)
         etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
@@ -196,7 +205,7 @@ class Evaluation_Holder_MM():
                 C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True, lag=lag)
                 A0 = _tm(C_old)
                 etimebayes[1] = process_time() - t0
-                if type(self.model) == SpectralMM:
+                if type(self.model_scaled) == SpectralMM:
                     # stationary
                     errbayes[0] = self.error_function(m1=A0, model=self.model_scaled)
                 else:
@@ -226,7 +235,7 @@ class Evaluation_Holder_MM():
                 A1bayes = _tm(C1bayes)
                 t1 = process_time()
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
-                if type(self.model) == SpectralMM:
+                if type(self.model_scaled) == SpectralMM:
                     errbayes[k] = self.error_function(m1=A1bayes, model=self.model_scaled)
                 else:
                     #print(A1bayes)
