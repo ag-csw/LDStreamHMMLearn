@@ -1,7 +1,8 @@
 import numpy as np
+import pyemma
+import math
 from pyemma.msm.models.msm import MSM as _MM
 from msmtools.estimation import transition_matrix as _tm
-from msmtools.analysis import is_transition_matrix as _is_tm
 from pyemma.util.linalg import mdot
 
 
@@ -119,7 +120,7 @@ class SpectralMM(_MM):
 
         return np.allclose(self.transition_matrix, other.transition_matrix)
 
-    def simulate(self, N, start=None, stop=None, dt=1, M=1):
+    def simulate(self, N, start=None, dt=1, M=1):
         """
         ToDo Document HMM or MM?
         generates a realization of the Hidden Markov Model
@@ -130,12 +131,14 @@ class SpectralMM(_MM):
         :param stop: int or int-array-like (default=None) - stopping hidden set. If given, the trajectory will be stopped before
             N steps once a hidden state of the stop set is reached
         :param dt: int - trajectory will be saved every dt time steps. Internally, the dt'th power of P is taken to ensure a more efficient simulation
-        :return: ndarray - a discrete trajectory with length N/dt
+        :return: ndarray - M discrete trajectories with length N/dt in a ndarray of shape (M, N/dt)
+
         """
 
         import msmtools.generation as msmgen
         # sample hidden trajectory
-        dtraj = msmgen.generate_trajs(self.transition_matrix, M, N, start=start, stop=stop, dt=dt)
+        dtraj = msmgen.generate_trajs(self.transition_matrix, M, N, start=start, stop=None, dt=dt)
+        dtraj = np.asarray(dtraj)
         return dtraj
 
 
@@ -173,13 +176,43 @@ class SpectralMM(_MM):
             return False
 
 
-    def implied_timescale(self, lag):
-        import math
-        ev = np.diag(self.transD)[1:]
-        impliedtimescale = []
-        for i in range(1, self.nstates):
-            impliedtimescale[i-1] = -lag / math.log(ev[i])
-        return impliedtimescale
 
-    def stationary_distribution(self):
-        return self.transU[0]
+    def matrix_err(self, A):
+        """
+        Matrix error calculation
+
+        :param A: ndarray - transition matrix
+        :return: float error
+        """
+        return np.linalg.norm(A-self.trans)
+
+
+    def timescale_mean_rel_err(self, A):
+        """
+        Timescale mean error calculation
+
+        :param A: ndarray - transition matrix
+        :return: float error
+        """
+
+        msm_estimated = pyemma.msm.MSM(A)
+        ts_actual = msm_estimated.timescales()
+        ts_estimated = self.timescales()
+        ts_rel_err = [(math.fabs(ts_actual[i] - ts_estimated[i])/ts_actual[i]) for i in range(B.num_states -1)]
+        ts_rel_err_mean = np.mean(ts_rel_err)
+        return ts_rel_err_mean
+
+
+
+    def stat_dist_vec_err(self, A):
+        """
+        Stationary distribution error calculation
+
+        :param A: ndarray - transition matrix
+        :return: float error
+        """
+        msm_estimated = pyemma.msm.MSM(A)
+        pi_actual = msm_estimated.pi()
+        pi_estimated = self.pi()
+        pi_vec_err = np.linalg.norm(pi_actual - pi_estimated)
+        return pi_vec_err
