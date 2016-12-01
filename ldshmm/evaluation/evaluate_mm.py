@@ -150,8 +150,8 @@ class MM_Evaluation():
                 variable_config_eta.num_trajectories = len(sub_traj)
                 variable_config_scale_window.num_trajectories = len(sub_traj)
                 # calculate performances and errors for the three parameters
-                times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = evaluate_eta.evaluate(model=self.model, simulated_data=sub_traj)
-                times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = evaluate_scale_window.evaluate(model=self.model, simulated_data=sub_traj)
+                _, _, times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = evaluate_eta.evaluate(model=self.model, simulated_data=sub_traj)
+                _, _, times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = evaluate_scale_window.evaluate(model=self.model, simulated_data=sub_traj)
                 #avg_errs_bayes3, taumeta_values, num_traj_values = evaluate.test_taumeta_num_traj(mm1_0_0=self.mm1_0_0,simulated_data=simulated_data_slice)
                 average_complete_trajs_eta.append(avg_errs_bayes1)
                 average_complete_trajs_scale_window.append(avg_errs_bayes2)
@@ -180,10 +180,6 @@ class MM_Evaluation():
                 bayes_err_data4.append(mean_avg_errs_bayesscalewin)
                 #bayes_err_data4.append(mean_avg_errs_bayesnumtraj)
 
-        """avg_times_bayes1, taumeta_values, eta_values = evaluate.test_taumeta_eta_performance_only(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
-        avg_times_bayes2, taumeta_values, scale_window_values = evaluate.test_taumeta_scale_window_performance_only(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
-        avg_times_bayes3, taumeta_values, num_traj_values = evaluate.test_taumeta_num_traj_performance_only(mm1_0_0=self.mm1_0_0,simulated_data=self.simulated_data)
-        """
 
         ###########################################################
         plots = ComplexPlot()

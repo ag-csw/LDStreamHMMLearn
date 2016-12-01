@@ -5,6 +5,7 @@ from msmtools.estimation import transition_matrix as _tm
 from ldshmm.util.util_functionality import *
 from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
+from ldshmm.util.spectral_mm import SpectralMM
 
 class Evaluation_Holder_MM():
     """
@@ -30,8 +31,7 @@ class Evaluation_Holder_MM():
 
         self.model = mm1_0_0
         if simulate:
-            simulate_and_store_data(mm1_0_0, filename)
-        self.simulated_data = read_simulated_data(filename)
+            self.simulated_data = simulate_and_store(mm1_0_0, filename)
         self.variable_config = variable_config
         self.error_function = error_function
         self.evaluate_method = evaluate_method
@@ -98,7 +98,7 @@ class Evaluation_Holder_MM():
                 avg_times_naive[two][one] = log_total_time_naive
                 avg_errs_naive[two][one] = log_avg_err_naive
 
-        return avg_times_naive, avg_errs_bayes , avg_times_bayes, avg_errs_bayes, self.variable_config.iter_values1, self.variable_config.iter_values2
+        return avg_times_naive, avg_errs_naive , avg_times_bayes, avg_errs_bayes, self.variable_config.iter_values1, self.variable_config.iter_values2
 
 
     """
@@ -177,6 +177,7 @@ class Evaluation_Holder_MM():
         :param dataarray:
         :return:
         """
+        import math
         lag = int(Variable_Holder.max_taumeta / self.taumeta)
         etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
@@ -195,7 +196,16 @@ class Evaluation_Holder_MM():
                 C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True, lag=lag)
                 A0 = _tm(C_old)
                 etimebayes[1] = process_time() - t0
-                errbayes[0] = self.error_function(m1=A0, model=self.model_scaled)
+                if type(self.model) == SpectralMM:
+                    # stationary
+                    errbayes[0] = self.error_function(m1=A0, model=self.model_scaled)
+                else:
+                    # non-stationary
+                    #print(A0)
+                    #print(self.model_scaled.eval(k).trans)
+                    dk = int(self.window_size - (self.shift + 1) / 2 - self.window_size * math.pow(self.r, k + 1) / 2)
+                    estimation_time = current_time - dk
+                    errbayes[0] = self.error_function(m1=A0, model=self.model_scaled.eval(estimation_time))
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
@@ -216,8 +226,14 @@ class Evaluation_Holder_MM():
                 A1bayes = _tm(C1bayes)
                 t1 = process_time()
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
-                errbayes[k] = self.error_function(m1=A1bayes, model=self.model_scaled)
-
+                if type(self.model) == SpectralMM:
+                    errbayes[k] = self.error_function(m1=A1bayes, model=self.model_scaled)
+                else:
+                    #print(A1bayes)
+                    #print(self.model_scaled.eval(k).trans)
+                    dk = int(self.window_size - (self.shift + 1) / 2 - self.window_size * math.pow(self.r, k + 1) / 2)
+                    estimation_time = current_time - dk
+                    errbayes[k] = self.error_function(m1=A1bayes, model=self.model_scaled.eval(estimation_time))
         return etimebayes, errbayes
 
 

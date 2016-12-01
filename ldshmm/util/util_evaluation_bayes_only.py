@@ -120,9 +120,9 @@ class Evaluation_Holder():
     """
 
     def test_taumeta_eta(self, qmm1_0_0=None, simulated_data=None):
-        if qmm1_0_0:
+        if qmm1_0_0 is not None:
             self.qmm1_0_0 = qmm1_0_0
-        if simulated_data:
+        if simulated_data is not None:
             self.simulated_data = simulated_data
 
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(
@@ -159,9 +159,9 @@ class Evaluation_Holder():
         return avg_errs_bayes, taumeta_values, eta_values
 
     def test_taumeta_scale_window(self, qmm1_0_0=None, simulated_data=None):
-        if qmm1_0_0:
+        if qmm1_0_0 is not None:
             self.qmm1_0_0 = qmm1_0_0
-        if simulated_data:
+        if simulated_data is not None:
             self.simulated_data=simulated_data
         avg_errs_bayes, avg_errs_naive, avg_times_bayes, avg_times_naive = init_time_and_error_arrays(Variable_Holder.heatmap_size)
 
@@ -231,7 +231,7 @@ class Evaluation_Holder():
         return avg_errs_bayes, taumeta_values, num_traj_values
 
     def helper(self, len_trajectory, num_trajectories):
-        dataarray = np.asarray(self.simulated_data[self.taumeta])
+        dataarray = np.asarray(self.simulated_data)
         return self.error_bayes(dataarray)
 
     """
@@ -572,6 +572,8 @@ class Evaluation_Holder():
         return log_total_time_bayes
 
     def error_bayes(self, dataarray):
+        import math
+        lag = int(Variable_Holder.max_taumeta / self.taumeta)
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
 
         for k in range(0, self.num_estimations + 1):
@@ -585,9 +587,13 @@ class Evaluation_Holder():
                     dataslice0.append(data0[i, :])
 
                 C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states,
-                                                     initial=True)
+                                                     initial=True, lag=lag)
                 A0 = _tm(C_old)
-                errbayes[0] = np.linalg.norm(_tm(C_old) - self.qmm1_0_0_scaled.eval(k).trans)
+                #print(A0)
+                #print(self.qmm1_0_0_scaled.eval(k).trans)
+                dk = int(self.window_size - (self.shift + 1) / 2 - self.window_size * math.pow(self.r, k + 1) / 2)
+                estimation_time=current_time - dk
+                errbayes[0] = np.linalg.norm(A0 - self.qmm1_0_0_scaled.eval(estimation_time).trans)
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
@@ -596,7 +602,7 @@ class Evaluation_Holder():
                 for i in range(0, self.num_trajectories):
                     dataslice1new.append(data1new[i, :])
                 C_new = estimate_via_sliding_windows(data=dataslice1new,
-                                                     num_states=Variable_Holder.num_states)  # count matrix for just new transitions
+                                                     num_states=Variable_Holder.num_states, lag=lag)  # count matrix for just new transitions
 
                 weight0 = self.r
                 weight1 = 1.0
@@ -605,7 +611,9 @@ class Evaluation_Holder():
                 C_old = C1bayes
 
                 A1bayes = _tm(C1bayes)
-                errbayes[k] = np.linalg.norm(A1bayes - self.qmm1_0_0_scaled.eval(k).trans)
+                dk = int(self.window_size - (self.shift + 1) / 2 - self.window_size * math.pow(self.r, k + 1) / 2)
+                estimation_time = current_time - dk
+                errbayes[k] = np.linalg.norm(A1bayes - self.qmm1_0_0_scaled.eval(estimation_time).trans)
 
         log_avg_err_bayes = Utility.log_value(sum(errbayes) / len(errbayes))
         return log_avg_err_bayes

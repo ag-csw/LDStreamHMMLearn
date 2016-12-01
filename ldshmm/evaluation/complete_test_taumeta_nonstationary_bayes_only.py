@@ -8,3 +8,6 @@ class Approach_Test(TestCase):
 
     def test_run_all_tests(self):
         self.evaluate.test_run_all_tests_bayes_only(plot_name="0.5")
+        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        self.evaluate.test_run_all_tests_bayes_only_NEW(plot_name="0.5")
