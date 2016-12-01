@@ -93,7 +93,7 @@ class NonstationaryMM:
             eval_return = self.cache[0]
 
         dcurrent = eval_return.simulate(N=1, start=start, M=M, dt=1)
-        dtraj[0, :] = dcurrent [0, :]
+        dtraj[:,0] = dcurrent[:,0]
         for i in range(0, N-1):
             if i in self.cache:
                 eval_return = self.cache[i]
@@ -103,7 +103,7 @@ class NonstationaryMM:
 
             dtraji = eval_return.simulate(N=2, start=dcurrent, M=M, dt=1)
             dcurrent = dtraji[:,1]
-            dtraj[i+1, :] = dcurrent
+            dtraj[:,i+1] = dcurrent
         return dtraj
 
 class NonstationaryMMClass:
