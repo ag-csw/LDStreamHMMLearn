@@ -70,5 +70,5 @@ class Utility():
     @staticmethod
     def calc_deciles(values):
         import numpy as np
-        deciles = np.percentile(values, np.arange(0, 100, 10))
+        deciles = np.percentile(values, [10,30,50,70,90])
         return deciles

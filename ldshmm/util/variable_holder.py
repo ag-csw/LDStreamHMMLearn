@@ -19,7 +19,7 @@ class Variable_Holder():
     min_timescale_min = 1 # ToDo Document
 
     num_states = 4 # number of observed statesmid in the Markov Model
-    numsims = 2
+    numsims = 256#2
 
 
     min_timescaledisp = 2 # ToDo Document
@@ -46,7 +46,7 @@ class Variable_Holder():
     window_size_max = mid_scale_window * shift_max # the size of the window in the intialization of the bayes method
     num_estimations_min = 1  # smallest number of Bayes estimations of the transition matrix within the eta and num_traj heatmaps
 
-    max_num_trajectories = min_num_trajectories * heatmap_factor # maximum number of trajectories in num_traj heatmap
+    max_num_trajectories = 1 #min_num_trajectories * heatmap_factor # maximum number of trajectories in num_traj heatmap
     #num_trajectories_len_trajectory_max = min_num_trajectories * len_trajectory_max
 
     num_trajs_simulated = int(numsims * max_num_trajectories)

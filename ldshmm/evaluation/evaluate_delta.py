@@ -186,7 +186,7 @@ class Delta_Evaluation():
             else:
                 self.simulated_data = simulate_and_store(model=self.model)
 
-            num_trajs = Variable_Holder.mid_num_trajectories
+            num_trajs = num_trajectories # Variable_Holder.mid_num_trajectories
             reshaped_trajs = reshape_trajs(self.simulated_data, num_trajs)
 
             average_err_complete_trajs_eta = []

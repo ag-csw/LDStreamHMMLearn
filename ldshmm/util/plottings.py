@@ -113,6 +113,7 @@ class LinePlot():
     def new_plot(self, heading, rows, cols=2, y_label=None, x_label=None):
         plt.figure()
         plt.suptitle(heading)
+        plt.ylim(ymin=0, ymax=0.5)
         if y_label:
             plt.ylabel(y_label)
         if x_label:
@@ -121,8 +122,9 @@ class LinePlot():
         self.cols=cols
 
 
-    def add_line_to_plot(self, line_data):
-        plt.plot(range(0, len(line_data)), line_data)
+    def add_line_to_plot(self, line_data, x_values):
+        #x_values = x_values[1:]
+        plt.plot(x_values, line_data)
 
     def add_legend(self, x_labels):
         plt.legend([str(x) for x in x_labels], loc='upper center', ncol=5,
