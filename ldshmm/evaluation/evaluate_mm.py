@@ -443,7 +443,7 @@ class MM_Evaluation():
         plot.add_legend(x_labels=legend_strings)
         plot.save_plot("decile_naive")
 
-    def test_run_all_tests(self, plot_name=None):
+    def test_run_all_tests(self, evaluation_method, plot_heading, plot_name=None, num_trajectories=None):
 
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
 
@@ -452,7 +452,7 @@ class MM_Evaluation():
         variable_config_eta.scale_window = Variable_Holder.mid_scale_window
 
         evaluate_eta = NEW_Evaluation_Holder(model=self.model, simulate=False, variable_config=variable_config_eta,
-                                             evaluate_method="both")
+                                             evaluate_method=evaluation_method)
 
         scale_window_values = create_value_list(Variable_Holder.min_scale_window, Variable_Holder.heatmap_size)
         variable_config_scale_window = Variable_Config(iter_values1=taumeta_values, iter_values2=scale_window_values)
@@ -460,7 +460,7 @@ class MM_Evaluation():
 
         evaluate_scale_window = NEW_Evaluation_Holder(model=self.model, simulate=False,
                                                       variable_config=variable_config_scale_window,
-                                                      evaluate_method="both")
+                                                      evaluate_method=evaluation_method)
 
         avg_errs_bayes1_list = {}
         avg_errs_bayes2_list = {}
@@ -478,7 +478,10 @@ class MM_Evaluation():
             print("Starting Run " + str(i))
 
             self.model = self.mmf1_0.sample()[0]
-            self.simulated_data = simulate_and_store(model=self.model)
+            if num_trajectories is not None:
+                self.simulated_data = simulate_and_store(model=self.model, num_trajs_simulated=num_trajectories)
+            else:
+                self.simulated_data = simulate_and_store(model=self.model)
 
             num_trajs = Variable_Holder.mid_num_trajectories
             reshaped_trajs = reshape_trajs(self.simulated_data, num_trajs)
@@ -547,7 +550,7 @@ class MM_Evaluation():
 
         ###########################################################
         plots = ComplexPlot()
-        plots.new_plot("Dependence of Bayes Error on Parameters", rows=2, cols=2)
+        plots.new_plot(plot_heading, rows=2, cols=2)
 
         avg_errs_bayes1 = np.mean(list(avg_errs_bayes1_list.values()), axis=0)
         avg_errs_bayes2 = np.mean(list(avg_errs_bayes2_list.values()), axis=0)
@@ -581,7 +584,7 @@ class MM_Evaluation():
         plots.add_to_plot_same_colorbar(data_naive=avg_errs_naive2, data_bayes=avg_errs_bayes2, maximum=max_val, minimum=min_val, x_labels=taumeta_values, y_labels=scale_window_values, y_label="scale_window")
 
         if plot_name:
-            plots.save_plot_same_colorbar("Dependence_Bayes_Error_MM_delta_NEW=" + str(plot_name))
+            plots.save_plot_same_colorbar(str(plot_name))
         else:
             plots.save_plot_same_colorbar("Dependence_Bayes_Error_MM_delta")
 

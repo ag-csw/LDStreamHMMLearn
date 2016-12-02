@@ -100,11 +100,11 @@ class ComplexPlot():
         cbar.ax.set_xticklabels(labels=labels, rotation=45)
         plt.delaxes(ax)
 
-        plt.savefig(heading + ".png")
+        plt.savefig(heading + ".pdf")
 
 
     def save_plot_separate_colorbars(self, heading):
-        plt.savefig(heading + ".png")
+        plt.savefig(heading + ".pdf")
 
 class LinePlot():
 

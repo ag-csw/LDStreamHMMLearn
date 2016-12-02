@@ -7,4 +7,4 @@ class Approach_Test(TestCase):
         self.evaluate = Delta_Evaluation()
 
     def test_run_all_tests(self):
-        self.evaluate.test_run_all_tests()
+        self.evaluate.test_run_all_tests(evaluation_method="both")
