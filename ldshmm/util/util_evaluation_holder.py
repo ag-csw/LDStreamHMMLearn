@@ -158,8 +158,7 @@ class Evaluation_Holder():
             data0 = dataarray[:, current_time - self.window_size + 1: (current_time + 1)]
             dataslice0 = []
 
-            for i in range(0, self.num_trajectories):
-                dataslice0.append(data0[i, :])
+            dataslice0 = convert_2d_to_list_of_rows(data0)
 
             C0 = estimate_via_sliding_windows(data=dataslice0,
                                               num_states=Variable_Holder.num_states, initial=True, lag=lag)  # count matrix for whole window
@@ -198,9 +197,7 @@ class Evaluation_Holder():
                 ##### Bayes approach: Calculate C0 separately
                 t0 = process_time()
                 data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
-                dataslice0 = []
-                for i in range(0, self.num_trajectories):
-                    dataslice0.append(data0[i, :])
+                dataslice0 = convert_2d_to_list_of_rows(data0)
 
                 C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True, lag=lag)
                 A0 = _tm(C_old)
@@ -220,9 +217,8 @@ class Evaluation_Holder():
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
                 t0 = process_time()
                 data1new = dataarray[:, self.window_size + (k - 1) * self.shift - 1: (current_time + 1)]
-                dataslice1new = []
-                for i in range(0, self.num_trajectories):
-                    dataslice1new.append(data1new[i, :])
+                dataslice1new = convert_2d_to_list_of_rows(data1new)
+
                 C_new = estimate_via_sliding_windows(data=dataslice1new,
                                                      num_states=Variable_Holder.num_states, lag=lag)  # count matrix for just new transitions
 
