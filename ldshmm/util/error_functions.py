@@ -25,7 +25,7 @@ def timescale_mean_rel_err(A,B):
     msm_estimated = pyemma.msm.MSM(A)
     ts_actual = msm_estimated.timescales()
     ts_estimated = B.timescales()
-    ts_rel_err = [(math.fabs(ts_actual[i] - ts_estimated[i])/ts_actual[i]) for i in range(B.num_states -1)]
+    ts_rel_err = [(math.fabs(ts_actual[i] - ts_estimated[i])/ts_actual[i]) for i in range(len(ts_estimated))]
     ts_rel_err_mean = np.mean(ts_rel_err)
     return ts_rel_err_mean
 
@@ -40,7 +40,7 @@ def stat_dist_vec_err(A,B):
     """
 
     msm_estimated = pyemma.msm.MSM(A)
-    pi_actual = msm_estimated.pi()
-    pi_estimated = B.pi()
+    pi_actual = msm_estimated.pi
+    pi_estimated = B.pi
     pi_vec_err = np.linalg.norm(pi_actual - pi_estimated)
     return pi_vec_err

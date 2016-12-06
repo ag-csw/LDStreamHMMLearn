@@ -11,7 +11,6 @@ class Decile_Evaluator():
                                                 num_trajectories=32
                                                 )
 
-        #self.evaluate.test_mid_values_naive()
 
 decile_eval = Decile_Evaluator()
 decile_eval.evaluate_deciles()

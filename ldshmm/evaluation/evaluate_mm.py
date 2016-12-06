@@ -385,11 +385,10 @@ class MM_Evaluation():
                 variable_config = Variable_Config(iter_values1=taumeta, iter_values2=eta)
                 variable_config.num_trajectories = len(sub_traj)
                 variable_config.scale_window=Variable_Holder.mid_scale_window
-                variable_config.num_trajectories=len(self.simulated_data)
                 variable_config.heatmap_size = 1
 
                 evaluate = NEW_Evaluation_Holder(model=self.model, simulate=False, variable_config=variable_config, evaluate_method="bayes", log_values=False)
-                _ , _ , times, errors, _ , _ = evaluate.evaluate(model=self.model, simulated_data=self.simulated_data)
+                _ , _ , times, errors, _ , _ = evaluate.evaluate(model=self.model, simulated_data=sub_traj)
                 estimation_time = evaluate.estimation_times_bayes
 
 
@@ -401,9 +400,9 @@ class MM_Evaluation():
         decile_values = np.zeros(shape=(10, len(avg_errors_nd[0])))
         for i in range(0, len(avg_errors_nd[0])):
             num_estimation_error_i = avg_errors_nd[:,i]
-            print(num_estimation_error_i)
+            print("i-th errors:", num_estimation_error_i)
             deciles = Utility.calc_deciles(num_estimation_error_i)
-            print(deciles)
+            print("Deciles for i-th errors:", deciles)
             for j,decile in enumerate(deciles):
                 decile_values[j,i] = decile
 
