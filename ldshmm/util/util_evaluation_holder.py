@@ -16,7 +16,7 @@ class Evaluation_Holder():
     def error_function (m1, model):
         return np.linalg.norm(m1-model.trans)
 
-    def __init__(self, model, variable_config, error_function = error_function, evaluate_method="both", simulate=True, filename="mm", init_run = False, log_values = True):
+    def __init__(self, model, variable_config, error_function = error_function, evaluate_method="both", simulate=True, filename="mm", init_run = False, log_values = True, heatmap = True, avg_values=True):
         """
         Info: This constructor reads simualted data from a previously created file simulated_data_mm ...
 
@@ -31,11 +31,14 @@ class Evaluation_Holder():
 
         self.model = model
         if simulate:
+            #ToDO filename??
             self.simulated_data = simulate_and_store(model, filename)
         self.variable_config = variable_config
         self.error_function = error_function
         self.evaluate_method = evaluate_method
         self.log_values = log_values
+        self.heatmap = heatmap
+        self.avg_values = avg_values
 
     def evaluate(self, model=None, simulated_data=None, print_intermediate_values=False):
         if model is not None:
@@ -51,7 +54,6 @@ class Evaluation_Holder():
                     self.taumeta = values1
                 else:
                     self.tauemta = self.variable_config.taumeta
-
                 if self.variable_config.eta is None:
                     self.eta = values2
                 else:
@@ -70,8 +72,6 @@ class Evaluation_Holder():
                     self.num_trajectories = self.variable_config.num_trajectories
                     self.len_trajectory = self.variable_config.len_trajectory
 
-
-
                 self.model_scaled = self.model.eval(self.taumeta)
                 self.shift = self.eta * self.taumeta
                 self.window_size = self.scale_window * self.shift
@@ -82,7 +82,7 @@ class Evaluation_Holder():
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 if print_intermediate_values:
-                    self.print_param_values("ETA", self.taumeta, self.shift, self.window_size, self.num_estimations,
+                    self.print_param_values("PARAMS", self.taumeta, self.shift, self.window_size, self.num_estimations,
                                         self.len_trajectory, self.num_trajectories, self.eta,
                                         self.scale_window)
 
@@ -90,7 +90,7 @@ class Evaluation_Holder():
 
                 log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.performance_and_error_calculation(dataarray)
 
-                if not self.log_values:
+                if not self.heatmap:
                     return log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes, None, None
 
                 avg_times_bayes[two][one] = log_total_time_bayes
@@ -118,13 +118,17 @@ class Evaluation_Holder():
         if self.evaluate_method == "bayes":
             time_bayes, error_bayes = self.performance_and_error_calculation_bayes(dataarray)
             if self.log_values:
-                time_bayes, error_bayes = self.calc_log_avg_values(time_bayes,error_bayes)
+                time_bayes, error_bayes = self.calc_log_values(time_bayes, error_bayes)
+            if self.avg_values:
+                time_bayes, error_bayes = self.calc_avg_values(time_bayes, error_bayes)
             return  None, None, time_bayes, error_bayes
 
         elif self.evaluate_method == "naive":
             time_naive, error_naive =  self.performance_and_error_calculation_naive(dataarray)
             if self.log_values:
-                time_naive, error_naive = self.calc_log_avg_values(time_naive, error_naive)
+                time_naive, error_naive = self.calc_log_values(time_naive, error_naive)
+            if self.avg_values:
+                time_naive, error_naive = self.calc_avg_values(time_naive, error_naive)
             return time_naive, error_naive, None, None
 
         elif self.evaluate_method == "both":
@@ -132,10 +136,11 @@ class Evaluation_Holder():
             time_naive, error_naive = self.performance_and_error_calculation_naive(dataarray)
 
             if self.log_values:
-                time_bayes, error_bayes = self.calc_log_avg_values(time_bayes, error_bayes)
-
-                time_naive, error_naive= self.calc_log_avg_values(time_naive, error_naive)
-
+                time_bayes, error_bayes = self.calc_log_values(time_bayes, error_bayes)
+                time_naive, error_naive= self.calc_log_values(time_naive, error_naive)
+            if self.avg_values:
+                time_bayes, error_bayes = self.calc_avg_values(time_bayes, error_bayes)
+                time_naive, error_naive= self.calc_avg_values(time_naive, error_naive)
             return time_naive, error_naive, time_bayes, error_bayes
 
 
@@ -190,7 +195,6 @@ class Evaluation_Holder():
         lag = int(Variable_Holder.max_taumeta / self.taumeta)
         etimebayes = np.zeros(self.num_estimations + 2, dtype=float)
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
-
         for k in range(0, self.num_estimations + 1):
             current_time = self.window_size + k * self.shift - 1
             assert (current_time < np.shape(dataarray)[1])
@@ -209,10 +213,9 @@ class Evaluation_Holder():
                 if type(self.model_scaled) == SpectralMM:
                     # stationary
                     errbayes[0] = self.error_function(m1=A0, model=self.model_scaled)
+                    print("Calculated Error", errbayes[0])
                 else:
                     # non-stationary
-                    #print(A0)
-                    #print(self.model_scaled.eval(k).trans)
                     errbayes[0] = self.error_function(m1=A0, model=self.model_scaled.eval(estimation_time))
 
             if k >= 1:
@@ -263,7 +266,12 @@ class Evaluation_Holder():
         print("\n")
 
 
-    def calc_log_avg_values(self, time, error):
-        log_total_time = Utility.log_value(time[-1])
-        log_avg_err = Utility.log_value(sum(error) / len(error))
-        return log_total_time, log_avg_err
+    def calc_log_values(self, times, errors):
+        log_times = Utility.log_value(times)
+        log_errs = Utility.log_value(errors)
+        return log_times, log_errs
+
+    def calc_avg_values(self, times, errors):
+        total_time = times[-1]
+        avg_error = sum(errors)/len(errors)
+        return total_time, avg_error

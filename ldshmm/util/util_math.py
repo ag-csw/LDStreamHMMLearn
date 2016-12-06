@@ -39,7 +39,11 @@ class Utility():
     @staticmethod
     def log_value(x):
         import math
-        return math.log2(x)
+        import numpy as np
+        if type(x) == list or type(x) == np.ndarray:
+            return [math.log2(x_i) for x_i in x if x_i != 0]
+        else:
+            return math.log2(x)
 
     @staticmethod
     def get_mid_value(value, num_values):
@@ -72,3 +76,8 @@ class Utility():
         import numpy as np
         deciles = np.percentile(values, [10,30,50,70,90])
         return deciles
+
+    @staticmethod
+    def predict_error(err_naive, r, k):
+        import math
+        return err_naive * math.sqrt( (1+math.pow(r, 2*k+1)) / (1+r))

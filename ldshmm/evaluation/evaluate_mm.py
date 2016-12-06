@@ -1,6 +1,5 @@
 from ldshmm.util.util_functionality import *
 from ldshmm.util.plottings import ComplexPlot
-from ldshmm.util.util_evaluation_mm_bayes_only import Evaluation_Holder_MM as Evaluation_Holder_MM_Bayes_Only
 from ldshmm.util.util_evaluation_mm_naive_only import Evaluation_Holder_MM as Evaluation_Holder_MM_Naive_Only
 from ldshmm.util.util_evaluation_holder import Evaluation_Holder as NEW_Evaluation_Holder
 from ldshmm.util.mm_family import MMFamily1
@@ -365,20 +364,24 @@ class MM_Evaluation():
 
             plots.save_plot_same_colorbar("Error_statconc")
 
-    def test_mid_values_bayes_NEW(self, plot_heading, plotname=None, num_trajectories=None):
+    def test_mid_values_bayes_NEW(self, plot_heading, plotname=None, num_trajectories=None, numsims=1):
         from ldshmm.util.util_math import Utility
-        avg_errors = []
-        avg_times = []
+
+        log_error_list = []
+        times_list = []
+        error_list = []
+        pred_err_list = []
         for i in range(0, self.numruns):
             self.model = self.mmf1_0.sample()[0]
             if num_trajectories is not None:
                 self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta, num_trajs_simulated=num_trajectories)
+                num_trajs = int(num_trajectories/numsims)
             else:
                 self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta)
+                num_trajs = 1 # Variable_Holder.mid_num_trajectories
 
-            num_trajs = 4  # Variable_Holder.mid_num_trajectories
             reshaped_trajs = reshape_trajs(self.simulated_data, num_trajs)
-            for sub_traj in reshaped_trajs:
+            for k,sub_traj in enumerate(reshaped_trajs):
                 taumeta = [Variable_Holder.mid_taumeta]
                 eta = [Variable_Holder.mid_eta]
 
@@ -387,33 +390,49 @@ class MM_Evaluation():
                 variable_config.scale_window=Variable_Holder.mid_scale_window
                 variable_config.heatmap_size = 1
 
-                evaluate = NEW_Evaluation_Holder(model=self.model, simulate=False, variable_config=variable_config, evaluate_method="bayes", log_values=False)
-                _ , _ , times, errors, _ , _ = evaluate.evaluate(model=self.model, simulated_data=sub_traj)
-                estimation_time = evaluate.estimation_times_bayes
+                evaluate = NEW_Evaluation_Holder(model=self.model, simulate=False, variable_config=variable_config, evaluate_method="bayes", log_values=False, avg_values=False, heatmap=False)
+                _ , _ , times, errors, _ , _ = evaluate.evaluate(model=self.model, simulated_data=sub_traj, print_intermediate_values=True)
 
+                error_list.append(errors)
+                times_list.append(evaluate.estimation_times_bayes)
+                log_error_list.append(Utility.log_value(errors))
 
-                avg_errors.append(errors)
-                avg_times.append(estimation_time)
-        avg_errors_nd = np.asarray(avg_errors)
-        avg_times_nd = np.asarray(avg_times)
+        avg_errors_nd = np.asarray(log_error_list)
+        avg_times_nd = np.asarray(times_list)
+        error_nd = np.asarray(error_list)
+        error_bayes0 = error_nd[:, 0]
+        mean_err_bayes0 = np.mean(error_bayes0)
 
-        decile_values = np.zeros(shape=(10, len(avg_errors_nd[0])))
+        for k in range(evaluate.num_estimations+1):
+            pred_err_list.append(Utility.predict_error(mean_err_bayes0, evaluate.r, k))
+        pred_err_list_log = Utility.log_value(pred_err_list)
+
+        decile_values = np.zeros(shape=(5, len(avg_errors_nd[0])))
+        mean_err_values = []
         for i in range(0, len(avg_errors_nd[0])):
             num_estimation_error_i = avg_errors_nd[:,i]
+            mean_err_values.append(np.mean(error_nd[:, i]))
             print("i-th errors:", num_estimation_error_i)
             deciles = Utility.calc_deciles(num_estimation_error_i)
             print("Deciles for i-th errors:", deciles)
             for j,decile in enumerate(deciles):
                 decile_values[j,i] = decile
 
+        mean_err_values_log = Utility.log_value(mean_err_values)
         from ldshmm.util.plottings import LinePlot
         plot = LinePlot()
         plot.new_plot(heading=plot_heading, cols=1, rows=1, y_label="Transition Matrix Error", x_label="Time")
 
         for i,decile in enumerate(decile_values):
             plot.add_line_to_plot(line_data=decile, x_values = avg_times_nd[0])
+        plot.add_line_to_plot(line_data=mean_err_values_log, x_values=avg_times_nd[0], marker="o")
+        plot.add_line_to_plot(line_data=pred_err_list_log, x_values=avg_times_nd[0], marker=">")
+
         legend_strings = [str(x)+" % Decile" for x in [10,30,50,70,90]]
+        legend_strings.append("Mean Error")
+        legend_strings.append("Predicted Error")
         plot.add_legend(x_labels=legend_strings)
+
         if plotname:
             plot.save_plot(plotname)
         else:

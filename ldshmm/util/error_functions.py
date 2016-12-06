@@ -40,7 +40,7 @@ def stat_dist_vec_err(A,B):
     """
 
     msm_estimated = pyemma.msm.MSM(A)
-    pi_actual = msm_estimated.pi
-    pi_estimated = B.pi
+    pi_actual = msm_estimated._pi
+    pi_estimated = B._pi
     pi_vec_err = np.linalg.norm(pi_actual - pi_estimated)
     return pi_vec_err

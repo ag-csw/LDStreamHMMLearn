@@ -8,7 +8,7 @@ class Decile_Evaluator():
     def evaluate_deciles(self):
         self.evaluate.test_mid_values_bayes_NEW(plot_heading="Distribution of Transition Matrix Error Along Trajectory (Bayes)",
                                                 plotname="Deciles_Bayes_MM",
-                                                num_trajectories=32
+                                                num_trajectories=128, numsims=32
                                                 )
 
 

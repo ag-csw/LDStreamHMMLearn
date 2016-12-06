@@ -41,7 +41,7 @@ class Variable_Holder():
 
 
     max_eta = min_eta * heatmap_factor # maximum value of eta in eta heatmap
-    max_taumeta = min_taumeta * heatmap_factor # maximum value of taumeta in all heatmaps 
+    max_taumeta = mid_taumeta#min_taumeta * heatmap_factor # maximum value of taumeta in all heatmaps
     shift_max = max_eta * max_taumeta # the size of the new data window in the bayes method
     window_size_max = mid_scale_window * shift_max # the size of the window in the intialization of the bayes method
     num_estimations_min = 1  # smallest number of Bayes estimations of the transition matrix within the eta and num_traj heatmaps

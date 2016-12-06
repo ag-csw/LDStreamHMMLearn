@@ -121,11 +121,14 @@ class LinePlot():
         self.cols=cols
 
 
-    def add_line_to_plot(self, line_data, x_values):
-        plt.plot(x_values, line_data)
+    def add_line_to_plot(self, line_data, x_values, marker=None):
+        if marker is not None:
+            plt.plot(x_values, line_data, marker=marker)
+        else:
+            plt.plot(x_values, line_data)
 
     def add_legend(self, x_labels):
-        plt.legend([str(x) for x in x_labels], loc='upper center', ncol=5,
+        plt.legend([str(x) for x in x_labels], loc='upper center', ncol=4,
                    fancybox=True, fontsize=6)
 
     def add_to_plot(self, data_naive, data_bayes, x_labels, y_label, evaluated_param_name):
