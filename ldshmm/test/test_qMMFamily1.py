@@ -12,7 +12,7 @@ class TestQMMFamily1(TestCase):
         self.timescaledisp = 10
         self.statconc = 0.1
         self.edgewidth = 0.1
-        self.edgeshift = 10
+        self.edgeshift = 10000
         self.gammamin = 1
         self.gammamax = 2
         self.mmf1_2 = MMFamily1(self.nstates,
@@ -60,3 +60,13 @@ class TestQMMFamily1(TestCase):
             else:
                 print('Sample Failed')
 
+    def test_mu(self):
+        timepoints=np.arange(start=0, stop=3000, step=500)
+        #for timepoint in timepoints:
+        #    print(self.qmmf1_0.mu0(timepoint))
+        model = self.qmmf1_0.sample()[0]
+
+        assert model.eval(1).mu(0) == 0.5
+
+        for timepoint in timepoints:
+            print(timepoint, model.eval(1).mu(timepoint))

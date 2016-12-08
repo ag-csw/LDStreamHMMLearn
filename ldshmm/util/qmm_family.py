@@ -75,11 +75,15 @@ class QMMFamily1(QMMFamily):
 
                 if np.linalg.det(mmms[0].sMM.eigenvectors_left()) * np.linalg.det(mmms[1].sMM.eigenvectors_left()) < 0:
                     raise Exception
-                gamma = self.gammadist.rvs(1)
+                gamma = self.gammadist.rvs(1)[0]
+
+                #print(self.edgeshift, gamma, self.edgewidth)
 
                 # construct the base (taumeta = tauquasi = 1) weight function from the template
                 def mu(t):
                     return self.mu0((t - self.edgeshift * gamma) / self.edgewidth)
+
+                #print(self.edgeshift * gamma)
 
                 # construct the convex combination quasi=stationary MM
                 qmm = ConvexCombinationQuasiMM(mmms, mu)
