@@ -128,7 +128,7 @@ class MM_Evaluation():
         print("Average Errors Run 1-"+str(int(self.numruns))+": ")
         print(data8)
 
-    def test_run_all_tests_timescaledisp(self):
+    """def test_run_all_tests_timescaledisp(self):
             evaluate = Evaluation_Holder_MM(mm1_0_0=self.model, simulate=True, filename="tdisp")
 
             plots = ComplexPlot()
@@ -363,8 +363,8 @@ class MM_Evaluation():
                                             y_labels=num_traj_values, y_label="ntraj", minimum=min_val, maximum=max_val, x_label="statconc")
 
             plots.save_plot_same_colorbar("Error_statconc")
-
-    def test_mid_values_bayes_NEW(self, plot_heading, plotname=None, num_trajectories=None, numsims=1):
+"""
+    def test_mid_values_bayes_NEW(self, plot_heading, model=None, plotname=None, num_trajectories=None, numsims=1, print_intermediate_values=False):
         from ldshmm.util.util_math import Utility
 
         log_error_list = []
@@ -372,6 +372,8 @@ class MM_Evaluation():
         error_list = []
         pred_err_list = []
         for i in range(0, self.numruns):
+            if model is not None:
+                self.model = model
             self.model = self.mmf1_0.sample()[0]
             if num_trajectories is not None:
                 self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta, num_trajs_simulated=num_trajectories)
@@ -379,7 +381,9 @@ class MM_Evaluation():
             else:
                 self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta)
                 num_trajs = 1 # Variable_Holder.mid_num_trajectories
-
+            print("num_trajectories = ", num_trajectories)
+            print("numsims = ", numsims)
+            print("num_trajs per simulation = ", num_trajs)
             reshaped_trajs = reshape_trajs(self.simulated_data, num_trajs)
             for k,sub_traj in enumerate(reshaped_trajs):
                 taumeta = [Variable_Holder.mid_taumeta]
@@ -391,7 +395,7 @@ class MM_Evaluation():
                 variable_config.heatmap_size = 1
 
                 evaluate = NEW_Evaluation_Holder(model=self.model, simulate=False, variable_config=variable_config, evaluate_method="bayes", log_values=False, avg_values=False, heatmap=False)
-                _ , _ , times, errors, _ , _ = evaluate.evaluate(model=self.model, simulated_data=sub_traj, print_intermediate_values=True)
+                _ , _ , times, errors, _ , _ = evaluate.evaluate(model=self.model, simulated_data=sub_traj, print_intermediate_values=print_intermediate_values)
 
                 error_list.append(errors)
                 times_list.append(evaluate.estimation_times_bayes)
@@ -438,6 +442,94 @@ class MM_Evaluation():
         else:
             plot.save_plot("decile_bayes")
 
+    def test_mid_values_bayes_additional_mu_plot(self, plot_heading, model=None, plotname=None, num_trajectories=None, numsims=1, print_intermediate_values=False):
+        from ldshmm.util.util_math import Utility
+
+        log_error_list = []
+        times_list = []
+        error_list = []
+        pred_err_list = []
+        for i in range(0, self.numruns):
+            if model is not None:
+                self.model = model
+            else:
+                self.model = self.mmf1_0.sample()[0]
+            if num_trajectories is not None:
+                self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta, num_trajs_simulated=num_trajectories)
+                num_trajs = int(num_trajectories/numsims)
+            else:
+                self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta)
+                num_trajs = 1 # Variable_Holder.mid_num_trajectories
+
+            reshaped_trajs = reshape_trajs(self.simulated_data, num_trajs)
+            for k,sub_traj in enumerate(reshaped_trajs):
+                taumeta = [Variable_Holder.mid_taumeta]
+                eta = [Variable_Holder.mid_eta]
+
+                variable_config = Variable_Config(iter_values1=taumeta, iter_values2=eta)
+                variable_config.num_trajectories = len(sub_traj)
+                variable_config.scale_window=Variable_Holder.mid_scale_window
+                variable_config.heatmap_size = 1
+
+                evaluate = NEW_Evaluation_Holder(model=self.model, simulate=False, variable_config=variable_config, evaluate_method="bayes", log_values=False, avg_values=False, heatmap=False)
+                _ , _ , times, errors, _ , _ = evaluate.evaluate(model=self.model, simulated_data=sub_traj, print_intermediate_values=print_intermediate_values, tauquasi=4)
+
+                error_list.append(errors)
+                times_list.append(evaluate.estimation_times_bayes)
+                log_error_list.append(Utility.log_value(errors))
+
+        avg_errors_nd = np.asarray(log_error_list)
+        avg_times_nd = np.asarray(times_list)
+        error_nd = np.asarray(error_list)
+        error_bayes0 = error_nd[:, 0]
+        mean_err_bayes0 = np.mean(error_bayes0)
+
+        for k in range(evaluate.num_estimations+1):
+            pred_err_list.append(Utility.predict_error(mean_err_bayes0, evaluate.r, k))
+        pred_err_list_log = Utility.log_value(pred_err_list)
+
+        decile_values = np.zeros(shape=(5, len(avg_errors_nd[0])))
+        mean_err_values = []
+        for i in range(0, len(avg_errors_nd[0])):
+            num_estimation_error_i = avg_errors_nd[:,i]
+            mean_err_values.append(np.mean(error_nd[:, i]))
+            print("i-th errors:", num_estimation_error_i)
+            deciles = Utility.calc_deciles(num_estimation_error_i)
+            print("Deciles for i-th errors:", deciles)
+            for j,decile in enumerate(deciles):
+                decile_values[j,i] = decile
+
+        mean_err_values_log = Utility.log_value(mean_err_values)
+        from ldshmm.util.plottings import LinePlot
+        plot = LinePlot()
+        plot.new_plot(heading=plot_heading, cols=1, rows=2)
+        plot.new_subplot(y_label="Transition Matrix Error", x_label="Time")
+        for i,decile in enumerate(decile_values):
+            plot.add_line_to_plot(line_data=decile, x_values = avg_times_nd[0])
+        plot.add_line_to_plot(line_data=mean_err_values_log, x_values=avg_times_nd[0], marker="o")
+        plot.add_line_to_plot(line_data=pred_err_list_log, x_values=avg_times_nd[0], marker=">")
+
+        legend_strings = [str(x)+" % Decile" for x in [10,30,50,70,90]]
+        legend_strings.append("Mean Error")
+        legend_strings.append("Predicted Error")
+        plot.add_legend(x_labels=legend_strings)
+
+        plot.new_subplot(y_label="Mu(Time)", x_label="Time")
+        mu_values = []
+        times = []
+        for i in range(0, evaluate.estimation_times_bayes[-1]):
+            mu_time = evaluate.model_scaled.mu(i)
+            mu_values.append(mu_time)
+            times.append(i)
+
+        plot.add_line_to_plot(mu_values, times)
+
+        if plotname:
+            plot.save_plot(plotname)
+        else:
+            plot.save_plot("decile_bayes")
+
+
     def test_mid_values_naive(self):
         from ldshmm.util.util_math import Utility
         evaluate = Evaluation_Holder_MM_Naive_Only(mm1_0_0=self.model, simulate=False)
@@ -472,7 +564,7 @@ class MM_Evaluation():
         plot.add_legend(x_labels=legend_strings)
         plot.save_plot("decile_naive")
 
-    def test_run_all_tests(self, evaluation_method, plot_heading, plot_name=None, num_trajectories=None):
+    def test_run_all_tests(self, evaluation_method, plot_heading, plot_name=None, num_trajectories=None, numsims=1, print_intermediate_values=False):
 
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
 
@@ -509,10 +601,12 @@ class MM_Evaluation():
             self.model = self.mmf1_0.sample()[0]
             if num_trajectories is not None:
                 self.simulated_data = simulate_and_store(model=self.model, num_trajs_simulated=num_trajectories)
+                num_trajs = int(num_trajectories / numsims)
             else:
                 self.simulated_data = simulate_and_store(model=self.model)
+                num_trajs = 1
 
-            num_trajs = 1#Variable_Holder.mid_num_trajectories
+            #num_trajs = 1#Variable_Holder.mid_num_trajectories
             reshaped_trajs = reshape_trajs(self.simulated_data, num_trajs)
 
             average_err_complete_trajs_eta = []
@@ -525,9 +619,9 @@ class MM_Evaluation():
                 variable_config_scale_window.num_trajectories = len(sub_traj)
                 # calculate performances and errors for the three parameters
                 times_naive1, avg_errs_naive_1, times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = evaluate_eta.evaluate(
-                    model=self.model, simulated_data=sub_traj)
+                    model=self.model, simulated_data=sub_traj, print_intermediate_values=print_intermediate_values)
                 times_naive2, avg_errs_naive_2, times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = evaluate_scale_window.evaluate(
-                    self.model, simulated_data=sub_traj)
+                    self.model, simulated_data=sub_traj, print_intermediate_values=print_intermediate_values)
                 # times_bayes3, avg_errs_bayes3, taumeta_values, num_traj_values = evaluate_num_traj.evaluate(self.model, simulated_data=sub_traj)
                 average_err_complete_trajs_eta.append(avg_errs_bayes1)
                 average_err_complete_trajs_scale_window.append(avg_errs_bayes2)
@@ -624,7 +718,7 @@ class MM_Evaluation():
         print("Average Errors Run 1-" + str(int(self.numruns)) + ": ")
         print(data8)
 
-    def test_run_all_tests_performance(self, evaluation_method, plot_heading, plot_name=None, num_trajectories=None):
+    def test_run_all_tests_performance(self, evaluation_method, plot_heading, plot_name=None, num_trajectories=None, print_intermediate_values=False, numsims=1):
 
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
 
@@ -658,17 +752,21 @@ class MM_Evaluation():
         naive_times_data2 = []
         naive_times_data4 = []
 
-        # numsims = 1
         for i in range(0, self.numruns):
             print("Starting Run " + str(i))
 
             self.model = self.mmf1_0.sample()[0]
             if num_trajectories is not None:
                 self.simulated_data = simulate_and_store(model=self.model, num_trajs_simulated=num_trajectories)
+                num_trajs = int(num_trajectories / numsims)
             else:
                 self.simulated_data = simulate_and_store(model=self.model)
+                num_trajs = 1
 
-            num_trajs = 64  # Variable_Holder.mid_num_trajectories
+            print("num_trajectories = ",num_trajectories)
+            print("numsims = ", numsims)
+            print("num_trajs per simulation = ", num_trajs)
+            #num_trajs = 64  # Variable_Holder.mid_num_trajectories
             reshaped_trajs = reshape_trajs(self.simulated_data, num_trajs)
 
             average_times_complete_trajs_eta = []
@@ -681,9 +779,9 @@ class MM_Evaluation():
                 variable_config_scale_window.num_trajectories = len(sub_traj)
                 # calculate performances and errors for the three parameters
                 times_naive1, avg_errs_naive_1, times_bayes1, avg_errs_bayes1, taumeta_values, eta_values = evaluate_eta.evaluate(
-                    model=self.model, simulated_data=sub_traj)
+                    model=self.model, simulated_data=sub_traj, print_intermediate_values=print_intermediate_values)
                 times_naive2, avg_errs_naive_2, times_bayes2, avg_errs_bayes2, taumeta_values, scale_window_values = evaluate_scale_window.evaluate(
-                    self.model, simulated_data=sub_traj)
+                    self.model, simulated_data=sub_traj, print_intermediate_values=print_intermediate_values)
                 # times_bayes3, avg_errs_bayes3, taumeta_values, num_traj_values = evaluate_num_traj.evaluate(self.model, simulated_data=sub_traj)
                 average_times_complete_trajs_eta.append(times_bayes1)
                 average_times_complete_trajs_scale_window.append(times_bayes2)
