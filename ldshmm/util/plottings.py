@@ -109,6 +109,7 @@ class ComplexPlot():
 class LinePlot():
 
     current = 1
+    ax = None
 
     def new_plot(self, heading, rows, cols=2, y_label=None, x_label=None):
         plt.figure()
@@ -117,17 +118,25 @@ class LinePlot():
             plt.ylabel(y_label)
         if x_label:
             plt.xlabel(x_label)
+        #plt.xlim(xmin=0)
         self.rows=rows
         self.cols=cols
 
+    def new_subplot(self):
+        if self.ax is not None:
+            self.ax.set_xlim(xmin=0)
+        self.ax = plt.subplot(self.rows, self.cols, self.current)
+        self.current += 1
 
     def add_line_to_plot(self, line_data, x_values, marker=None):
         if marker is not None:
-            plt.plot(x_values, line_data, marker=marker)
+            self.ax.plot(x_values, line_data, marker=marker)
         else:
-            plt.plot(x_values, line_data)
+            self.ax.plot(x_values, line_data)
 
     def add_legend(self, x_labels):
+        if self.ax is not None:
+            self.ax.set_xlim(xmin=0)
         plt.legend([str(x) for x in x_labels], loc='upper center', ncol=4,
                    fancybox=True, fontsize=6)
 
