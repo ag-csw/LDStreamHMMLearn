@@ -450,10 +450,13 @@ class MM_Evaluation():
         error_list = []
         pred_err_list = []
         for i in range(0, self.numruns):
+            np.random.seed(1101)
             if model is not None:
-                self.model = model
+                self.mmf1_0 = model
+                self.model = self.mmf1_0.sample()[0]
             else:
                 self.model = self.mmf1_0.sample()[0]
+            print("Gamma:\t", model.gamma)
             if num_trajectories is not None:
                 self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta, num_trajs_simulated=num_trajectories)
                 num_trajs = int(num_trajectories/numsims)

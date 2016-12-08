@@ -111,21 +111,21 @@ class LinePlot():
     current = 1
     ax = None
 
-    def new_plot(self, heading, rows, cols=2, y_label=None, x_label=None):
+    def new_plot(self, heading, rows, cols=2):
         plt.figure()
         plt.suptitle(heading)
-        if y_label:
-            plt.ylabel(y_label)
-        if x_label:
-            plt.xlabel(x_label)
+
         #plt.xlim(xmin=0)
         self.rows=rows
         self.cols=cols
 
-    def new_subplot(self):
+    def new_subplot(self, y_label, x_label):
         if self.ax is not None:
             self.ax.set_xlim(xmin=0)
+
         self.ax = plt.subplot(self.rows, self.cols, self.current)
+        self.ax.set_ylabel(y_label)
+        self.ax.set_xlabel(x_label)
         self.current += 1
 
     def add_line_to_plot(self, line_data, x_values, marker=None):

@@ -7,12 +7,11 @@ from ldshmm.util.variable_holder import Variable_Holder
 class Decile_Evaluator():
 
     def __init__(self):
-        self.evaluate = MM_Evaluation(number_of_runs=8) #1
+        self.evaluate = MM_Evaluation(number_of_runs=1) #1
 
     def evaluate_deciles_mm(self):
         mmf1 = MMFamily1(nstates=Variable_Holder.num_states)
-        self.model = mmf1.sample()[0]
-        self.evaluate.test_mid_values_bayes_NEW(model=self.model,
+        self.evaluate.test_mid_values_bayes_NEW(model=mmf1,
                                                 plot_heading="Distribution of Transition Matrix Error Along Trajectory (Bayes)",
                                                 plotname="Deciles_Bayes_MM",
                                                 num_trajectories=128,
@@ -32,8 +31,7 @@ class Decile_Evaluator():
         print("Delta:\t", qmmf1.delta)
         print("Gammadist:\t", qmmf1.gammadist)
 
-        self.model = qmmf1.sample()[0]
-        self.evaluate.test_mid_values_bayes_NEW(model=self.model,
+        self.evaluate.test_mid_values_bayes_NEW(model=qmmf1,
                                                plot_heading="Distribution of Transition Matrix Error Along Trajectory (Bayes)",
                                                plotname="Deciles_Bayes_QMM",
                                                num_trajectories=128,
@@ -44,7 +42,8 @@ class Decile_Evaluator():
 
     def evaluate_deciles_qmm_mu(self):
         mmf1 = MMFamily1(nstates=Variable_Holder.num_states)
-        qmmf1 = QMMFamily1(mmfam=mmf1, delta=0, edgeshift=100)
+        delta=0.1
+        qmmf1 = QMMFamily1(mmfam=mmf1, delta=delta, edgeshift= 48)
 
         print("Edgewidth:\t", qmmf1.edgewidth)
         print("Edgeshift:\t", qmmf1.edgeshift)
@@ -54,22 +53,23 @@ class Decile_Evaluator():
         print("Delta:\t", qmmf1.delta)
         print("Gammadist:\t", qmmf1.gammadist)
 
-        self.model = qmmf1.sample()[0]
-        self.evaluate.test_mid_values_bayes_additional_mu_plot(model=self.model,
+
+        self.evaluate.test_mid_values_bayes_additional_mu_plot(model=qmmf1,
                                                 plot_heading="Distribution of Transition Matrix Error Along Trajectory (Bayes)",
-                                                plotname="Deciles_Bayes_QMM_Mu",
-                                                num_trajectories=8, #1024
-                                                numsims=1, #256
+                                                plotname="Deciles_Bayes_QMM_Mu_Delta_"+str(delta),
+                                                num_trajectories=128, #1024
+                                                numsims=32, #256
                                                 print_intermediate_values=True
                                                 )
 
 # num_trajectories  = numsims * num_trajs
 import sys
 decile_eval = Decile_Evaluator()
-#sys.stdout = open("evaluate_deciles_mm.txt", "w")
-#decile_eval.evaluate_deciles_mm()
-#sys.stdout.close()
 """
+sys.stdout = open("evaluate_deciles_mm.txt", "w")
+decile_eval.evaluate_deciles_mm()
+sys.stdout.close()
+
 sys.stdout = open("evaluate_deciles_qmm.txt", "w")
 decile_eval.evaluate_deciles_qmm()
 sys.stdout.close()
