@@ -7,16 +7,18 @@ from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
 from ldshmm.util.spectral_mm import SpectralMM
 
+
 class Evaluation_Holder():
     """
     Class holding all evaluation functions used for a MMMScaled.
     See util_evaluation.py - The evaluation functions are similar except for the underlying model.
     """
 
-    def error_function (m1, model):
-        return np.linalg.norm(m1-model.trans)
+    def error_function(m1, model):
+        return np.linalg.norm(m1 - model.trans)
 
-    def __init__(self, model, variable_config, error_function = error_function, evaluate_method="both", simulate=True, filename="mm", init_run = False, log_values = True, heatmap = True, avg_values=True):
+    def __init__(self, model, variable_config, error_function=error_function, evaluate_method="both", simulate=True,
+                 filename="mm", init_run=False, log_values=True, heatmap=True, avg_values=True):
         """
         Info: This constructor reads simualted data from a previously created file simulated_data_mm ...
 
@@ -31,7 +33,7 @@ class Evaluation_Holder():
 
         self.model = model
         if simulate:
-            #ToDO filename??
+            # ToDO filename??
             self.simulated_data = simulate_and_store(model, filename)
         self.variable_config = variable_config
         self.error_function = error_function
@@ -64,10 +66,10 @@ class Evaluation_Holder():
                 else:
                     self.scale_window = self.variable_config.scale_window
 
-
                 if self.variable_config.num_trajectories is None:
                     self.num_trajectories = values2
-                    self.len_trajectory = int (Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories)+1
+                    self.len_trajectory = int(
+                        Variable_Holder.num_trajectories_num_transitions_max / self.num_trajectories) + 1
                 else:
                     self.num_trajectories = self.variable_config.num_trajectories
                     self.len_trajectory = self.variable_config.len_trajectory
@@ -76,19 +78,19 @@ class Evaluation_Holder():
                 self.shift = self.eta * self.taumeta
                 self.window_size = self.scale_window * self.shift
 
-
                 self.num_estimations = Utility.calc_num_estimations(self.len_trajectory,
                                                                     self.window_size, self.shift)
                 self.r = (self.window_size - self.shift) / self.window_size
 
                 if print_intermediate_values:
-                    self.print_param_values("PARAMS", self.taumeta, self.shift, self.window_size, self.num_estimations,
-                                        self.len_trajectory, self.num_trajectories, self.eta,
-                                        self.scale_window)
+                    self.print_param_values(self.taumeta, self.shift, self.window_size, self.num_estimations,
+                                            self.len_trajectory, self.num_trajectories, self.eta,
+                                            self.scale_window)
 
                 dataarray = np.asarray(self.simulated_data)
 
-                log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.performance_and_error_calculation(dataarray)
+                log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.performance_and_error_calculation(
+                    dataarray)
 
                 if not self.heatmap:
                     return log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes, None, None
@@ -98,8 +100,7 @@ class Evaluation_Holder():
                 avg_times_naive[two][one] = log_total_time_naive
                 avg_errs_naive[two][one] = log_avg_err_naive
 
-        return avg_times_naive, avg_errs_naive , avg_times_bayes, avg_errs_bayes, self.variable_config.iter_values1, self.variable_config.iter_values2
-
+        return avg_times_naive, avg_errs_naive, avg_times_bayes, avg_errs_bayes, self.variable_config.iter_values1, self.variable_config.iter_values2
 
     """
     ######
@@ -121,10 +122,10 @@ class Evaluation_Holder():
                 time_bayes, error_bayes = self.calc_log_values(time_bayes, error_bayes)
             if self.avg_values:
                 time_bayes, error_bayes = self.calc_avg_values(time_bayes, error_bayes)
-            return  None, None, time_bayes, error_bayes
+            return None, None, time_bayes, error_bayes
 
         elif self.evaluate_method == "naive":
-            time_naive, error_naive =  self.performance_and_error_calculation_naive(dataarray)
+            time_naive, error_naive = self.performance_and_error_calculation_naive(dataarray)
             if self.log_values:
                 time_naive, error_naive = self.calc_log_values(time_naive, error_naive)
             if self.avg_values:
@@ -137,13 +138,11 @@ class Evaluation_Holder():
 
             if self.log_values:
                 time_bayes, error_bayes = self.calc_log_values(time_bayes, error_bayes)
-                time_naive, error_naive= self.calc_log_values(time_naive, error_naive)
+                time_naive, error_naive = self.calc_log_values(time_naive, error_naive)
             if self.avg_values:
                 time_bayes, error_bayes = self.calc_avg_values(time_bayes, error_bayes)
-                time_naive, error_naive= self.calc_avg_values(time_naive, error_naive)
+                time_naive, error_naive = self.calc_avg_values(time_naive, error_naive)
             return time_naive, error_naive, time_bayes, error_bayes
-
-
 
     def performance_and_error_calculation_naive(self, dataarray):
         """
@@ -166,7 +165,8 @@ class Evaluation_Holder():
             dataslice0 = convert_2d_to_list_of_rows(data0)
 
             C0 = estimate_via_sliding_windows(data=dataslice0,
-                                              num_states=Variable_Holder.num_states, initial=True, lag=lag)  # count matrix for whole window
+                                              num_states=Variable_Holder.num_states, initial=True,
+                                              lag=lag)  # count matrix for whole window
             A0 = _tm(C0)
             t1 = process_time()
             etimenaive[k + 1] = t1 - t0 + etimenaive[k]
@@ -204,7 +204,8 @@ class Evaluation_Holder():
                 data0 = dataarray[:, 0 * self.shift: (self.window_size + 0 * self.shift)]
                 dataslice0 = convert_2d_to_list_of_rows(data0)
 
-                C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states, initial=True, lag=lag)
+                C_old = estimate_via_sliding_windows(data=dataslice0, num_states=Variable_Holder.num_states,
+                                                     initial=True, lag=lag)
                 A0 = _tm(C_old)
                 etimebayes[1] = process_time() - t0
                 dk = int(self.window_size - (self.shift + 1) / 2 - self.window_size * math.pow(self.r, k + 1) / 2)
@@ -225,7 +226,8 @@ class Evaluation_Holder():
                 dataslice1new = convert_2d_to_list_of_rows(data1new)
 
                 C_new = estimate_via_sliding_windows(data=dataslice1new,
-                                                     num_states=Variable_Holder.num_states, lag=lag)  # count matrix for just new transitions
+                                                     num_states=Variable_Holder.num_states,
+                                                     lag=lag)  # count matrix for just new transitions
 
                 weight0 = self.r
                 weight1 = 1.0
@@ -242,16 +244,14 @@ class Evaluation_Holder():
                 if type(self.model_scaled) == SpectralMM:
                     errbayes[k] = self.error_function(m1=A1bayes, model=self.model_scaled)
                 else:
-                    #print(A1bayes)
-                    #print(self.model_scaled.eval(k).trans)
+                    # print(A1bayes)
+                    # print(self.model_scaled.eval(k).trans)
                     errbayes[k] = self.error_function(m1=A1bayes, model=self.model_scaled.eval(estimation_time))
         return etimebayes, errbayes
 
-
-
-    def print_param_values(self, evaluation_name, taumeta, shift, window_size, num_estimations, len_trajectory,
+    def print_param_values(self, taumeta, shift, window_size, num_estimations, len_trajectory,
                            num_trajectories, eta, scale_window):
-        print("Parameter Overview for " + evaluation_name + ":")
+        print("Parameter Overview:")
         print("taumeta:\t", taumeta)
         print("eta:\t", eta)
         print("scale_window\t:", scale_window)
@@ -265,7 +265,6 @@ class Evaluation_Holder():
         print("BAYES window_size + num_estimations*shift\t", window_size + num_estimations * shift)
         print("\n")
 
-
     def calc_log_values(self, times, errors):
         log_times = Utility.log_value(times)
         log_errs = Utility.log_value(errors)
@@ -273,5 +272,5 @@ class Evaluation_Holder():
 
     def calc_avg_values(self, times, errors):
         total_time = times[-1]
-        avg_error = sum(errors)/len(errors)
+        avg_error = sum(errors) / len(errors)
         return total_time, avg_error
