@@ -76,7 +76,7 @@ class QMMFamily1(QMMFamily):
                 if np.linalg.det(mmms[0].sMM.eigenvectors_left()) * np.linalg.det(mmms[1].sMM.eigenvectors_left()) < 0:
                     raise Exception
                 gamma = self.gammadist.rvs(1)[0]
-
+                self.gamma = gamma
                 #print(self.edgeshift, gamma, self.edgewidth)
 
                 # construct the base (taumeta = tauquasi = 1) weight function from the template

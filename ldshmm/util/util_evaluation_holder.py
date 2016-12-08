@@ -6,7 +6,7 @@ from ldshmm.util.util_functionality import *
 from ldshmm.util.util_math import Utility
 from ldshmm.util.variable_holder import Variable_Holder
 from ldshmm.util.spectral_mm import SpectralMM
-
+from ldshmm.util.mm_class import MMMScaled
 
 class Evaluation_Holder():
     """
@@ -42,7 +42,8 @@ class Evaluation_Holder():
         self.heatmap = heatmap
         self.avg_values = avg_values
 
-    def evaluate(self, model=None, simulated_data=None, print_intermediate_values=False):
+    def evaluate(self, model=None, tauquasi=1, simulated_data=None, print_intermediate_values=False):
+        self.tauquasi = tauquasi
         if model is not None:
             self.model = model
         if simulated_data is not None:
@@ -74,7 +75,11 @@ class Evaluation_Holder():
                     self.num_trajectories = self.variable_config.num_trajectories
                     self.len_trajectory = self.variable_config.len_trajectory
 
-                self.model_scaled = self.model.eval(self.taumeta)
+                if type(self.model) is not MMMScaled:
+                    self.model_scaled = self.model.eval(self.taumeta, self.tauquasi)
+                else:
+                    self.model_scaled = self.model.eval(self.taumeta)
+
                 self.shift = self.eta * self.taumeta
                 self.window_size = self.scale_window * self.shift
 
@@ -86,7 +91,6 @@ class Evaluation_Holder():
                     self.print_param_values(self.taumeta, self.shift, self.window_size, self.num_estimations,
                                             self.len_trajectory, self.num_trajectories, self.eta,
                                             self.scale_window)
-
                 dataarray = np.asarray(self.simulated_data)
 
                 log_total_time_naive, log_avg_err_naive, log_total_time_bayes, log_avg_err_bayes = self.performance_and_error_calculation(
@@ -253,6 +257,8 @@ class Evaluation_Holder():
                            num_trajectories, eta, scale_window):
         print("Parameter Overview:")
         print("taumeta:\t", taumeta)
+        if type(self.model) is not MMMScaled:
+            print("tauquasi:\t", self.tauquasi)
         print("eta:\t", eta)
         print("scale_window\t:", scale_window)
         print("shift:\t", shift)
