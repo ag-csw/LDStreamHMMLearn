@@ -425,8 +425,8 @@ class MM_Evaluation():
         mean_err_values_log = Utility.log_value(mean_err_values)
         from ldshmm.util.plottings import LinePlot
         plot = LinePlot()
-        plot.new_plot(heading=plot_heading, cols=1, rows=1, y_label="Transition Matrix Error", x_label="Time")
-
+        plot.new_plot(heading=plot_heading, cols=1, rows=1)
+        plot.new_subplot(y_label="Transition Matrix Error", x_label="Time")
         for i,decile in enumerate(decile_values):
             plot.add_line_to_plot(line_data=decile, x_values = avg_times_nd[0])
         plot.add_line_to_plot(line_data=mean_err_values_log, x_values=avg_times_nd[0], marker="o")
@@ -464,6 +464,10 @@ class MM_Evaluation():
                 self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta)
                 num_trajs = 1 # Variable_Holder.mid_num_trajectories
 
+            print("num_trajectories = ",num_trajectories)
+            print("numsims = ", numsims)
+            print("num_trajs per simulation = ", num_trajs)
+
             reshaped_trajs = reshape_trajs(self.simulated_data, num_trajs)
             for k,sub_traj in enumerate(reshaped_trajs):
                 taumeta = [Variable_Holder.mid_taumeta]
@@ -496,12 +500,10 @@ class MM_Evaluation():
         for i in range(0, len(avg_errors_nd[0])):
             num_estimation_error_i = avg_errors_nd[:,i]
             mean_err_values.append(np.mean(error_nd[:, i]))
-            print("i-th errors:", num_estimation_error_i)
             deciles = Utility.calc_deciles(num_estimation_error_i)
-            print("Deciles for i-th errors:", deciles)
             for j,decile in enumerate(deciles):
                 decile_values[j,i] = decile
-
+        print("Mean Error Values:",mean_err_values)
         mean_err_values_log = Utility.log_value(mean_err_values)
         from ldshmm.util.plottings import LinePlot
         plot = LinePlot()
@@ -567,13 +569,18 @@ class MM_Evaluation():
         plot.add_legend(x_labels=legend_strings)
         plot.save_plot("decile_naive")
 
-    def test_run_all_tests(self, evaluation_method, plot_heading, plot_name=None, num_trajectories=None, numsims=1, print_intermediate_values=False):
+    def test_run_all_tests(self, evaluation_method, plot_heading, model=None, plot_name=None, num_trajectories=None, numsims=1, print_intermediate_values=False):
 
         taumeta_values = create_value_list(Variable_Holder.min_taumeta, Variable_Holder.heatmap_size)
 
         eta_values = create_value_list(Variable_Holder.min_eta, Variable_Holder.heatmap_size)
         variable_config_eta = Variable_Config(iter_values1=taumeta_values, iter_values2=eta_values)
         variable_config_eta.scale_window = Variable_Holder.mid_scale_window
+        if model is not None:
+            self.mmf1_0 = model
+            self.model = self.mmf1_0.sample()[0]
+        else:
+            self.model = self.mmf1_0.sample()[0]
 
         evaluate_eta = NEW_Evaluation_Holder(model=self.model, simulate=False, variable_config=variable_config_eta,
                                              evaluate_method=evaluation_method)

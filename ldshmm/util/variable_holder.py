@@ -44,7 +44,7 @@ class Variable_Holder():
     max_taumeta = mid_taumeta#min_taumeta * heatmap_factor # maximum value of taumeta in all heatmaps #mid_taumeta
     shift_max = max_eta * max_taumeta # the size of the new data window in the bayes method
     window_size_max = mid_scale_window * shift_max # the size of the window in the intialization of the bayes method
-    num_estimations_min = 9 #1 # smallest number of Bayes estimations of the transition matrix within the eta and num_traj heatmaps
+    num_estimations_min = 16 #1 # smallest number of Bayes estimations of the transition matrix within the eta and num_traj heatmaps
 
     max_num_trajectories = 1#min_num_trajectories * heatmap_factor # maximum number of trajectories in num_traj heatmap
     #num_trajectories_len_trajectory_max = min_num_trajectories * len_trajectory_max

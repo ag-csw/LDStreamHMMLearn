@@ -28,19 +28,14 @@ class Test_QMM_MM(TestCase):
         self.mmf1_0_0 = self.mmf1_0.sample()[0]
 
     def test_check_same_trajectories(self):
+        num_trajectories = 32
         np.random.seed(1101)
-        #simulate_and_store_data(self.qmm1_0_0, "qmm")
-        simul_qmm = read_simulated_data("qmm")
+        simulated_data_qmm = simulate_and_store(model=self.qmm1_0_0, num_trajs_simulated=num_trajectories)
 
         np.random.seed(1101)
-        #simulate_and_store_data(self.mmf1_0_0, "mm")
-        simul_mm = read_simulated_data("mm")
+        simulated_data_mm = simulate_and_store(model=self.mmf1_0_0, num_trajs_simulated=num_trajectories)
 
-        for key, value in simul_mm.items():
-            print("Taumeta = "+str(key))
-            print(simul_qmm[key], value)
-            np.testing.assert_array_equal(simul_qmm[key], value)
-
+        np.testing.assert_array_equal(simulated_data_mm, simulated_data_qmm)
 
     def test_check_same_spectrals(self):
         spectral_qmm0 = self.qmm1_0_0.mMM0.sMM

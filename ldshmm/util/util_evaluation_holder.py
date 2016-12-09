@@ -201,6 +201,10 @@ class Evaluation_Holder():
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         for k in range(0, self.num_estimations + 1):
             current_time = self.window_size + k * self.shift - 1
+            if k<=8:
+                print("Current Time", current_time)
+                print("Mu at Current Time", self.model_scaled.mu(current_time))
+                print("TM at Current Time", self.model_scaled.eval(current_time).trans)
             assert (current_time < np.shape(dataarray)[1])
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately

@@ -27,7 +27,7 @@ class QMMFamily1(QMMFamily):
     """
 
     def __init__(self, mmfam,
-                 edgewidth=1, edgeshift=0, gammamin=1, gammamax=1,
+                 edgewidth=1, edgeshift=0, gammamin=1, gammamax=1.01,
                  mu0 = lambda t: (np.tanh(t) + 1) / 2, delta=1):
         """
 
@@ -50,7 +50,7 @@ class QMMFamily1(QMMFamily):
 
         self.mu0 = mu0
         self.delta=delta
-        self.gammadist = scipy.stats.uniform(self.gammamin, self.gammamax)
+        self.gammadist = scipy.stats.uniform(self.gammamin, self.gammamax - self.gammamin)
 
     def _sample_one(self):
         """
