@@ -201,10 +201,6 @@ class Evaluation_Holder():
         errbayes = np.zeros(self.num_estimations + 1, dtype=float)
         for k in range(0, self.num_estimations + 1):
             current_time = self.window_size + k * self.shift - 1
-            if k<=8:
-                print("Current Time", current_time)
-                print("Mu at Current Time", self.model_scaled.mu(current_time))
-                print("TM at Current Time", self.model_scaled.eval(current_time).trans)
             assert (current_time < np.shape(dataarray)[1])
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
@@ -226,6 +222,7 @@ class Evaluation_Holder():
                 else:
                     # non-stationary
                     errbayes[0] = self.error_function(m1=A0, model=self.model_scaled.eval(estimation_time))
+                    print("Transition Matrix Error Calc:", self.model_scaled.eval(estimation_time).trans)
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting

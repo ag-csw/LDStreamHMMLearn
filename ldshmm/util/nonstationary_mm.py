@@ -82,16 +82,17 @@ class NonstationaryMM:
         """
 
         dtraj = np.zeros((M,N), dtype=int)
-
+        temp_mu_time = {}
         # to speedup the call to the self.eval() function, we cache intermediate results we already calculated in a dict
         # --> memoization is happening where we access that self.cache object.
 
+        import sys
+        #sys.stdout = open("mu_times.txt", "w")
         if 0 in self.cache:
             eval_return = self.cache[0]
         else:
             self.cache[0] = self.eval(0)
             eval_return = self.cache[0]
-
         dcurrent = eval_return.simulate(N=1, start=start, M=M, dt=1)
         dtraj[:,0] = dcurrent[:,0]
         for i in range(0, N-1):
@@ -104,6 +105,7 @@ class NonstationaryMM:
             dtraji = eval_return.simulate(N=2, start=dcurrent, M=M, dt=1)
             dcurrent = dtraji[:,1]
             dtraj[:,i+1] = dcurrent
+        #sys.stdout.close()
         return dtraj
 
 class NonstationaryMMClass:
@@ -148,6 +150,7 @@ class ConvexCombinationNSMM(NonstationaryMM):
     def eval(self, ground_truth_time: int) -> SpectralMM:
         # FIXME: add assertion that ground_truth_time < timeendpoint
         # if timeendpoint is not 'infinity'
+        #print(ground_truth_time, self.mu(ground_truth_time))
         return self.sMM0.lincomb(self.sMM1, self.mu(ground_truth_time))
 
     def isclose(self, other, timepoints=None):

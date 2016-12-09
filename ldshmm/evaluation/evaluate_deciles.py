@@ -46,11 +46,11 @@ class Decile_Evaluator(TestCase):
         sys.stdout.close()
 
     def test_evaluate_deciles_qmm_mu(self):
-        numruns=1
+        numruns=32
         self.evaluate = MM_Evaluation(number_of_runs=numruns)
         mmf1 = MMFamily1(nstates=Variable_Holder.num_states)
         delta=0.2
-        qmmf1 = QMMFamily1(mmfam=mmf1, delta=delta, edgeshift=128, edgewidth=4)
+        qmmf1 = QMMFamily1(mmfam=mmf1, delta=delta, edgeshift=256, edgewidth=4)
         sys.stdout = open("evaluate_deciles_qmm_mu_"+str(delta)+".txt", "w")
         print("Numruns\t",numruns)
         print("Statconc:\t", qmmf1.mmfam.statconcvec)
@@ -66,8 +66,8 @@ class Decile_Evaluator(TestCase):
         self.evaluate.test_mid_values_bayes_additional_mu_plot(model=qmmf1,
                                                 plot_heading="Distribution of Transition Matrix Error Along Trajectory (Bayes)",
                                                 plotname="Deciles_Bayes_QMM_Mu_Delta_"+str(delta),
-                                                num_trajectories=256,
-                                                numsims=32,
+                                                num_trajectories=8,
+                                                numsims=1,
                                                 print_intermediate_values=True
                                                 )
         sys.stdout.close()
