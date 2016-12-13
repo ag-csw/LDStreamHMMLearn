@@ -12,3 +12,4 @@
 ## Running Scripts
 ### From PyCharm
 * Create a PyCharm project containing LDStreamHMMLearn (e.g. clone it within Pycharm)
+* From Preferences > Project: LDStreamHMMLearn > Project Interpreter, select the miniconda python interpreter (3.5.2 at the time of writing)
