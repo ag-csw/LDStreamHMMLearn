@@ -222,6 +222,7 @@ class Evaluation_Holder():
                 else:
                     # non-stationary
                     errbayes[0] = self.error_function(m1=A0, model=self.model_scaled.eval(estimation_time))
+                    print("Transition Matrix Error Calc:", self.model_scaled.eval(estimation_time).trans)
 
             if k >= 1:
                 ##### Bayes approach: Calculate C1 (and any following) usind C0 usind discounting
