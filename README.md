@@ -13,3 +13,9 @@
 ### From PyCharm
 * Create a PyCharm project containing LDStreamHMMLearn (e.g. clone it within Pycharm)
 * From Preferences > Project: LDStreamHMMLearn > Project Interpreter, select the miniconda python interpreter (3.5.2 at the time of writing)
+
+
+**examplary evaluation script execution:**
+```
+python -c 'from evaluate_deciles import Decile_Evaluator as s; dec = s(); dec.test_evaluate_deciles_qmm_mu()' 
+```
