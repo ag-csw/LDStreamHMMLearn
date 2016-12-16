@@ -45,11 +45,11 @@ class Decile_Evaluator(TestCase):
         sys.stdout.close()
 
     def test_evaluate_deciles_qmm_mu(self):
-        numruns=32
+        numruns=1
         self.evaluate = MM_Evaluation(number_of_runs=numruns)
         mmf1 = MMFamily1(nstates=Variable_Holder.num_states)
-        delta=0.2
-        qmmf1 = QMMFamily1(mmfam=mmf1, delta=delta, edgeshift=256, edgewidth=4)
+        delta=0.5
+        qmmf1 = QMMFamily1(mmfam=mmf1, delta=delta, edgeshift=128, edgewidth=4)
         sys.stdout = open("evaluate_deciles_qmm_mu_"+str(delta)+".txt", "w")
         print("Numruns\t",numruns)
         print("Statconc:\t", qmmf1.mmfam.statconcvec)
@@ -61,12 +61,15 @@ class Decile_Evaluator(TestCase):
 
         print("Delta:\t", qmmf1.delta)
 
+        _numtrajs = 16
+        _numsims = 32
+        _numtrajs_total = _numtrajs * _numsims
 
         self.evaluate.test_mid_values_bayes_additional_mu_plot(model=qmmf1,
                                                 plot_heading="Distribution of Transition Matrix Error Along Trajectory (Bayes)",
                                                 plotname="Deciles_Bayes_QMM_Mu_Delta_"+str(delta),
-                                                num_trajectories=128,
-                                                numsims=32,
+                                                num_trajectories=_numtrajs_total,
+                                                numsims=_numsims,
                                                 print_intermediate_values=True
                                                 )
         sys.stdout.close()
@@ -76,3 +79,6 @@ class Decile_Evaluator(TestCase):
 
 # change VariableHolder.max_numtrajectories = 1
 # change VariableHolder.max_taumeta = mid_taumeta
+
+if "name" == '__main__':
+    unittest.main()

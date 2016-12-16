@@ -93,7 +93,7 @@ def read_simulated_data(filename):
 
 
 
-def simulate_and_store(model, num_trajs_simulated=Variable_Holder.num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max, taumeta = Variable_Holder.max_taumeta):
+def simulate_and_store(model, num_trajs_simulated=Variable_Holder.num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max, taumeta = Variable_Holder.max_taumeta, tauquasi = 1):
     """
     Method to simulate trajectory data and from a given model
 
@@ -105,7 +105,8 @@ def simulate_and_store(model, num_trajs_simulated=Variable_Holder.num_trajs_simu
     """
 
     print("Simulating data")
-    scaled_model = model.eval(taumeta)
+    # FIXME: add conditional to distinguish between MM and QMM cases. Currently only works for QMM
+    scaled_model = model.eval(taumeta, tauquasi)
     simulation = scaled_model.simulate(N=len_trajectory, M=num_trajs_simulated)
     return simulation
 

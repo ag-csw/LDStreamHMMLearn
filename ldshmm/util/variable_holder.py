@@ -13,9 +13,9 @@ class Variable_Holder():
     min_eta = 8 # minimum value of eta (= ratio shift/taumeta) in the eta heatmap
     min_scale_window = 8 # minimum value of scale_window (= ratio window_size/shift) in the scale_window heatmap 
     min_num_trajectories = 2 # minimum number of trajectories in the num_traj heatmap
-    heatmap_size = 3 # size of heatmap grid 
+    heatmap_size = 1 # size of heatmap grid
     heatmap_factor =  math.pow(2, heatmap_size - 1) # scaling factor over heatmap
-    min_taumeta = 2 # minimum value of taumeta in all heatmaps
+    min_taumeta = 4 # minimum value of taumeta in all heatmaps
     min_timescale_min = 1 # ToDo Document
 
     num_states = 4 # number of observed states in the Markov Model
@@ -41,10 +41,10 @@ class Variable_Holder():
 
 
     max_eta = min_eta * heatmap_factor # maximum value of eta in eta heatmap
-    max_taumeta = mid_taumeta#min_taumeta * heatmap_factor # maximum value of taumeta in all heatmaps #mid_taumeta
+    max_taumeta = min_taumeta * heatmap_factor # maximum value of taumeta in all heatmaps #mid_taumeta
     shift_max = max_eta * max_taumeta # the size of the new data window in the bayes method
     window_size_max = mid_scale_window * shift_max # the size of the window in the intialization of the bayes method
-    num_estimations_min = 1 #1 # smallest number of Bayes estimations of the transition matrix within the eta and num_traj heatmaps
+    num_estimations_min = 128 #1 # smallest number of Bayes estimations of the transition matrix within the eta and num_traj heatmaps
 
     max_num_trajectories = 1#min_num_trajectories * heatmap_factor # maximum number of trajectories in num_traj heatmap
     #num_trajectories_len_trajectory_max = min_num_trajectories * len_trajectory_max

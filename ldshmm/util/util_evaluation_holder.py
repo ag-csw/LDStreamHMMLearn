@@ -56,7 +56,7 @@ class Evaluation_Holder():
                 if self.variable_config.taumeta is None:
                     self.taumeta = values1
                 else:
-                    self.tauemta = self.variable_config.taumeta
+                    self.taumeta = self.variable_config.taumeta
                 if self.variable_config.eta is None:
                     self.eta = values2
                 else:
@@ -202,6 +202,9 @@ class Evaluation_Holder():
         for k in range(0, self.num_estimations + 1):
             current_time = self.window_size + k * self.shift - 1
             assert (current_time < np.shape(dataarray)[1])
+            dk = int(self.window_size - (self.shift + 1) / 2 - self.window_size * math.pow(self.r, k + 1) / 2)
+            estimation_time = current_time - dk
+            self.estimation_times_bayes.append(estimation_time)
             if k == 0:
                 ##### Bayes approach: Calculate C0 separately
                 t0 = process_time()
@@ -212,9 +215,6 @@ class Evaluation_Holder():
                                                      initial=True, lag=lag)
                 A0 = _tm(C_old)
                 etimebayes[1] = process_time() - t0
-                dk = int(self.window_size - (self.shift + 1) / 2 - self.window_size * math.pow(self.r, k + 1) / 2)
-                estimation_time = current_time - dk
-                self.estimation_times_bayes.append(estimation_time)
                 if type(self.model_scaled) == SpectralMM:
                     # stationary
                     errbayes[0] = self.error_function(m1=A0, model=self.model_scaled)
@@ -243,9 +243,6 @@ class Evaluation_Holder():
                 A1bayes = _tm(C1bayes)
                 t1 = process_time()
                 etimebayes[k + 1] = t1 - t0 + etimebayes[k]
-                dk = int(self.window_size - (self.shift + 1) / 2 - self.window_size * math.pow(self.r, k + 1) / 2)
-                estimation_time = current_time - dk
-                self.estimation_times_bayes.append(estimation_time)
                 if type(self.model_scaled) == SpectralMM:
                     errbayes[k] = self.error_function(m1=A1bayes, model=self.model_scaled)
                 else:
@@ -258,6 +255,7 @@ class Evaluation_Holder():
                            num_trajectories, eta, scale_window):
         print("Parameter Overview:")
         print("taumeta:\t", taumeta)
+        print("lag:\t", int(Variable_Holder.max_taumeta / self.taumeta))
         if type(self.model) is not MMMScaled:
             print("tauquasi:\t", self.tauquasi)
         print("eta:\t", eta)
