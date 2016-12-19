@@ -58,7 +58,7 @@ class ConvexCombinationQuasiMM(QuasiMM):
         # may be a postive integer or the string 'infinity'
         self.timeendpoint = timeendpoint
 
-    def eval(self, taumeta=1, tauquasi=1) -> ConvexCombinationNSMM:
+    def eval(self, taumeta, tauquasi) -> ConvexCombinationNSMM:
         # return a NSMM class corresponding to the specified
         # two parameter values
         # FIXME: there is a datatype mismatch since

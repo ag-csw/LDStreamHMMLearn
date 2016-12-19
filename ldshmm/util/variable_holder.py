@@ -62,3 +62,5 @@ class Variable_Holder():
     product_mid_values_nonstat = mid_eta * mid_scale_window * mid_num_trajectories # ToDo Document
     num_estimations_global_nonstat = 16 * product_mid_values_nonstat # ToDo Document
 
+    tauquasi = 8 # ratio of drift timescale to largest MM implied timescale
+

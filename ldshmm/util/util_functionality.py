@@ -93,7 +93,7 @@ def read_simulated_data(filename):
 
 
 
-def simulate_and_store(model, num_trajs_simulated=Variable_Holder.num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max, taumeta = Variable_Holder.max_taumeta, tauquasi = 1):
+def simulate_and_store(model, num_trajs_simulated=Variable_Holder.num_trajs_simulated, len_trajectory = Variable_Holder.len_trajectory_max, taumeta = Variable_Holder.max_taumeta, tauquasi = Variable_Holder.tauquasi):
     """
     Method to simulate trajectory data and from a given model
 

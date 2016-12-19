@@ -48,8 +48,8 @@ class Decile_Evaluator(TestCase):
         numruns=1
         self.evaluate = MM_Evaluation(number_of_runs=numruns)
         mmf1 = MMFamily1(nstates=Variable_Holder.num_states)
-        delta=0.5
-        qmmf1 = QMMFamily1(mmfam=mmf1, delta=delta, edgeshift=128, edgewidth=4)
+        delta=1.0
+        qmmf1 = QMMFamily1(mmfam=mmf1, delta=delta, edgeshift=64, edgewidth=4)
         sys.stdout = open("evaluate_deciles_qmm_mu_"+str(delta)+".txt", "w")
         print("Numruns\t",numruns)
         print("Statconc:\t", qmmf1.mmfam.statconcvec)

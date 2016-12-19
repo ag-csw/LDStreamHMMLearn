@@ -458,10 +458,10 @@ class MM_Evaluation():
                 self.model = self.mmf1_0.sample()[0]
             print("Gamma:\t", model.gamma)
             if num_trajectories is not None:
-                self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta, num_trajs_simulated=num_trajectories)
+                self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta, tauquasi=Variable_Holder.tauquasi, num_trajs_simulated=num_trajectories)
                 num_trajs = int(num_trajectories/numsims)
             else:
-                self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta)
+                self.simulated_data = simulate_and_store(model=self.model, taumeta=Variable_Holder.mid_taumeta, tauquasi=Variable_Holder.tauquasi)
                 num_trajs = 1 # Variable_Holder.mid_num_trajectories
 
             print("num_trajectories = ",num_trajectories)
@@ -479,7 +479,7 @@ class MM_Evaluation():
                 variable_config.heatmap_size = 1
 
                 evaluate = NEW_Evaluation_Holder(model=self.model, simulate=False, variable_config=variable_config, evaluate_method="bayes", log_values=False, avg_values=False, heatmap=False)
-                _ , _ , times, errors, _ , _ = evaluate.evaluate(model=self.model, simulated_data=sub_traj, print_intermediate_values=print_intermediate_values, tauquasi=4)
+                _ , _ , times, errors, _ , _ = evaluate.evaluate(model=self.model, simulated_data=sub_traj, print_intermediate_values=print_intermediate_values, tauquasi=Variable_Holder.tauquasi)
 
                 error_list.append(errors)
                 times_list.append(evaluate.estimation_times_bayes)

@@ -42,7 +42,7 @@ class Evaluation_Holder():
         self.heatmap = heatmap
         self.avg_values = avg_values
 
-    def evaluate(self, model=None, tauquasi=1, simulated_data=None, print_intermediate_values=False):
+    def evaluate(self, model=None, tauquasi=Variable_Holder.tauquasi, simulated_data=None, print_intermediate_values=False):
         self.tauquasi = tauquasi
         if model is not None:
             self.model = model
