@@ -9,6 +9,8 @@
 * execute `python setup.py install` in the msmtools root directory
 * Download or clone LDStreamHMMLearn (see Running Scripts below for options)
 * execute `python setup.py install` in the LDStreamHMMLearn root directory
+* execute `conda config --add channels conda-forge`
+* execute `conda update msmtools`
 
 ## Running Scripts
 ### From PyCharm
